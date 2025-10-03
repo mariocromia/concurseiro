@@ -69,11 +69,11 @@
                   </div>
                 </div>
 
-                <!-- Close/Clear Button -->
+                <!-- Close Button -->
                 <button
-                  @click.stop="inlineSearchQuery ? (inlineSearchQuery = '', inlineResults = []) : (showInlineSearch = false)"
+                  @click.stop="showInlineSearch = false; inlineSearchQuery = ''; inlineResults = []"
                   class="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-colors"
-                  :title="inlineSearchQuery ? 'Limpar busca' : 'Fechar busca'"
+                  title="Fechar busca"
                 >
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -163,9 +163,11 @@
     <!-- Overlay for search (clicável para fechar) -->
     <div
       v-show="showInlineSearch"
-      @click="showInlineSearch = false"
+      @click="showInlineSearch = false; inlineSearchQuery = ''; inlineResults = []"
       class="fixed inset-0 bg-black/80 backdrop-blur-md z-30 transition-opacity duration-200"
-      :class="showInlineSearch ? 'opacity-100' : 'opacity-0'"
+      :class="[
+        showInlineSearch ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      ]"
       title="Clique para fechar a busca"
     ></div>
 
@@ -700,7 +702,8 @@ const { news: concursosNews, loading: loadingNews, fetchNews, getRelativeTime } 
 const loading = ref(false)
 const saving = ref(false)
 const isPro = ref(false)
-const autoSaveEnabled = ref(false)
+// Carregar estado do autosave do localStorage
+const autoSaveEnabled = ref(localStorage.getItem('autosave-enabled') === 'true')
 let autoSaveInterval: NodeJS.Timeout | null = null
 
 // Subjects & Chapters
@@ -866,6 +869,17 @@ onMounted(async () => {
 
   // Carregar notícias
   await fetchNews()
+
+  // Inicializar autosave se estiver ativado
+  if (autoSaveEnabled.value) {
+    autoSaveInterval = setInterval(() => {
+      if (selectedChapter.value && chapterContent.value) {
+        console.log('💾 Autosave executado')
+        saveChapterContent()
+      }
+    }, 30000) // 30 segundos
+    console.log('✅ Autosave INICIADO automaticamente (30s)')
+  }
 
   console.log('🚀 ===== FIM MONTAGEM NOTEBOOK =====')
 })
@@ -1374,6 +1388,9 @@ const handleUpgrade = () => {
 
 const toggleAutosave = () => {
   autoSaveEnabled.value = !autoSaveEnabled.value
+
+  // Salvar estado no localStorage
+  localStorage.setItem('autosave-enabled', autoSaveEnabled.value.toString())
 
   if (autoSaveEnabled.value) {
     // Salvar imediatamente
