@@ -115,14 +115,35 @@
           <table class="min-w-full divide-y divide-dark-700">
             <thead class="bg-dark-900/50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Matéria</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Tempo Total</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sessões</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <button @click="toggleSort('name')" class="flex items-center gap-1 hover:text-white transition">
+                    Matéria
+                    <svg v-if="sortField === 'name'" class="w-4 h-4" :class="{ 'rotate-180': sortOrder === 'desc' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                  </button>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <button @click="toggleSort('time')" class="flex items-center gap-1 hover:text-white transition">
+                    Tempo Total
+                    <svg v-if="sortField === 'time'" class="w-4 h-4" :class="{ 'rotate-180': sortOrder === 'desc' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                  </button>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <button @click="toggleSort('sessions')" class="flex items-center gap-1 hover:text-white transition">
+                    Sessões
+                    <svg v-if="sortField === 'sessions'" class="w-4 h-4" :class="{ 'rotate-180': sortOrder === 'desc' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                  </button>
+                </th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-dark-700">
-              <tr v-for="subject in subjects" :key="subject.id" class="hover:bg-dark-700/50 transition">
+              <tr v-for="subject in sortedSubjects" :key="subject.id" class="hover:bg-dark-700/50 transition">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <span
@@ -253,6 +274,10 @@ const form = ref<{ id?: string, name: string, color?: string }>({ name: '', colo
 const loading = ref(false)
 const error = ref('')
 
+// Sorting
+const sortField = ref<'name' | 'time' | 'sessions'>('name')
+const sortOrder = ref<'asc' | 'desc'>('asc')
+
 // Modal de confirmação de exclusão
 const showDeleteModal = ref(false)
 const subjectToDelete = ref<{ id: string, name: string } | null>(null)
@@ -260,6 +285,43 @@ const subjectToDelete = ref<{ id: string, name: string } | null>(null)
 // Sistema de notificações toast
 const toasts = ref<Array<{ id: number, message: string, type: 'success' | 'error' }>>([])
 let toastIdCounter = 0
+
+// Computed sorted subjects
+const sortedSubjects = computed(() => {
+  const sorted = [...subjects.value]
+
+  sorted.sort((a, b) => {
+    let compareA: any, compareB: any
+
+    if (sortField.value === 'name') {
+      compareA = a.name.toLowerCase()
+      compareB = b.name.toLowerCase()
+    } else if (sortField.value === 'time') {
+      compareA = a.total_study_time || 0
+      compareB = b.total_study_time || 0
+    } else if (sortField.value === 'sessions') {
+      compareA = sessionsCountBySubject[a.id] || 0
+      compareB = sessionsCountBySubject[b.id] || 0
+    }
+
+    if (sortOrder.value === 'asc') {
+      return compareA > compareB ? 1 : -1
+    } else {
+      return compareA < compareB ? 1 : -1
+    }
+  })
+
+  return sorted
+})
+
+const toggleSort = (field: 'name' | 'time' | 'sessions') => {
+  if (sortField.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortOrder.value = 'asc'
+  }
+}
 
 onMounted(async () => {
   await loadSubjects()

@@ -115,20 +115,62 @@
             <span class="text-gray-400 text-sm">Matéria:</span>
             <span class="text-white font-medium">{{ subjectName }}</span>
           </div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-400 text-sm">Tipo:</span>
+            <span class="text-white">
+              {{ timer.studyType === 'conteudo' ? '📖 Conteúdo' :
+                 timer.studyType === 'questoes' ? '📝 Questões' : '🔄 Revisão' }}
+            </span>
+          </div>
+          <div v-if="timer.plannedQuestions" class="flex justify-between items-center mb-2">
+            <span class="text-gray-400 text-sm">Questões Planejadas:</span>
+            <span class="text-white">{{ timer.plannedQuestions }}</span>
+          </div>
           <div class="flex justify-between items-center">
             <span class="text-gray-400 text-sm">Tempo estudado:</span>
             <span class="text-primary-400 font-mono font-semibold text-lg">{{ formattedTime }}</span>
           </div>
         </div>
 
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-300 mb-2">Anotações (opcional)</label>
-          <textarea
-            v-model="notes"
-            rows="3"
-            placeholder="O que você estudou hoje?"
-            class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
-          ></textarea>
+        <div class="space-y-4 mb-4">
+          <div v-if="timer.studyType === 'questoes'">
+            <label class="block text-sm font-medium text-gray-300 mb-2">Questões Realizadas</label>
+            <input
+              v-model.number="completedQuestions"
+              type="number"
+              min="0"
+              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+              :placeholder="String(timer.plannedQuestions || 0)"
+            >
+          </div>
+
+          <div v-if="timer.studyType === 'questoes' && completedQuestions > 0">
+            <label class="block text-sm font-medium text-gray-300 mb-2">Questões Corretas</label>
+            <input
+              v-model.number="correctQuestions"
+              type="number"
+              min="0"
+              :max="completedQuestions"
+              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+              placeholder="0"
+            >
+            <div v-if="correctQuestions !== null && completedQuestions > 0" class="mt-2 text-sm">
+              <span class="text-gray-400">Taxa de acerto: </span>
+              <span class="text-primary-400 font-semibold">
+                {{ Math.round((correctQuestions / completedQuestions) * 100) }}%
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Anotações (opcional)</label>
+            <textarea
+              v-model="notes"
+              rows="3"
+              placeholder="O que você estudou hoje?"
+              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
+            ></textarea>
+          </div>
         </div>
 
         <div class="flex gap-3">
@@ -204,6 +246,8 @@ const timerWidget = ref<HTMLElement | null>(null)
 // Modal state
 const showStopModal = ref(false)
 const notes = ref('')
+const completedQuestions = ref<number | null>(null)
+const correctQuestions = ref<number | null>(null)
 const loading = ref(false)
 
 // Subject name
@@ -333,19 +377,27 @@ const confirmStop = () => {
 const cancelStop = () => {
   showStopModal.value = false
   notes.value = ''
+  completedQuestions.value = null
+  correctQuestions.value = null
 }
 
 const handleStop = async () => {
   try {
     loading.value = true
-    console.log('🛑 Encerrando sessão com notas:', notes.value)
+    console.log('🛑 Encerrando sessão')
 
-    const result = await stopTimer(notes.value)
+    const result = await stopTimer({
+      notes: notes.value,
+      completedQuestions: completedQuestions.value || undefined,
+      correctQuestions: correctQuestions.value || undefined
+    })
     console.log('✅ Resultado do stopTimer:', result)
 
     if (result?.duration !== undefined) {
       showToast('Sessão salva', 'success')
       notes.value = ''
+      completedQuestions.value = null
+      correctQuestions.value = null
       showStopModal.value = false
     } else {
       console.warn('⚠️ stopTimer retornou sem duration')

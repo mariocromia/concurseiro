@@ -15,6 +15,8 @@ export const useStudyTimer = () => {
     elapsed: 0,
     subjectId: '' as string,
     startedAt: null as Date | null,
+    studyType: 'conteudo' as 'conteudo' | 'questoes' | 'revisao',
+    plannedQuestions: null as number | null,
   }))
 
   const now = useState('study-timer-now', () => Date.now())
@@ -29,10 +31,12 @@ export const useStudyTimer = () => {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   })
 
-  const startTimer = (subjectId: string) => {
+  const startTimer = (subjectId: string, studyType: 'conteudo' | 'questoes' | 'revisao' = 'conteudo', plannedQuestions?: number) => {
     if (timer.value.isRunning) return
-    console.log('⏱️ Iniciando timer para subject:', subjectId)
+    console.log('⏱️ Iniciando timer para subject:', subjectId, 'tipo:', studyType)
     timer.value.subjectId = subjectId
+    timer.value.studyType = studyType
+    timer.value.plannedQuestions = plannedQuestions || null
     timer.value.isRunning = true
     timer.value.isPaused = false
     timer.value.startTime = Date.now()
@@ -66,7 +70,7 @@ export const useStudyTimer = () => {
     globalInterval = setInterval(() => { now.value = Date.now() }, 1000)
   }
 
-  const stopTimer = async (notes?: string) => {
+  const stopTimer = async (completionData?: { notes?: string, completedQuestions?: number, correctQuestions?: number }) => {
     if (!timer.value.isRunning && !timer.value.isPaused) return null
     console.log('⏱️ Encerrando timer. Estado:', {
       isRunning: timer.value.isRunning,
@@ -80,11 +84,18 @@ export const useStudyTimer = () => {
     const startedAt = timer.value.startedAt || new Date()
     const endedAt = new Date()
 
+    // Salvar dados antes de resetar
+    const studyType = timer.value.studyType
+    const plannedQuestions = timer.value.plannedQuestions
+    const subjectId = timer.value.subjectId
+
     // Reset state
     timer.value.isRunning = false
     timer.value.isPaused = false
     timer.value.startTime = 0
     timer.value.elapsed = 0
+    timer.value.studyType = 'conteudo'
+    timer.value.plannedQuestions = null
     if (globalInterval) {
       clearInterval(globalInterval)
       globalInterval = null
@@ -98,20 +109,40 @@ export const useStudyTimer = () => {
 
     if (!userId) return { duration }
 
-    // Persist session
+    // Persist session in study_sessions
     const { error } = await supabase.from('study_sessions').insert({
       user_id: userId,
-      subject_id: timer.value.subjectId || null,
+      subject_id: subjectId || null,
       started_at: startedAt.toISOString(),
       ended_at: endedAt.toISOString(),
       duration,
-      notes: notes || null,
+      notes: completionData?.notes || null,
     })
     if (error) throw error
 
+    // Persist in study_schedules for calendar
+    const scheduleData: any = {
+      user_id: userId,
+      subject_id: subjectId || null,
+      scheduled_date: startedAt.toISOString().split('T')[0],
+      scheduled_time: startedAt.toTimeString().split(' ')[0].substring(0, 5),
+      planned_duration: Math.floor(duration / 60),
+      study_type: studyType,
+      planned_questions: plannedQuestions,
+      status: 'completed',
+      completed_at: endedAt.toISOString(),
+      actual_duration: Math.floor(duration / 60),
+      completed_questions: completionData?.completedQuestions || null,
+      correct_questions: completionData?.correctQuestions || null,
+      notes: completionData?.notes || null,
+      is_recurring: false
+    }
+
+    await supabase.from('study_schedules').insert(scheduleData)
+
     // Agendar revisões R1→R7 baseadas na data de término
     try {
-      if (timer.value.subjectId) {
+      if (subjectId) {
         const base = new Date(endedAt)
         const dayOffsets = [1, 7, 14, 30, 60, 120, 240]
         const rows = dayOffsets.map((days, idx) => {
@@ -119,7 +150,7 @@ export const useStudyTimer = () => {
           dt.setDate(dt.getDate() + days)
           return {
             user_id: userId,
-            subject_id: timer.value.subjectId!,
+            subject_id: subjectId!,
             page_id: null,
             revision_number: idx + 1,
             scheduled_date: dt.toISOString(),
@@ -133,10 +164,10 @@ export const useStudyTimer = () => {
     }
 
     // Update subject total time
-    if (timer.value.subjectId) {
-      const { data } = await supabase.from('subjects').select('total_study_time').eq('id', timer.value.subjectId).single()
+    if (subjectId) {
+      const { data } = await supabase.from('subjects').select('total_study_time').eq('id', subjectId).single()
       const current = data?.total_study_time || 0
-      await supabase.from('subjects').update({ total_study_time: current + duration }).eq('id', timer.value.subjectId)
+      await supabase.from('subjects').update({ total_study_time: current + duration }).eq('id', subjectId)
     }
 
     return { duration }

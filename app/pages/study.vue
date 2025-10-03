@@ -80,7 +80,7 @@
                 <div class="flex justify-center gap-3 flex-wrap">
                   <button
                     v-if="!timer.isRunning && !timer.isPaused"
-                    @click="start"
+                    @click="showStartModal = true"
                     :disabled="!selectedSubjectId"
                     class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-lg shadow-lg shadow-primary-500/30"
                   >
@@ -310,6 +310,61 @@
         </div>
       </TransitionGroup>
     </div>
+
+    <!-- Modal: Configurar Tipo de Estudo -->
+    <div
+      v-if="showStartModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      @click.self="closeStartModal"
+    >
+      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <h3 class="text-xl font-bold text-white mb-4">Configurar Sessão de Estudo</h3>
+
+        <form @submit.prevent="start">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Tipo de Estudo</label>
+              <select
+                v-model="startForm.studyType"
+                required
+                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="conteudo">📖 Conteúdo</option>
+                <option value="questoes">📝 Questões</option>
+                <option value="revisao">🔄 Revisão</option>
+              </select>
+            </div>
+
+            <div v-if="startForm.studyType === 'questoes'">
+              <label class="block text-sm font-medium text-gray-300 mb-2">Quantidade de Questões</label>
+              <input
+                v-model.number="startForm.plannedQuestions"
+                type="number"
+                min="1"
+                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                placeholder="50"
+              >
+            </div>
+          </div>
+
+          <div class="flex gap-3 mt-6">
+            <button
+              type="button"
+              @click="closeStartModal"
+              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition"
+            >
+              Iniciar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -328,6 +383,13 @@ const loading = ref(false)
 
 // Modal de confirmação
 const showStopModal = ref(false)
+
+// Modal de configuração de início
+const showStartModal = ref(false)
+const startForm = ref({
+  studyType: 'conteudo' as 'conteudo' | 'questoes' | 'revisao',
+  plannedQuestions: null as number | null
+})
 
 // Sistema de notificações toast
 const toasts = ref<Array<{ id: number, message: string, type: 'success' | 'error' }>>([])
@@ -379,8 +441,17 @@ const start = () => {
     showToast('Selecione uma matéria para iniciar', 'error')
     return
   }
-  startTimer(selectedSubjectId.value)
+  startTimer(selectedSubjectId.value, startForm.value.studyType, startForm.value.plannedQuestions || undefined)
   showToast('Sessão de estudo iniciada!', 'success')
+  closeStartModal()
+}
+
+const closeStartModal = () => {
+  showStartModal.value = false
+  startForm.value = {
+    studyType: 'conteudo',
+    plannedQuestions: null
+  }
 }
 
 const pause = () => {

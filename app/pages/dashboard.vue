@@ -200,7 +200,16 @@
       <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
         <h3 class="text-lg font-semibold text-white mb-4">Ações Rápidas</h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <NuxtLink to="/calendar" class="p-4 border-2 border-dark-700 rounded-lg hover:border-primary-500 hover:bg-primary-500/10 transition text-center group">
+            <div class="w-12 h-12 bg-primary-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-500/30 transition">
+              <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <p class="font-semibold text-white">Calendário</p>
+          </NuxtLink>
+
           <NuxtLink to="/onboarding" class="p-4 border-2 border-dark-700 rounded-lg hover:border-primary-500 hover:bg-primary-500/10 transition text-center group">
             <div class="w-12 h-12 bg-primary-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-500/30 transition">
               <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
