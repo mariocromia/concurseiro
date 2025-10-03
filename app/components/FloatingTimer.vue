@@ -343,9 +343,8 @@ const handleStop = async () => {
     const result = await stopTimer(notes.value)
     console.log('✅ Resultado do stopTimer:', result)
 
-    if (result?.duration) {
-      const minutes = Math.floor(result.duration / 60)
-      showToast(`Sessão salva! Duração: ${minutes} minutos`, 'success')
+    if (result?.duration !== undefined) {
+      showToast('Sessão salva', 'success')
       notes.value = ''
       showStopModal.value = false
     } else {

@@ -20,7 +20,7 @@ export const useStudyTimer = () => {
   const now = useState('study-timer-now', () => Date.now())
 
   const formattedTime = computed(() => {
-    const total = timer.value.isRunning
+    const total = timer.value.isRunning && !timer.value.isPaused
       ? Math.floor((now.value - timer.value.startTime) / 1000) + timer.value.elapsed
       : timer.value.elapsed
     const h = Math.floor(total / 3600)
@@ -44,9 +44,11 @@ export const useStudyTimer = () => {
 
   const pauseTimer = () => {
     if (!timer.value.isRunning || timer.value.isPaused) return
-    console.log('⏱️ Pausando timer')
+    const timeToAdd = Math.floor((Date.now() - timer.value.startTime) / 1000)
+    console.log('⏱️ Pausando timer. Adicionando', timeToAdd, 'segundos ao elapsed atual:', timer.value.elapsed)
     timer.value.isPaused = true
-    timer.value.elapsed += Math.floor((Date.now() - timer.value.startTime) / 1000)
+    timer.value.elapsed += timeToAdd
+    console.log('⏱️ Elapsed após pausar:', timer.value.elapsed)
     if (globalInterval) {
       clearInterval(globalInterval)
       globalInterval = null
@@ -55,18 +57,26 @@ export const useStudyTimer = () => {
 
   const resumeTimer = () => {
     if (!timer.value.isPaused) return
-    console.log('⏱️ Retomando timer')
+    console.log('⏱️ Retomando timer. Elapsed atual:', timer.value.elapsed)
     timer.value.isPaused = false
     timer.value.startTime = Date.now()
     now.value = Date.now()
+    console.log('⏱️ Novo startTime:', timer.value.startTime)
     if (globalInterval) clearInterval(globalInterval)
     globalInterval = setInterval(() => { now.value = Date.now() }, 1000)
   }
 
   const stopTimer = async (notes?: string) => {
     if (!timer.value.isRunning && !timer.value.isPaused) return null
-    console.log('⏱️ Encerrando timer')
-    const duration = timer.value.elapsed + (timer.value.isRunning ? Math.floor((Date.now() - timer.value.startTime) / 1000) : 0)
+    console.log('⏱️ Encerrando timer. Estado:', {
+      isRunning: timer.value.isRunning,
+      isPaused: timer.value.isPaused,
+      elapsed: timer.value.elapsed,
+      startTime: timer.value.startTime,
+      now: Date.now()
+    })
+    const duration = timer.value.elapsed + (timer.value.isRunning && !timer.value.isPaused ? Math.floor((Date.now() - timer.value.startTime) / 1000) : 0)
+    console.log('⏱️ Duração calculada:', duration, 'segundos')
     const startedAt = timer.value.startedAt || new Date()
     const endedAt = new Date()
 
@@ -124,12 +134,9 @@ export const useStudyTimer = () => {
 
     // Update subject total time
     if (timer.value.subjectId) {
-      await supabase.rpc('increment_subject_time', { subject_id: timer.value.subjectId, inc_seconds: duration }).catch(async () => {
-        // Fallback: update directly
-        const { data } = await supabase.from('subjects').select('total_study_time').eq('id', timer.value.subjectId).single()
-        const current = data?.total_study_time || 0
-        await supabase.from('subjects').update({ total_study_time: current + duration }).eq('id', timer.value.subjectId)
-      })
+      const { data } = await supabase.from('subjects').select('total_study_time').eq('id', timer.value.subjectId).single()
+      const current = data?.total_study_time || 0
+      await supabase.from('subjects').update({ total_study_time: current + duration }).eq('id', timer.value.subjectId)
     }
 
     return { duration }
