@@ -6,13 +6,13 @@
       class="fixed z-50 bg-dark-800 rounded-xl shadow-2xl border-2 border-primary-500/50 overflow-hidden animate-fadeIn backdrop-blur-xl"
       @click.stop
     >
-      <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-4 py-2.5">
+      <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-2.5 border-b border-gray-700">
         <div class="flex items-center space-x-2 text-white">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <span class="text-sm font-semibold">Assistente IA</span>
-          <span v-if="!isPro" class="text-xs bg-yellow-500 px-2 py-0.5 rounded-full font-bold">PRO</span>
+          <span v-if="!isPro" class="text-xs bg-gray-600 px-2 py-0.5 rounded-full font-bold">PRO</span>
         </div>
       </div>
 
@@ -22,13 +22,13 @@
           :key="option.id"
           @click="handleOptionClick(option.id)"
           :disabled="!isPro && option.requiresPro"
-          class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-dark-700 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+          class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-dark-700 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
         >
-          <div class="w-8 h-8 flex items-center justify-center">
-            <component :is="option.iconComponent" class="w-5 h-5 text-primary-400" />
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-lg border border-gray-700 group-hover:border-gray-500 group-hover:bg-gray-700 transition-all group-hover:shadow-lg group-hover:shadow-gray-900/50 group-hover:scale-105">
+            <component :is="option.iconComponent" class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
           </div>
           <div class="flex-1">
-            <div class="text-sm font-medium text-white">{{ option.label }}</div>
+            <div class="text-sm font-medium text-white group-hover:text-primary-300 transition-colors">{{ option.label }}</div>
             <div class="text-xs text-gray-400">{{ option.description }}</div>
           </div>
           <svg v-if="!isPro && option.requiresPro" class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -37,7 +37,7 @@
         </button>
       </div>
 
-      <div v-if="!isPro" class="border-t border-dark-600 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 px-4 py-3">
+      <div v-if="!isPro" class="border-t border-gray-700 bg-gray-800/50 px-4 py-3">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-white">Desbloqueie recursos IA</p>
@@ -45,7 +45,7 @@
           </div>
           <button
             @click="$emit('upgrade')"
-            class="px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-full hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
+            class="px-3 py-1.5 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-xs font-bold rounded-full hover:shadow-lg hover:shadow-gray-900/50 hover:from-gray-500 hover:to-gray-600 transition-all"
           >
             Assinar
           </button>

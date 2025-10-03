@@ -205,10 +205,12 @@
         <button
           v-if="isPro"
           @click="showAIMenu"
-          class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium flex items-center gap-1"
+          class="px-3 py-1.5 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-lg hover:shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all text-sm font-medium flex items-center gap-1 border border-gray-600"
           type="button"
         >
-          <span>✨</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
           <span>IA</span>
         </button>
         <span v-else class="text-xs text-gray-500">Seleção + IA = PRO</span>
@@ -301,6 +303,26 @@
           width: Math.abs(screenshotSelection.endX - screenshotSelection.startX) + 'px',
           height: Math.abs(screenshotSelection.endY - screenshotSelection.startY) + 'px'
         }"
+      >
+        <!-- Corner markers -->
+        <div class="absolute -top-1 -left-1 w-3 h-3 bg-primary-500 border border-white"></div>
+        <div class="absolute -top-1 -right-1 w-3 h-3 bg-primary-500 border border-white"></div>
+        <div class="absolute -bottom-1 -left-1 w-3 h-3 bg-primary-500 border border-white"></div>
+        <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-primary-500 border border-white"></div>
+
+        <!-- Dimension label -->
+        <div
+          v-if="Math.abs(screenshotSelection.endX - screenshotSelection.startX) > 50 && Math.abs(screenshotSelection.endY - screenshotSelection.startY) > 50"
+          class="absolute top-0 left-0 -translate-y-full mb-1 bg-primary-600 text-white text-xs px-2 py-1 rounded shadow-lg"
+        >
+          {{ Math.round(Math.abs(screenshotSelection.endX - screenshotSelection.startX)) }} × {{ Math.round(Math.abs(screenshotSelection.endY - screenshotSelection.startY)) }}
+        </div>
+      </div>
+
+      <!-- Screenshot mode darkened overlay -->
+      <div
+        v-if="screenshotMode && !isDrawingSelection"
+        class="fixed inset-0 bg-black/40 pointer-events-none z-40"
       ></div>
     </div>
 
@@ -317,11 +339,14 @@
         v-if="screenshotMode"
         class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none"
       >
-        <div class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center space-x-3 animate-pulse">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <div class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+          <svg class="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
             <path d="M21 6h-3.17L16 4h-6v2h5.12l1.83 2H21v12H3V8h3v2H5v8h14V8h-2V6h4v14H3V6h3.17L8 4h8l1.83 2zM12 9c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
           </svg>
-          <span class="font-medium">🎯 Selecione a área para capturar</span>
+          <div>
+            <div class="font-semibold">Modo Captura Ativo</div>
+            <div class="text-xs text-primary-100">Arraste para selecionar a área desejada</div>
+          </div>
         </div>
       </div>
     </Transition>
@@ -1252,11 +1277,118 @@ const handleImageUpload = async (event: Event) => {
   reader.onload = (e) => {
     const base64 = e.target?.result as string
     execCommand('insertImage', base64)
+
+    // Wrap image in resizable container after insertion
+    setTimeout(() => {
+      wrapImagesWithResizeHandles()
+    }, 100)
   }
   reader.readAsDataURL(file)
 
   // Reset input
   input.value = ''
+}
+
+// Function to wrap images with resize handles
+const wrapImagesWithResizeHandles = () => {
+  if (!editorRef.value) return
+
+  const images = editorRef.value.querySelectorAll('img:not(.wrapped)')
+
+  images.forEach((img: Element) => {
+    const imgElement = img as HTMLImageElement
+
+    // Skip if already wrapped
+    if (imgElement.parentElement?.classList.contains('image-wrapper')) return
+
+    // Mark as wrapped
+    imgElement.classList.add('wrapped')
+
+    // Create wrapper
+    const wrapper = document.createElement('div')
+    wrapper.className = 'image-wrapper'
+    wrapper.contentEditable = 'false'
+
+    // Get current image dimensions
+    const currentWidth = imgElement.width || imgElement.naturalWidth
+    const currentHeight = imgElement.height || imgElement.naturalHeight
+
+    // Set initial size
+    wrapper.style.width = currentWidth + 'px'
+    wrapper.style.height = currentHeight + 'px'
+
+    // Wrap image
+    imgElement.parentNode?.insertBefore(wrapper, imgElement)
+    wrapper.appendChild(imgElement)
+
+    // Create resize handles
+    const handles = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+    handles.forEach(position => {
+      const handle = document.createElement('div')
+      handle.className = `image-resize-handle ${position}`
+      handle.addEventListener('mousedown', (e) => startImageResize(e, wrapper, position, imgElement))
+      wrapper.appendChild(handle)
+    })
+  })
+}
+
+// Image resize logic
+const startImageResize = (e: MouseEvent, wrapper: HTMLElement, position: string, img: HTMLImageElement) => {
+  e.preventDefault()
+  e.stopPropagation()
+
+  const startX = e.clientX
+  const startY = e.clientY
+  const startWidth = wrapper.offsetWidth
+  const startHeight = wrapper.offsetHeight
+  const aspectRatio = startWidth / startHeight
+
+  const handleMouseMove = (moveEvent: MouseEvent) => {
+    let deltaX = moveEvent.clientX - startX
+    let deltaY = moveEvent.clientY - startY
+
+    let newWidth = startWidth
+    let newHeight = startHeight
+
+    // Calculate new dimensions based on handle position
+    switch (position) {
+      case 'bottom-right':
+        newWidth = startWidth + deltaX
+        newHeight = newWidth / aspectRatio
+        break
+      case 'bottom-left':
+        newWidth = startWidth - deltaX
+        newHeight = newWidth / aspectRatio
+        break
+      case 'top-right':
+        newWidth = startWidth + deltaX
+        newHeight = newWidth / aspectRatio
+        break
+      case 'top-left':
+        newWidth = startWidth - deltaX
+        newHeight = newWidth / aspectRatio
+        break
+    }
+
+    // Set minimum size
+    if (newWidth < 50) newWidth = 50
+    if (newHeight < 50) newHeight = 50
+
+    // Apply new size
+    wrapper.style.width = newWidth + 'px'
+    wrapper.style.height = newHeight + 'px'
+    img.style.width = newWidth + 'px'
+    img.style.height = newHeight + 'px'
+  }
+
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+    handleInput()
+  }
+
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
 }
 
 const handlePaste = (event: ClipboardEvent) => {
@@ -1275,6 +1407,11 @@ const handlePaste = (event: ClipboardEvent) => {
         reader.onload = (e) => {
           const base64 = e.target?.result as string
           execCommand('insertImage', base64)
+
+          // Wrap image in resizable container after insertion
+          setTimeout(() => {
+            wrapImagesWithResizeHandles()
+          }, 100)
         }
         reader.readAsDataURL(blob)
         return
@@ -1404,6 +1541,11 @@ onMounted(() => {
 
   // Add global selection change listener
   document.addEventListener('selectionchange', updateActiveFormats)
+
+  // Wrap existing images with resize handles
+  setTimeout(() => {
+    wrapImagesWithResizeHandles()
+  }, 200)
 })
 
 onUnmounted(() => {
@@ -1474,6 +1616,66 @@ onUnmounted(() => {
   border-radius: 8px;
   margin: 1.5em 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.rich-content-editor .prose img:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rich-content-editor .image-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 1.5em 0;
+}
+
+.rich-content-editor .image-wrapper img {
+  display: block;
+  margin: 0;
+}
+
+.rich-content-editor .image-resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #3b82f6;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rich-content-editor .image-wrapper:hover .image-resize-handle {
+  opacity: 1;
+}
+
+.rich-content-editor .image-resize-handle.bottom-right {
+  bottom: -6px;
+  right: -6px;
+}
+
+.rich-content-editor .image-resize-handle.bottom-left {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.rich-content-editor .image-resize-handle.top-right {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.rich-content-editor .image-resize-handle.top-left {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
 }
 
 .rich-content-editor .prose strong {
