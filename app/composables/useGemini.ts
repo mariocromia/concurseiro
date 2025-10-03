@@ -1,0 +1,216 @@
+import { GoogleGenerativeAI } from '@google/generative-ai'
+
+export const useGemini = () => {
+  const config = useRuntimeConfig()
+  const genAI = new GoogleGenerativeAI(config.public.geminiApiKey || 'AIzaSyCVcAEYOXDRa9P1E0sqK52PiVOPnmU0CdE')
+
+  const generateSummary = async (content: string, chapterTitle?: string) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+
+      const prompt = `Você é um assistente educacional especializado em criar resumos de estudo.
+
+${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
+Conteúdo:
+${content}
+
+Por favor, crie um resumo estruturado e completo deste conteúdo, destacando:
+1. Principais conceitos
+2. Pontos-chave
+3. Informações importantes para memorização
+
+Formate o resumo de forma clara e organizada.`
+
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      return response.text()
+    } catch (error) {
+      console.error('Erro ao gerar resumo:', error)
+      throw error
+    }
+  }
+
+  const generateExercises = async (
+    content: string,
+    quantity: number = 5,
+    difficulty: 'easy' | 'medium' | 'hard' = 'medium',
+    chapterTitle?: string
+  ) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+
+      const difficultyMap = {
+        easy: 'fácil (conceitos básicos)',
+        medium: 'médio (aplicação de conceitos)',
+        hard: 'difícil (análise crítica e síntese)'
+      }
+
+      const prompt = `Você é um professor especializado em criar questões de concurso e vestibular.
+
+${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
+Conteúdo:
+${content}
+
+Crie ${quantity} questões de múltipla escolha com nível de dificuldade ${difficultyMap[difficulty]}.
+
+Para cada questão, forneça:
+1. O enunciado da questão
+2. 5 alternativas (A, B, C, D, E)
+3. A resposta correta
+4. Uma explicação detalhada
+
+Formate a resposta como um JSON válido com a seguinte estrutura:
+{
+  "exercises": [
+    {
+      "question": "texto da questão",
+      "options": {
+        "A": "alternativa A",
+        "B": "alternativa B",
+        "C": "alternativa C",
+        "D": "alternativa D",
+        "E": "alternativa E"
+      },
+      "correct_answer": "A",
+      "explanation": "explicação detalhada"
+    }
+  ]
+}
+
+IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
+
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      const text = response.text()
+
+      // Extrair JSON do texto
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('Resposta da IA não está no formato JSON esperado')
+      }
+
+      const parsed = JSON.parse(jsonMatch[0])
+      return parsed.exercises
+    } catch (error) {
+      console.error('Erro ao gerar exercícios:', error)
+      throw error
+    }
+  }
+
+  const generateFlashcards = async (
+    content: string,
+    quantity: number = 10,
+    chapterTitle?: string
+  ) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+
+      const prompt = `Você é um especialista em criar flashcards para estudo efetivo.
+
+${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
+Conteúdo:
+${content}
+
+Crie ${quantity} flashcards (cartões de perguntas e respostas) baseados neste conteúdo.
+
+Cada flashcard deve ter:
+1. Uma pergunta clara e objetiva (frente do cartão)
+2. Uma resposta concisa e informativa (verso do cartão)
+
+As perguntas devem cobrir os conceitos mais importantes do conteúdo.
+
+Formate a resposta como um JSON válido com a seguinte estrutura:
+{
+  "flashcards": [
+    {
+      "question": "pergunta",
+      "answer": "resposta"
+    }
+  ]
+}
+
+IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
+
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      const text = response.text()
+
+      // Extrair JSON do texto
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('Resposta da IA não está no formato JSON esperado')
+      }
+
+      const parsed = JSON.parse(jsonMatch[0])
+      return parsed.flashcards
+    } catch (error) {
+      console.error('Erro ao gerar flashcards:', error)
+      throw error
+    }
+  }
+
+  const chat = async (messages: Array<{ role: string; content: string }>, context?: string) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+
+      // Construir histórico de chat
+      let prompt = ''
+
+      if (context) {
+        prompt += `Contexto do conteúdo sendo estudado:\n${context}\n\n`
+      }
+
+      prompt += 'Histórico da conversa:\n\n'
+
+      messages.forEach(msg => {
+        const role = msg.role === 'user' ? 'Estudante' : 'Assistente'
+        prompt += `${role}: ${msg.content}\n\n`
+      })
+
+      prompt += 'Responda como um assistente educacional prestativo e didático.'
+
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      return response.text()
+    } catch (error) {
+      console.error('Erro no chat com IA:', error)
+      throw error
+    }
+  }
+
+  const explainSelection = async (selectedText: string, fullContext: string) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+
+      const prompt = `Você é um professor especializado em explicar conceitos de forma didática.
+
+Contexto completo:
+${fullContext}
+
+Texto selecionado pelo aluno:
+"${selectedText}"
+
+Por favor, forneça uma explicação detalhada e didática sobre o texto selecionado, considerando o contexto completo.
+Inclua:
+1. Explicação do conceito
+2. Exemplos práticos
+3. Como isso se relaciona com o tema maior
+4. Dicas para memorização`
+
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      return response.text()
+    } catch (error) {
+      console.error('Erro ao explicar seleção:', error)
+      throw error
+    }
+  }
+
+  return {
+    generateSummary,
+    generateExercises,
+    generateFlashcards,
+    chat,
+    explainSelection
+  }
+}
