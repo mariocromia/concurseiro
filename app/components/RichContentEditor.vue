@@ -142,6 +142,47 @@
       </div>
 
       <div class="ml-auto flex items-center gap-2">
+        <!-- Calculator Button -->
+        <button
+          @click="showCalculator = true"
+          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          title="Calculadora"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM6.25 7.72h11.5v1.5H6.25zM6 11h2v2H6zm3 0h2v2H9zm3 0h2v2h-2zm3 0h2v2h-2zM6 15h2v2H6zm3 0h2v2H9zm3 0h2v2h-2zm3 0h2v2h-2z"/>
+          </svg>
+        </button>
+
+        <!-- Reminders Button -->
+        <button
+          @click="showReminders = true"
+          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          title="Lembretes e Fórmulas"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </button>
+
+        <!-- Geometry Tools Toggle -->
+        <button
+          @click="showGeometryTools = !showGeometryTools"
+          :class="[
+            'p-2 rounded transition-colors',
+            showGeometryTools
+              ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+              : 'text-gray-700 hover:bg-gray-100'
+          ]"
+          title="Ferramentas de Geometria"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.09 4.56c-.7-1.03-1.5-1.99-2.4-2.85-.35-.34-.94-.02-.94.49v1.51c0 .98-.51 1.88-1.34 2.39-3.23 1.97-6.75 4.13-8.87 6.74C1.61 15.28 1 17.74 1 19.79c0 .38.31.69.69.69h20.62c.38 0 .69-.31.69-.69 0-8.08-3.03-11.77-5.91-15.23zm-5.98 3.81c.4-.24.85-.42 1.33-.52l1.56 1.56c-.22.46-.68.79-1.22.79-.74 0-1.35-.61-1.35-1.35 0-.27.08-.52.22-.73l-.54-.54zm-3.54 9.37l-1.42 1.42c-.2.2-.51.2-.71 0-.2-.2-.2-.51 0-.71l1.42-1.42c.2-.2.51-.2.71 0 .19.2.19.51 0 .71z"/>
+          </svg>
+        </button>
+
         <button
           v-if="isPro"
           @click="showAIMenu"
@@ -153,6 +194,62 @@
         </button>
         <span v-else class="text-xs text-gray-500">Seleção + IA = PRO</span>
       </div>
+    </div>
+
+    <!-- Geometry Tools Bar -->
+    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-2 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3">
+      <div class="text-sm font-medium text-indigo-900 mr-2">Ferramentas de Geometria:</div>
+      <button
+        @click="activateGeometryTool('line')"
+        :class="['p-2 rounded transition-colors', geometryTool === 'line' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        title="Desenhar linha"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20L20 4"/>
+        </svg>
+      </button>
+      <button
+        @click="activateGeometryTool('circle')"
+        :class="['p-2 rounded transition-colors', geometryTool === 'circle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        title="Desenhar círculo"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="8" stroke-width="2"/>
+        </svg>
+      </button>
+      <button
+        @click="activateGeometryTool('rectangle')"
+        :class="['p-2 rounded transition-colors', geometryTool === 'rectangle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        title="Desenhar retângulo"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <rect x="4" y="6" width="16" height="12" stroke-width="2"/>
+        </svg>
+      </button>
+      <button
+        @click="activateGeometryTool('triangle')"
+        :class="['p-2 rounded transition-colors', geometryTool === 'triangle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        title="Desenhar triângulo"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4L4 20h16L12 4z"/>
+        </svg>
+      </button>
+      <button
+        @click="activateGeometryTool('angle')"
+        :class="['p-2 rounded transition-colors', geometryTool === 'angle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        title="Desenhar ângulo"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20L4 4L20 20"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20a6 6 0 006-6"/>
+        </svg>
+      </button>
     </div>
 
     <!-- Editor Area -->
@@ -168,8 +265,8 @@
       @focus="updateActiveFormats"
       class="min-h-[500px] p-8 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
-        'cursor-text': !isSelecting && !commentMode,
-        'cursor-crosshair': commentMode
+        'cursor-text': !isSelecting && !commentMode && !geometryTool,
+        'cursor-crosshair': commentMode || geometryTool
       }"
       @paste="handlePaste"
     ></div>
@@ -271,6 +368,151 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Calculator Modal -->
+    <Calculator :is-visible="showCalculator" @close="showCalculator = false" />
+
+    <!-- Reminders Modal -->
+    <RemindersManager
+      :is-visible="showReminders"
+      :subject-id="subjectId || ''"
+      :subject-name="subjectName || 'Caderno'"
+      @close="showReminders = false"
+    />
+
+    <!-- YouTube Video Modal -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="showYouTubeModal"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          @click.self="closeYouTubeModal"
+        >
+          <Transition
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+          >
+            <div
+              v-if="showYouTubeModal"
+              class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg"
+              @click.stop
+            >
+              <!-- Header -->
+              <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                      <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-xl font-bold text-white">Inserir Vídeo do YouTube</h3>
+                      <p class="text-sm text-gray-400">Cole o link e defina o intervalo do vídeo</p>
+                    </div>
+                  </div>
+                  <button
+                    @click="closeYouTubeModal"
+                    class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Body -->
+              <div class="p-6 space-y-5">
+                <!-- URL Input -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">
+                    🔗 URL do Vídeo
+                  </label>
+                  <input
+                    v-model="youtubeUrl"
+                    type="text"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                    @keyup.enter="confirmYouTubeInsert"
+                  />
+                  <p class="mt-2 text-xs text-gray-500">Cole o link completo do YouTube ou o link curto (youtu.be)</p>
+                </div>
+
+                <!-- Time Interval -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                      ⏱️ Tempo Inicial
+                    </label>
+                    <input
+                      v-model="youtubeStartTime"
+                      type="text"
+                      placeholder="0:00"
+                      class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                    />
+                    <p class="mt-1 text-xs text-gray-500">Ex: 1:30</p>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">
+                      ⏱️ Tempo Final
+                    </label>
+                    <input
+                      v-model="youtubeEndTime"
+                      type="text"
+                      placeholder="0:00"
+                      class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                    />
+                    <p class="mt-1 text-xs text-gray-500">Ex: 5:20</p>
+                  </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                  <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <div class="text-sm text-blue-300">
+                      <p class="font-medium mb-1">💡 Dica:</p>
+                      <p class="text-blue-400">O intervalo é opcional. Deixe em branco para inserir o vídeo completo.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="p-6 border-t border-gray-700 flex gap-3">
+                <button
+                  @click="closeYouTubeModal"
+                  class="flex-1 px-4 py-3 border border-gray-600 text-gray-300 rounded-xl hover:bg-gray-700 font-medium transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  @click="confirmYouTubeInsert"
+                  :disabled="!youtubeUrl.trim()"
+                  class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg shadow-red-500/30"
+                >
+                  Inserir Vídeo
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -278,6 +520,8 @@
 interface Props {
   modelValue: string
   isPro: boolean
+  subjectId?: string
+  subjectName?: string
 }
 
 interface Emits {
@@ -305,6 +549,18 @@ const isHighlightActive = ref(false)
 const activeFormats = ref<Set<string>>(new Set())
 const textBoxMode = ref(false)
 const imageInput = ref<HTMLInputElement | null>(null)
+
+// New tools
+const showCalculator = ref(false)
+const showReminders = ref(false)
+const showGeometryTools = ref(false)
+const geometryTool = ref<'line' | 'circle' | 'rectangle' | 'triangle' | 'angle' | null>(null)
+
+// YouTube modal
+const showYouTubeModal = ref(false)
+const youtubeUrl = ref('')
+const youtubeStartTime = ref('')
+const youtubeEndTime = ref('')
 
 const formatTools = [
   {
@@ -456,7 +712,11 @@ const triggerImageUpload = () => {
 }
 
 const insertYouTubeVideo = () => {
-  const url = prompt('Cole a URL do vídeo do YouTube:')
+  showYouTubeModal.value = true
+}
+
+const confirmYouTubeInsert = () => {
+  const url = youtubeUrl.value.trim()
   if (!url) return
 
   // Extract video ID
@@ -470,20 +730,16 @@ const insertYouTubeVideo = () => {
     return
   }
 
-  // Ask for time range
-  const startTime = prompt('Tempo inicial (formato: 1:30 ou deixe em branco):', '')
-  const endTime = prompt('Tempo final (formato: 2:45 ou deixe em branco):', '')
-
   let startSeconds = 0
   let endSeconds = 0
 
-  if (startTime) {
-    const parts = startTime.split(':')
+  if (youtubeStartTime.value) {
+    const parts = youtubeStartTime.value.split(':')
     startSeconds = parseInt(parts[0]) * 60 + (parts[1] ? parseInt(parts[1]) : 0)
   }
 
-  if (endTime) {
-    const parts = endTime.split(':')
+  if (youtubeEndTime.value) {
+    const parts = youtubeEndTime.value.split(':')
     endSeconds = parseInt(parts[0]) * 60 + (parts[1] ? parseInt(parts[1]) : 0)
   }
 
@@ -505,6 +761,16 @@ const insertYouTubeVideo = () => {
   }
 
   handleInput()
+
+  // Close modal and reset
+  closeYouTubeModal()
+}
+
+const closeYouTubeModal = () => {
+  showYouTubeModal.value = false
+  youtubeUrl.value = ''
+  youtubeStartTime.value = ''
+  youtubeEndTime.value = ''
 }
 
 const handleMouseMove = (event: MouseEvent) => {
@@ -553,6 +819,12 @@ const handleEditorClick = (event: MouseEvent) => {
     return
   }
 
+  // If in geometry tool mode, draw shape
+  if (geometryTool.value) {
+    drawGeometryShape(event)
+    return
+  }
+
   // If in comment mode, save cursor position and show modal
   if (commentMode.value) {
     const selection = window.getSelection()
@@ -570,6 +842,7 @@ const handleEditorClick = (event: MouseEvent) => {
     textBox.className = 'text-box-element'
     textBox.contentEditable = 'true'
     textBox.innerHTML = 'Digite aqui...'
+    textBox.setAttribute('data-placeholder', 'true')
     textBox.style.cssText = `
       position: absolute;
       left: ${event.offsetX}px;
@@ -577,42 +850,161 @@ const handleEditorClick = (event: MouseEvent) => {
       min-width: 150px;
       min-height: 50px;
       padding: 8px;
+      padding-top: 20px;
       border: 2px dashed #3b82f6;
       background: #eff6ff;
       border-radius: 4px;
-      cursor: move;
       z-index: 10;
     `
 
-    // Make draggable
+    // Create drag handle
+    const dragHandle = document.createElement('div')
+    dragHandle.className = 'text-box-drag-handle'
+    dragHandle.innerHTML = '⋮⋮'
+    dragHandle.title = 'Arraste para mover'
+    dragHandle.style.cssText = `
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 24px;
+      height: 24px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: move;
+      font-size: 12px;
+      font-weight: bold;
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      z-index: 11;
+    `
+
+    // Create delete button
+    const deleteBtn = document.createElement('div')
+    deleteBtn.className = 'text-box-delete-btn'
+    deleteBtn.innerHTML = '×'
+    deleteBtn.title = 'Excluir caixa de texto'
+    deleteBtn.style.cssText = `
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      width: 24px;
+      height: 24px;
+      background: #dc2626;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      z-index: 11;
+    `
+
+    textBox.appendChild(dragHandle)
+    textBox.appendChild(deleteBtn)
+
+    // Delete button handler
+    deleteBtn.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      textBox.remove()
+      handleInput()
+    })
+
+    // Clear placeholder on first focus
+    textBox.addEventListener('focus', (e) => {
+      if (textBox.getAttribute('data-placeholder') === 'true') {
+        textBox.innerHTML = ''
+        textBox.removeAttribute('data-placeholder')
+      }
+    })
+
+    // Make draggable only by handle
     let isDragging = false
-    let startX = 0
-    let startY = 0
+    let offsetX = 0
+    let offsetY = 0
 
-    textBox.addEventListener('mousedown', (e) => {
-      if (e.target === textBox) {
-        isDragging = true
-        startX = e.clientX - textBox.offsetLeft
-        startY = e.clientY - textBox.offsetTop
-        e.preventDefault()
-      }
-    })
+    const handleDragStart = (e: MouseEvent) => {
+      isDragging = true
+      const rect = textBox.getBoundingClientRect()
+      offsetX = e.clientX - rect.left
+      offsetY = e.clientY - rect.top
+      textBox.style.cursor = 'move'
+      e.preventDefault()
+      e.stopPropagation()
+    }
 
-    document.addEventListener('mousemove', (e) => {
+    const handleDragMove = (e: MouseEvent) => {
+      if (!isDragging) return
+
+      const parentRect = editorRef.value!.getBoundingClientRect()
+      let newLeft = e.clientX - parentRect.left - offsetX
+      let newTop = e.clientY - parentRect.top - offsetY
+
+      // Keep within bounds
+      newLeft = Math.max(0, Math.min(newLeft, parentRect.width - textBox.offsetWidth))
+      newTop = Math.max(0, Math.min(newTop, parentRect.height - textBox.offsetHeight))
+
+      textBox.style.left = newLeft + 'px'
+      textBox.style.top = newTop + 'px'
+    }
+
+    const handleDragEnd = () => {
       if (isDragging) {
-        textBox.style.left = (e.clientX - startX) + 'px'
-        textBox.style.top = (e.clientY - startY) + 'px'
+        isDragging = false
+        textBox.style.cursor = 'text'
+        handleInput()
       }
+    }
+
+    dragHandle.addEventListener('mousedown', handleDragStart)
+    document.addEventListener('mousemove', handleDragMove)
+    document.addEventListener('mouseup', handleDragEnd)
+
+    // Allow editing on input
+    textBox.addEventListener('input', () => {
+      handleInput()
     })
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false
+    // Handle backspace/delete when text box is empty
+    textBox.addEventListener('keydown', (e) => {
+      const isEmpty = textBox.textContent?.trim() === '' || textBox.textContent?.trim() === 'Digite aqui...'
+      if ((e.key === 'Backspace' || e.key === 'Delete') && isEmpty) {
+        e.preventDefault()
+        textBox.remove()
+        handleInput()
+        return
+      }
+
+      // Handle Enter key to create line breaks
+      if (e.key === 'Enter') {
+        e.stopPropagation()
+        // Allow default behavior (insert line break)
+        setTimeout(() => handleInput(), 0)
+      }
     })
 
     editorRef.value?.appendChild(textBox)
     textBoxMode.value = false
     commentCursorPosition.value = null
     handleInput()
+
+    // Auto-focus and select placeholder text
+    setTimeout(() => {
+      textBox.focus()
+      const range = document.createRange()
+      range.selectNodeContents(textBox)
+      const sel = window.getSelection()
+      sel?.removeAllRanges()
+      sel?.addRange(range)
+    }, 0)
   }
 }
 
@@ -627,6 +1019,7 @@ const deleteComment = () => {
 
 const handleInput = () => {
   if (editorRef.value) {
+    console.log('📝 Editor content changed, emitting update:', editorRef.value.innerHTML.substring(0, 50) + '...')
     emit('update:modelValue', editorRef.value.innerHTML)
   }
 }
@@ -714,6 +1107,109 @@ const handlePaste = (event: ClipboardEvent) => {
   // If no image, paste as plain text
   const text = clipboardData.getData('text/plain')
   document.execCommand('insertText', false, text)
+}
+
+// Geometry tools functions
+const activateGeometryTool = (tool: 'line' | 'circle' | 'rectangle' | 'triangle' | 'angle') => {
+  geometryTool.value = geometryTool.value === tool ? null : tool
+  commentMode.value = false
+  textBoxMode.value = false
+}
+
+const drawGeometryShape = (event: MouseEvent) => {
+  if (!geometryTool.value) return
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('width', '200')
+  svg.setAttribute('height', '200')
+  svg.setAttribute('viewBox', '0 0 200 200')
+  svg.style.cssText = `
+    position: absolute;
+    left: ${event.offsetX}px;
+    top: ${event.offsetY}px;
+    cursor: move;
+  `
+  svg.classList.add('geometry-shape')
+
+  let shape: SVGElement
+
+  switch (geometryTool.value) {
+    case 'line':
+      shape = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+      shape.setAttribute('x1', '20')
+      shape.setAttribute('y1', '20')
+      shape.setAttribute('x2', '180')
+      shape.setAttribute('y2', '180')
+      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke-width', '3')
+      break
+    case 'circle':
+      shape = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+      shape.setAttribute('cx', '100')
+      shape.setAttribute('cy', '100')
+      shape.setAttribute('r', '80')
+      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke-width', '3')
+      shape.setAttribute('fill', 'none')
+      break
+    case 'rectangle':
+      shape = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+      shape.setAttribute('x', '20')
+      shape.setAttribute('y', '40')
+      shape.setAttribute('width', '160')
+      shape.setAttribute('height', '120')
+      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke-width', '3')
+      shape.setAttribute('fill', 'none')
+      break
+    case 'triangle':
+      shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+      shape.setAttribute('points', '100,20 20,180 180,180')
+      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke-width', '3')
+      shape.setAttribute('fill', 'none')
+      break
+    case 'angle':
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+      const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+      line1.setAttribute('x1', '40')
+      line1.setAttribute('y1', '160')
+      line1.setAttribute('x2', '40')
+      line1.setAttribute('y2', '40')
+      line1.setAttribute('stroke', '#3b82f6')
+      line1.setAttribute('stroke-width', '3')
+      const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+      line2.setAttribute('x1', '40')
+      line2.setAttribute('y1', '160')
+      line2.setAttribute('x2', '160')
+      line2.setAttribute('y2', '160')
+      line2.setAttribute('stroke', '#3b82f6')
+      line2.setAttribute('stroke-width', '3')
+      const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      arc.setAttribute('d', 'M 80 160 A 40 40 0 0 1 40 120')
+      arc.setAttribute('stroke', '#3b82f6')
+      arc.setAttribute('stroke-width', '2')
+      arc.setAttribute('fill', 'none')
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+      text.setAttribute('x', '70')
+      text.setAttribute('y', '145')
+      text.setAttribute('fill', '#3b82f6')
+      text.setAttribute('font-size', '16')
+      text.textContent = '90°'
+      g.appendChild(line1)
+      g.appendChild(line2)
+      g.appendChild(arc)
+      g.appendChild(text)
+      shape = g
+      break
+    default:
+      return
+  }
+
+  svg.appendChild(shape)
+  editorRef.value?.appendChild(svg)
+  geometryTool.value = null
+  handleInput()
 }
 
 // Initialize content
@@ -860,11 +1356,36 @@ onUnmounted(() => {
 .rich-content-editor .text-box-element {
   position: relative;
   display: inline-block;
+  cursor: text;
 }
 
 .rich-content-editor .text-box-element:hover {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.rich-content-editor .text-box-element:focus {
+  outline: none;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.rich-content-editor .text-box-drag-handle {
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.rich-content-editor .text-box-drag-handle:hover {
+  transform: scale(1.1);
+  background-color: #2563eb;
+}
+
+.rich-content-editor .text-box-delete-btn {
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.rich-content-editor .text-box-delete-btn:hover {
+  transform: scale(1.1);
+  background-color: #b91c1c;
 }
 
 /* YouTube embed styling */

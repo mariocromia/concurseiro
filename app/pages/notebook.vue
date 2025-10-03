@@ -3,8 +3,8 @@
     <!-- Header -->
     <header class="border-b border-dark-700 bg-dark-900/50 backdrop-blur-sm sticky top-0 z-40">
       <div class="max-w-[1920px] mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
+        <div class="flex items-center justify-between gap-6">
+          <div class="flex items-center space-x-3 flex-shrink-0">
             <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center text-xl">
               📚
             </div>
@@ -15,7 +15,10 @@
               <p class="text-xs text-gray-400">Seus estudos potencializados por IA</p>
             </div>
           </div>
-          <div class="flex items-center space-x-3">
+
+          <div class="flex-1"></div>
+
+          <div class="flex items-center space-x-3 flex-shrink-0">
             <div v-if="!isPro" @click="handleUpgrade" class="px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg text-xs font-semibold cursor-pointer hover:shadow-lg transition-shadow">
               ⭐ Upgrade PRO
             </div>
@@ -28,7 +31,143 @@
           </div>
         </div>
       </div>
+
+      <!-- Inline Search Modal -->
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0 translate-y-1"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-1"
+      >
+        <div
+          v-if="showInlineSearch"
+          class="absolute top-full left-0 right-0 bg-dark-900/98 backdrop-blur-xl border-t border-dark-700 shadow-2xl max-h-[75vh] flex flex-col z-50"
+        >
+          <!-- Fixed Header -->
+          <div class="sticky top-0 bg-dark-900/98 backdrop-blur-xl border-b border-dark-700 z-10">
+            <div class="max-w-4xl mx-auto px-6 py-6">
+              <div class="flex items-start gap-4">
+                <!-- Search Input -->
+                <div class="flex-1">
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <input
+                      ref="searchInput"
+                      v-model="inlineSearchQuery"
+                      @input="performInlineSearch"
+                      type="text"
+                      placeholder="Digite para buscar... (use + para múltiplos termos: dia+lindo)"
+                      class="w-full pl-12 pr-4 py-3.5 bg-dark-800 border-2 border-dark-600 text-white text-base placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                      autofocus
+                    />
+                  </div>
+                </div>
+
+                <!-- Close/Clear Button -->
+                <button
+                  @click.stop="inlineSearchQuery ? (inlineSearchQuery = '', inlineResults = []) : (showInlineSearch = false)"
+                  class="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-colors"
+                  :title="inlineSearchQuery ? 'Limpar busca' : 'Fechar busca'"
+                >
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Filters -->
+              <div class="flex flex-wrap gap-2 mt-4">
+                <button
+                  v-for="filter in searchFilters"
+                  :key="filter.value"
+                  @click="toggleInlineFilter(filter.value)"
+                  :class="[
+                    'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                    activeInlineFilters.includes(filter.value)
+                      ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/50'
+                      : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white'
+                  ]"
+                >
+                  {{ filter.icon }} {{ filter.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scrollable Content -->
+          <div class="flex-1 overflow-y-auto">
+            <div class="max-w-4xl mx-auto px-6 py-6">
+
+            <!-- Initial State -->
+            <div v-if="!inlineSearchQuery && !searchingInline" class="text-center py-12 text-gray-500">
+              <div class="text-6xl mb-4">🔍</div>
+              <p class="text-lg font-medium text-white">Buscar nos Cadernos</p>
+              <p class="text-sm mt-2">Digite acima para buscar em cadernos, capítulos, conteúdos e lembretes</p>
+            </div>
+
+            <!-- Loading -->
+            <div v-else-if="searchingInline" class="text-center py-12">
+              <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
+              <p class="text-gray-400 mt-4">Buscando...</p>
+            </div>
+
+            <!-- No Results -->
+            <div v-else-if="inlineSearchQuery && inlineResults.length === 0" class="text-center py-12 text-gray-500">
+              <div class="text-6xl mb-4">🔍</div>
+              <p class="text-lg font-medium">Nenhum resultado encontrado</p>
+              <p class="text-sm mt-2">Tente buscar por outros termos</p>
+            </div>
+
+            <!-- Results -->
+            <div v-else-if="inlineResults.length > 0" class="space-y-5">
+              <div class="text-sm text-gray-400 mb-4">
+                <span class="font-medium text-white">{{ inlineResults.length }}</span> resultado(s) encontrado(s)
+              </div>
+
+              <div
+                v-for="result in inlineResults"
+                :key="result.id"
+                @click="handleInlineResultClick(result)"
+                class="group cursor-pointer p-4 rounded-xl bg-dark-800/50 hover:bg-dark-700/70 border border-dark-600 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10"
+              >
+                <!-- Title -->
+                <h3 class="text-lg mb-1.5">
+                  <span class="text-primary-400" v-html="getSubjectNameInline(result)"></span>
+                  <span v-if="getChapterNameInline(result)" class="text-primary-400"> › </span>
+                  <span v-if="getChapterNameInline(result)" class="text-primary-400" v-html="getChapterNameInline(result)"></span>
+                </h3>
+
+                <!-- Meta -->
+                <div class="flex items-center gap-3 text-xs mb-2">
+                  <span class="text-green-600">{{ formatDateInline(result.date) }}</span>
+                  <span v-if="result.matchCount > 1" class="text-gray-500">•</span>
+                  <span v-if="result.matchCount > 1" class="text-gray-400">{{ result.matchCount }} ocorrência(s)</span>
+                </div>
+
+                <!-- Snippet -->
+                <div class="text-sm text-gray-400 leading-relaxed" v-html="highlightTextInline(result.snippet)"></div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </header>
+
+    <!-- Overlay for search (clicável para fechar) -->
+    <div
+      v-show="showInlineSearch"
+      @click="showInlineSearch = false"
+      class="fixed inset-0 bg-black/80 backdrop-blur-md z-30 transition-opacity duration-200"
+      :class="showInlineSearch ? 'opacity-100' : 'opacity-0'"
+      title="Clique para fechar a busca"
+    ></div>
 
     <div class="flex h-[calc(100vh-73px)]">
       <!-- Sidebar - Matérias e Capítulos -->
@@ -36,15 +175,27 @@
         <div class="p-4 border-b border-dark-700">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-bold text-white uppercase tracking-wide">Cadernos</h3>
-            <button
-              @click="showSubjectForm = !showSubjectForm"
-              class="p-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-              title="Adicionar caderno"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-2">
+              <!-- Search Button -->
+              <button
+                @click="showSmartSearch = true"
+                class="p-1.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+                title="Busca inteligente"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              <button
+                @click="showSubjectForm = !showSubjectForm"
+                class="p-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+                title="Adicionar caderno"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- New Subject Form -->
@@ -266,12 +417,59 @@
           <div>✅ chapters total: {{ chapters.length }}</div>
         </div>
 
-        <!-- Empty State -->
-        <div v-if="!selectedChapter" class="flex items-center justify-center h-full">
-          <div class="text-center">
-            <div class="text-8xl mb-6">📖</div>
-            <h3 class="text-2xl font-bold text-white mb-2">Selecione um capítulo</h3>
-            <p class="text-gray-400">Escolha um caderno e um capítulo para começar a estudar</p>
+        <!-- News Feed (quando nenhum capítulo está selecionado) -->
+        <div v-if="!selectedChapter" class="p-8 max-w-5xl mx-auto">
+          <div class="mb-6 flex items-start justify-between">
+            <div>
+              <div class="text-sm text-primary-400 font-medium mb-1">📰 Central de Estudos</div>
+              <h2 class="text-3xl font-bold text-white mb-2">Notícias</h2>
+              <p class="text-sm text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <!-- Search Button -->
+              <button
+                @click="showInlineSearch = true"
+                class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium flex items-center space-x-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Buscar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading News -->
+          <div v-if="loadingNews" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
+            <p class="text-gray-400 mt-4">Carregando notícias...</p>
+          </div>
+
+          <!-- News Cards Grid -->
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div
+              v-for="newsItem in concursosNews.slice(0, 6)"
+              :key="newsItem.id"
+              class="bg-dark-800/50 border border-dark-600 rounded-xl p-6 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10 cursor-pointer"
+            >
+              <div class="text-4xl mb-4">{{ newsItem.icon }}</div>
+              <h3 class="text-xl font-bold text-white mb-2">{{ newsItem.title }}</h3>
+              <p class="text-gray-400 text-sm mb-4">{{ newsItem.description }}</p>
+              <div class="text-xs text-primary-400">📅 {{ getRelativeTime(newsItem.date) }}</div>
+            </div>
+          </div>
+
+          <!-- Call to Action -->
+          <div class="mt-8 p-8 bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-primary-500/30 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xl font-bold text-white mb-1">📖 Comece a Estudar</h3>
+                <p class="text-gray-400 text-sm">Selecione um caderno ao lado para começar seus estudos</p>
+              </div>
+              <div class="flex items-center gap-4 text-sm text-gray-500">
+                <span>← Criar ou selecionar caderno</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -284,6 +482,32 @@
               <p class="text-sm text-gray-500">Última atualização: {{ formatDate(selectedChapter.updated_at || selectedChapter.created_at) }}</p>
             </div>
             <div class="flex items-center space-x-2">
+              <!-- Search Button -->
+              <button
+                @click="showInlineSearch = true"
+                class="px-3 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
+                title="Buscar nos cadernos"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              <!-- Autosave Toggle -->
+              <button
+                @click="toggleAutosave"
+                :class="[
+                  'px-3 py-2 rounded-lg transition-all font-medium flex items-center space-x-2 text-sm',
+                  autoSaveEnabled
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ]"
+                :title="autoSaveEnabled ? 'Autosave ativado' : 'Autosave desativado'"
+              >
+                <span>{{ autoSaveEnabled ? '✓' : '○' }}</span>
+                <span>{{ autoSaveEnabled ? 'Autosave ON' : 'Autosave OFF' }}</span>
+              </button>
+
               <button
                 v-if="isPro"
                 @click="showAIMenuForChapter($event, selectedChapter)"
@@ -293,6 +517,7 @@
                 <span>Assistente IA</span>
               </button>
               <button
+                v-if="!autoSaveEnabled"
                 @click="saveChapterContent"
                 :disabled="saving"
                 class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium disabled:opacity-50"
@@ -306,6 +531,8 @@
           <RichContentEditor
             v-model="chapterContent"
             :is-pro="isPro"
+            :subject-id="selectedSubject?.id"
+            :subject-name="selectedSubject?.name"
             @ai-action="handleAIAction"
             @upgrade="handleUpgrade"
           />
@@ -449,6 +676,13 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Smart Search Modal -->
+    <SmartSearch
+      :is-visible="showSmartSearch"
+      @close="showSmartSearch = false"
+      @select="handleSearchResult"
+    />
   </div>
 </template>
 
@@ -460,11 +694,14 @@ definePageMeta({ middleware: 'auth' })
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const { generateSummary, explainSelection } = useGemini()
+const { news: concursosNews, loading: loadingNews, fetchNews, getRelativeTime } = useConcursosNews()
 
 // State
 const loading = ref(false)
 const saving = ref(false)
 const isPro = ref(false)
+const autoSaveEnabled = ref(false)
+let autoSaveInterval: NodeJS.Timeout | null = null
 
 // Subjects & Chapters
 const subjects = ref<any[]>([])
@@ -481,11 +718,26 @@ watch(() => user.value, (newUser) => {
   console.log('User Email:', newUser?.email)
 }, { immediate: true })
 
-// Debug selected chapter
-watch(() => selectedChapter.value, (newChapter) => {
+// Save content when changing chapters
+const previousChapter = ref<any>(null)
+
+watch(() => selectedChapter.value, async (newChapter, oldChapter) => {
   console.log('📚 selectedChapter mudou:', newChapter?.title || 'null')
   console.log('📚 selectedChapter value:', newChapter)
+
+  // Save previous chapter content before switching
+  if (oldChapter && chapterContent.value && previousChapter.value) {
+    console.log('💾 Salvando capítulo anterior antes de trocar:', oldChapter.title)
+    await saveChapterContentSilently(oldChapter.id)
+  }
+
+  previousChapter.value = newChapter
 }, { immediate: true })
+
+// Debug chapter content changes
+watch(() => chapterContent.value, (newContent) => {
+  console.log('💾 chapterContent mudou! Tamanho:', newContent?.length || 0, 'Primeiros 50 chars:', newContent?.substring(0, 50))
+})
 
 // Forms
 const showSubjectForm = ref(false)
@@ -502,6 +754,33 @@ const editingChapterTitle = ref('')
 // Delete confirmation
 const showDeleteModal = ref(false)
 const deleteTarget = ref<{ type: 'subject' | 'chapter', id: string, name: string } | null>(null)
+
+// Smart Search
+const showSmartSearch = ref(false)
+
+// Inline Search
+const inlineSearchQuery = ref('')
+const showInlineSearch = ref(false)
+const searchingInline = ref(false)
+const inlineResults = ref<any[]>([])
+const activeInlineFilters = ref(['all'])
+const searchInput = ref<HTMLInputElement | null>(null)
+const searchFilters = [
+  { value: 'all', label: 'Todos', icon: '📚' },
+  { value: 'subjects', label: 'Cadernos', icon: '📖' },
+  { value: 'chapters', label: 'Capítulos', icon: '📄' },
+  { value: 'content', label: 'Conteúdo', icon: '📝' },
+  { value: 'reminders', label: 'Lembretes', icon: '📌' }
+]
+
+// Watch for search modal opening to focus input
+watch(() => showInlineSearch.value, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      searchInput.value?.focus()
+    })
+  }
+})
 
 // AI Modals
 const showAIPopup = ref(false)
@@ -584,6 +863,9 @@ onMounted(async () => {
     await loadChapters()
     await checkSubscription()
   }
+
+  // Carregar notícias
+  await fetchNews()
 
   console.log('🚀 ===== FIM MONTAGEM NOTEBOOK =====')
 })
@@ -881,6 +1163,10 @@ const selectChapter = async (chapter: any) => {
 const saveChapterContent = async () => {
   if (!selectedChapter.value) return
 
+  console.log('💾 Salvando conteúdo do capítulo:', selectedChapter.value.title)
+  console.log('💾 Conteúdo a salvar (tamanho):', chapterContent.value?.length || 0)
+  console.log('💾 Primeiros 100 chars:', chapterContent.value?.substring(0, 100))
+
   try {
     saving.value = true
 
@@ -893,13 +1179,16 @@ const saveChapterContent = async () => {
       .single()
 
     if (existingPage) {
+      console.log('💾 Atualizando página existente, ID:', existingPage.id)
       const { error } = await supabase
         .from('pages')
         .update({ content: chapterContent.value })
         .eq('id', existingPage.id)
 
       if (error) throw error
+      console.log('✅ Conteúdo atualizado com sucesso!')
     } else {
+      console.log('💾 Criando nova página para o capítulo')
       const { error } = await supabase
         .from('pages')
         .insert({
@@ -910,11 +1199,81 @@ const saveChapterContent = async () => {
         })
 
       if (error) throw error
+      console.log('✅ Nova página criada com sucesso!')
+    }
+
+    // Update chapter's updated_at timestamp
+    const { error: chapterError } = await supabase
+      .from('chapters')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', selectedChapter.value.id)
+
+    if (chapterError) {
+      console.error('⚠️ Erro ao atualizar timestamp do capítulo:', chapterError)
+    } else {
+      console.log('✅ Timestamp do capítulo atualizado')
+      // Update local chapter object
+      selectedChapter.value.updated_at = new Date().toISOString()
+      const chapterIndex = chapters.value.findIndex(c => c.id === selectedChapter.value.id)
+      if (chapterIndex !== -1) {
+        chapters.value[chapterIndex].updated_at = selectedChapter.value.updated_at
+      }
     }
   } catch (err) {
-    console.error('Erro ao salvar:', err)
+    console.error('❌ Erro ao salvar:', err)
   } finally {
     saving.value = false
+  }
+}
+
+// Silent save function (without loading state)
+const saveChapterContentSilently = async (chapterId: string) => {
+  if (!chapterId || !chapterContent.value) return
+
+  try {
+    console.log('🔇 Salvamento silencioso do capítulo:', chapterId)
+
+    const { data: existingPage } = await supabase
+      .from('pages')
+      .select('id')
+      .eq('chapter_id', chapterId)
+      .limit(1)
+      .single()
+
+    if (existingPage) {
+      await supabase
+        .from('pages')
+        .update({ content: chapterContent.value })
+        .eq('id', existingPage.id)
+    } else {
+      await supabase
+        .from('pages')
+        .insert({
+          chapter_id: chapterId,
+          title: 'Conteúdo',
+          content: chapterContent.value,
+          order_index: 0
+        })
+    }
+
+    // Update chapter's updated_at timestamp
+    await supabase
+      .from('chapters')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', chapterId)
+
+    // Update local chapter object if it's the selected one
+    if (selectedChapter.value?.id === chapterId) {
+      selectedChapter.value.updated_at = new Date().toISOString()
+    }
+    const chapterIndex = chapters.value.findIndex(c => c.id === chapterId)
+    if (chapterIndex !== -1) {
+      chapters.value[chapterIndex].updated_at = new Date().toISOString()
+    }
+
+    console.log('✅ Salvamento silencioso concluído')
+  } catch (err) {
+    console.error('❌ Erro no salvamento silencioso:', err)
   }
 }
 
@@ -1013,6 +1372,32 @@ const handleUpgrade = () => {
   alert('Upgrade para o plano PRO para acessar recursos de IA!')
 }
 
+const toggleAutosave = () => {
+  autoSaveEnabled.value = !autoSaveEnabled.value
+
+  if (autoSaveEnabled.value) {
+    // Salvar imediatamente
+    saveChapterContent()
+
+    // Configurar autosave a cada 30 segundos
+    autoSaveInterval = setInterval(() => {
+      if (selectedChapter.value && chapterContent.value) {
+        console.log('💾 Autosave executado')
+        saveChapterContent()
+      }
+    }, 30000) // 30 segundos
+
+    console.log('✅ Autosave ATIVADO (30s)')
+  } else {
+    // Desativar autosave
+    if (autoSaveInterval) {
+      clearInterval(autoSaveInterval)
+      autoSaveInterval = null
+    }
+    console.log('❌ Autosave DESATIVADO')
+  }
+}
+
 const formatDate = (iso: string) => {
   return new Date(iso).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -1021,6 +1406,52 @@ const formatDate = (iso: string) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+const handleSearchResult = async (result: any) => {
+  console.log('🔍 Resultado selecionado:', result)
+
+  if (result.type === 'subject') {
+    // Navigate to subject
+    const subject = subjects.value.find(s => s.id === result.data.id)
+    if (subject) {
+      expandedSubjects.value[subject.id] = true
+      selectedSubject.value = subject
+      selectedChapter.value = null
+      chapterContent.value = ''
+    }
+  } else if (result.type === 'chapter') {
+    // Navigate to chapter
+    const subject = subjects.value.find(s => s.id === result.data.subject_id)
+    if (subject) {
+      expandedSubjects.value[subject.id] = true
+      selectedSubject.value = subject
+
+      // Load chapter
+      await selectChapter(result.data)
+    }
+  } else if (result.type === 'content') {
+    // Navigate to chapter with content
+    const subject = subjects.value.find(s => s.id === result.data.chapters?.subject_id)
+    if (subject) {
+      expandedSubjects.value[subject.id] = true
+      selectedSubject.value = subject
+
+      // Load chapter
+      const chapter = chapters.value.find(c => c.id === result.data.chapter_id)
+      if (chapter) {
+        await selectChapter(chapter)
+      }
+    }
+  } else if (result.type === 'reminder') {
+    // Find subject by ID from reminder
+    const subject = subjects.value.find(s => s.id === result.data.subjectId)
+    if (subject) {
+      expandedSubjects.value[subject.id] = true
+      selectedSubject.value = subject
+      alert(`Lembrete encontrado no caderno "${subject.name}":\n\n${result.data.content}`)
+    }
+  }
 }
 
 const openChapterMenu = (subject: any) => {
@@ -1294,6 +1725,426 @@ const onChapterDragEnd = async () => {
   } catch (err) {
     console.error('❌ Erro ao reordenar capítulos:', err)
   }
+}
+
+// Save before leaving page
+onBeforeUnmount(async () => {
+  if (selectedChapter.value && chapterContent.value) {
+    console.log('🚪 Salvando antes de sair da página...')
+    await saveChapterContentSilently(selectedChapter.value.id)
+  }
+})
+
+// Save before navigating away
+if (process.client) {
+  window.addEventListener('beforeunload', async (e) => {
+    if (selectedChapter.value && chapterContent.value) {
+      e.preventDefault()
+      await saveChapterContentSilently(selectedChapter.value.id)
+    }
+  })
+}
+
+// Inline Search Functions
+
+// Helper function to check if multiple terms are within proximity (100 chars)
+const checkTermsProximity = (text: string, terms: string[], maxDistance: number = 100): boolean => {
+  const lowerText = text.toLowerCase()
+  const lowerTerms = terms.map(t => t.toLowerCase())
+
+  // Find all positions of all terms
+  const positions: { term: string, index: number }[] = []
+
+  lowerTerms.forEach(term => {
+    let index = lowerText.indexOf(term)
+    while (index !== -1) {
+      positions.push({ term, index })
+      index = lowerText.indexOf(term, index + 1)
+    }
+  })
+
+  // Check if we have all terms
+  const foundTerms = new Set(positions.map(p => p.term))
+  if (foundTerms.size !== lowerTerms.length) {
+    return false
+  }
+
+  // Sort positions by index
+  positions.sort((a, b) => a.index - b.index)
+
+  // Check if all terms appear within maxDistance characters
+  for (let i = 0; i < positions.length; i++) {
+    const group = [positions[i]]
+    const termsInGroup = new Set([positions[i].term])
+
+    for (let j = i + 1; j < positions.length; j++) {
+      if (positions[j].index - positions[i].index <= maxDistance) {
+        group.push(positions[j])
+        termsInGroup.add(positions[j].term)
+
+        // If we found all terms within distance, return true
+        if (termsInGroup.size === lowerTerms.length) {
+          return true
+        }
+      }
+    }
+  }
+
+  return false
+}
+
+// Helper function to extract snippet with all terms highlighted
+const extractMultiTermSnippet = (text: string, terms: string[]): string => {
+  const lowerText = text.toLowerCase()
+  const lowerTerms = terms.map(t => t.toLowerCase())
+
+  // Find first occurrence where all terms are within 100 chars
+  const positions: { term: string, index: number }[] = []
+
+  lowerTerms.forEach(term => {
+    let index = lowerText.indexOf(term)
+    while (index !== -1) {
+      positions.push({ term, index })
+      index = lowerText.indexOf(term, index + 1)
+    }
+  })
+
+  positions.sort((a, b) => a.index - b.index)
+
+  // Find the best group of terms
+  let bestStart = 0
+  let bestEnd = 0
+
+  for (let i = 0; i < positions.length; i++) {
+    const termsInGroup = new Set([positions[i].term])
+    let groupEnd = positions[i].index
+
+    for (let j = i + 1; j < positions.length; j++) {
+      if (positions[j].index - positions[i].index <= 100) {
+        termsInGroup.add(positions[j].term)
+        groupEnd = positions[j].index + positions[j].term.length
+
+        if (termsInGroup.size === lowerTerms.length) {
+          bestStart = positions[i].index
+          bestEnd = groupEnd
+          break
+        }
+      }
+    }
+
+    if (bestEnd > 0) break
+  }
+
+  // Extract snippet around the found terms
+  const snippetStart = Math.max(0, bestStart - 80)
+  const snippetEnd = Math.min(text.length, bestEnd + 120)
+  let snippet = text.substring(snippetStart, snippetEnd)
+
+  if (snippetStart > 0) snippet = '...' + snippet
+  if (snippetEnd < text.length) snippet = snippet + '...'
+
+  return snippet
+}
+
+const performInlineSearch = async () => {
+  const query = inlineSearchQuery.value.trim()
+
+  if (!query) {
+    inlineResults.value = []
+    return
+  }
+
+  searchingInline.value = true
+  const results: any[] = []
+
+  try {
+    // Check if query uses + operator for multiple terms
+    const hasMultipleTerms = query.includes('+')
+    const searchTerms = hasMultipleTerms
+      ? query.split('+').map(t => t.trim()).filter(t => t.length > 0)
+      : [query]
+
+    const isSubjectsOnly = activeInlineFilters.value.includes('subjects') &&
+                           activeInlineFilters.value.length === 1
+    const isChaptersOnly = activeInlineFilters.value.includes('chapters') &&
+                           activeInlineFilters.value.length === 1
+    const isContentOnly = activeInlineFilters.value.includes('content') &&
+                          activeInlineFilters.value.length === 1
+    const isRemindersOnly = activeInlineFilters.value.includes('reminders') &&
+                            activeInlineFilters.value.length === 1
+
+    // Search subjects (only if 'subjects' filter is explicitly selected)
+    if (isSubjectsOnly) {
+      for (const subject of subjects.value) {
+        if (subject.name.toLowerCase().includes(query.toLowerCase())) {
+          results.push({
+            id: `subject-${subject.id}`,
+            type: 'subject',
+            data: subject,
+            snippet: subject.name,
+            date: subject.created_at,
+            matchCount: 1,
+            relevance: 10
+          })
+
+          // Return only first result
+          break
+        }
+      }
+    }
+
+    // Search chapters (if 'all' or 'chapters' is active)
+    if (activeInlineFilters.value.includes('all') || isChaptersOnly) {
+      for (const chapter of chapters.value) {
+        if (chapter.title.toLowerCase().includes(query.toLowerCase())) {
+          results.push({
+            id: `chapter-${chapter.id}`,
+            type: 'chapter',
+            data: chapter,
+            snippet: chapter.title,
+            date: chapter.created_at,
+            matchCount: 1,
+            relevance: 8
+          })
+
+          // If filtering only by chapters, return only first result
+          if (isChaptersOnly) {
+            break
+          }
+        }
+      }
+    }
+
+    // Search content (if 'all' or 'content' is active)
+    if (activeInlineFilters.value.includes('all') || isContentOnly) {
+      // For multiple terms, search for first term and filter locally
+      const searchQuery = hasMultipleTerms ? searchTerms[0] : query
+
+      const { data: pages } = await supabase
+        .from('pages')
+        .select('*, chapters!inner(id, title, subject_id)')
+        .ilike('content', `%${searchQuery}%`)
+        .limit(isContentOnly ? 10 : 1000)
+
+      if (pages) {
+        for (const page of pages) {
+          // If multiple terms, check proximity
+          if (hasMultipleTerms) {
+            if (!checkTermsProximity(page.content, searchTerms)) {
+              continue
+            }
+            // Use multi-term snippet extraction
+            const snippet = extractMultiTermSnippet(page.content, searchTerms)
+            const matchCount = searchTerms.length
+
+            results.push({
+              id: `content-${page.id}`,
+              type: 'content',
+              data: page,
+              snippet,
+              date: page.updated_at || page.created_at,
+              matchCount,
+              relevance: 6
+            })
+          } else {
+            // Single term search
+            const snippet = extractSnippetInline(page.content, query)
+            const matchCount = (page.content.match(new RegExp(query, 'gi')) || []).length
+
+            results.push({
+              id: `content-${page.id}`,
+              type: 'content',
+              data: page,
+              snippet,
+              date: page.updated_at || page.created_at,
+              matchCount,
+              relevance: 6
+            })
+          }
+
+          // If filtering only by content, return only first result
+          if (isContentOnly && results.length > 0) {
+            break
+          }
+        }
+      }
+    }
+
+    // Search reminders (if 'all' or 'reminders' is active)
+    if (activeInlineFilters.value.includes('all') || isRemindersOnly) {
+      const allReminders = JSON.parse(localStorage.getItem('study-reminders') || '[]')
+      for (const reminder of allReminders) {
+        // For multiple terms, check proximity
+        if (hasMultipleTerms) {
+          if (!checkTermsProximity(reminder.content, searchTerms)) {
+            continue
+          }
+          const snippet = extractMultiTermSnippet(reminder.content, searchTerms)
+          const matchCount = searchTerms.length
+
+          results.push({
+            id: `reminder-${reminder.id}`,
+            type: 'reminder',
+            data: reminder,
+            snippet,
+            date: reminder.createdAt,
+            matchCount,
+            relevance: 5
+          })
+        } else {
+          // Single term search
+          if (reminder.content.toLowerCase().includes(query.toLowerCase())) {
+            results.push({
+              id: `reminder-${reminder.id}`,
+              type: 'reminder',
+              data: reminder,
+              snippet: reminder.content.substring(0, 150) + (reminder.content.length > 150 ? '...' : ''),
+              date: reminder.createdAt,
+              matchCount: 1,
+              relevance: 5
+            })
+          }
+        }
+
+        // If filtering only by reminders, return only first result
+        if (isRemindersOnly && results.length > 0) {
+          break
+        }
+      }
+    }
+
+    // Sort by relevance
+    results.sort((a, b) => b.relevance - a.relevance)
+    inlineResults.value = results
+
+  } catch (err) {
+    console.error('Erro ao buscar:', err)
+  } finally {
+    searchingInline.value = false
+  }
+}
+
+const clearInlineSearch = () => {
+  inlineSearchQuery.value = ''
+  inlineResults.value = []
+  showInlineSearch.value = false
+}
+
+const toggleInlineFilter = (filterValue: string) => {
+  if (filterValue === 'all') {
+    activeInlineFilters.value = ['all']
+  } else {
+    // Remove 'all' if present
+    const hasAll = activeInlineFilters.value.includes('all')
+
+    if (hasAll) {
+      // If 'all' is active, switch to only the clicked filter
+      activeInlineFilters.value = [filterValue]
+    } else {
+      // Toggle the clicked filter
+      const index = activeInlineFilters.value.indexOf(filterValue)
+      if (index > -1) {
+        activeInlineFilters.value.splice(index, 1)
+      } else {
+        activeInlineFilters.value.push(filterValue)
+      }
+
+      // If no filters remain, set to 'all'
+      if (activeInlineFilters.value.length === 0) {
+        activeInlineFilters.value = ['all']
+      }
+    }
+  }
+
+  // Re-run search
+  performInlineSearch()
+}
+
+const handleInlineResultClick = async (result: any) => {
+  // Close search
+  showInlineSearch.value = false
+
+  // Use the same navigation logic as smart search
+  await handleSearchResult(result)
+}
+
+const getSubjectNameInline = (result: any): string => {
+  let subjectName = ''
+
+  if (result.type === 'subject') {
+    subjectName = result.data.name
+  } else if (result.type === 'chapter') {
+    const subject = subjects.value.find(s => s.id === result.data.subject_id)
+    subjectName = subject?.name || 'Caderno'
+  } else if (result.type === 'content') {
+    const subject = subjects.value.find(s => s.id === result.data.chapters?.subject_id)
+    subjectName = subject?.name || 'Caderno'
+  } else if (result.type === 'reminder') {
+    const subject = subjects.value.find(s => s.id === result.data.subjectId)
+    subjectName = subject?.name || 'Caderno'
+  }
+
+  return highlightTextInline(subjectName)
+}
+
+const getChapterNameInline = (result: any): string => {
+  if (result.type === 'chapter') {
+    return highlightTextInline(result.data.title)
+  } else if (result.type === 'content') {
+    return highlightTextInline(result.data.chapters?.title || '')
+  }
+  return ''
+}
+
+const highlightTextInline = (text: string): string => {
+  if (!text || !inlineSearchQuery.value) return text
+
+  const query = inlineSearchQuery.value.trim()
+  const hasMultipleTerms = query.includes('+')
+
+  if (hasMultipleTerms) {
+    const terms = query.split('+').map(t => t.trim()).filter(t => t.length > 0)
+    let result = text
+    terms.forEach(term => {
+      const regex = new RegExp(`(${term})`, 'gi')
+      result = result.replace(regex, '<strong>$1</strong>')
+    })
+    return result
+  } else {
+    const regex = new RegExp(`(${query})`, 'gi')
+    return text.replace(regex, '<strong>$1</strong>')
+  }
+}
+
+const extractSnippetInline = (text: string, query: string): string => {
+  if (!text) return ''
+
+  const lowerText = text.toLowerCase()
+  const lowerQuery = query.toLowerCase()
+  const index = lowerText.indexOf(lowerQuery)
+
+  if (index === -1) return text.substring(0, 200) + '...'
+
+  const contextBefore = 80
+  const contextAfter = 120
+  const start = Math.max(0, index - contextBefore)
+  const end = Math.min(text.length, index + query.length + contextAfter)
+
+  let snippet = text.substring(start, end)
+
+  if (start > 0) snippet = '...' + snippet
+  if (end < text.length) snippet = snippet + '...'
+
+  return snippet
+}
+
+const formatDateInline = (date: string | Date): string => {
+  const d = new Date(date)
+  return d.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  })
 }
 </script>
 
