@@ -10,7 +10,11 @@
           <!-- Header -->
           <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-6 py-4 flex items-center justify-between border-b border-dark-600">
             <div class="flex items-center space-x-3">
-              <span class="text-3xl">✨</span>
+              <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
               <div>
                 <h2 class="text-xl font-bold text-white">{{ title }}</h2>
                 <p class="text-sm text-primary-100">{{ subtitle }}</p>
@@ -31,7 +35,11 @@
             <!-- Initial Content / Summary -->
             <div v-if="initialContent" class="bg-dark-700 rounded-xl p-6 shadow-sm border border-dark-600">
               <div class="flex items-start space-x-3">
-                <span class="text-2xl">🤖</span>
+                <div class="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
                 <div class="flex-1">
                   <div class="text-sm font-semibold text-white mb-2">Resposta da IA</div>
                   <div class="prose prose-sm max-w-none text-gray-300 whitespace-pre-wrap">{{ initialContent }}</div>
@@ -50,8 +58,12 @@
                 v-if="message.role === 'assistant'"
                 class="bg-dark-700 rounded-xl p-4 shadow-sm border border-dark-600 max-w-[80%]"
               >
-                <div class="flex items-start space-x-2">
-                  <span class="text-xl">🤖</span>
+                <div class="flex items-start space-x-3">
+                  <div class="w-7 h-7 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
                   <div class="prose prose-sm max-w-none text-gray-300 whitespace-pre-wrap">
                     {{ message.content }}
                   </div>
