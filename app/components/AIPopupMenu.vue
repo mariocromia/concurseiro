@@ -3,29 +3,29 @@
     <div
       v-if="isVisible"
       :style="{ top: `${position.y}px`, left: `${position.x}px` }"
-      class="fixed z-50 bg-white rounded-lg shadow-2xl border-2 border-blue-500 overflow-hidden animate-fadeIn"
+      class="fixed z-50 bg-dark-800 rounded-xl shadow-2xl border-2 border-primary-500/50 overflow-hidden animate-fadeIn backdrop-blur-xl"
       @click.stop
     >
-      <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2">
+      <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-4 py-2.5">
         <div class="flex items-center space-x-2 text-white">
           <span class="text-lg">✨</span>
           <span class="text-sm font-semibold">Assistente IA</span>
-          <span v-if="!isPro" class="text-xs bg-yellow-500 px-2 py-0.5 rounded-full">PRO</span>
+          <span v-if="!isPro" class="text-xs bg-yellow-500 px-2 py-0.5 rounded-full font-bold">PRO</span>
         </div>
       </div>
 
-      <div class="p-2 w-56">
+      <div class="p-2 w-64">
         <button
           v-for="option in menuOptions"
           :key="option.id"
           @click="handleOptionClick(option.id)"
           :disabled="!isPro && option.requiresPro"
-          class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+          class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-dark-700 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           <span class="text-2xl">{{ option.icon }}</span>
           <div class="flex-1">
-            <div class="text-sm font-medium text-gray-900">{{ option.label }}</div>
-            <div class="text-xs text-gray-500">{{ option.description }}</div>
+            <div class="text-sm font-medium text-white">{{ option.label }}</div>
+            <div class="text-xs text-gray-400">{{ option.description }}</div>
           </div>
           <svg v-if="!isPro && option.requiresPro" class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
@@ -33,15 +33,15 @@
         </button>
       </div>
 
-      <div v-if="!isPro" class="border-t border-gray-200 bg-gradient-to-br from-yellow-50 to-orange-50 px-4 py-3">
+      <div v-if="!isPro" class="border-t border-dark-600 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 px-4 py-3">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-900">Desbloqueie recursos IA</p>
-            <p class="text-xs text-gray-600">Assine o plano PRO</p>
+            <p class="text-xs font-semibold text-white">Desbloqueie recursos IA</p>
+            <p class="text-xs text-gray-400">Assine o plano PRO</p>
           </div>
           <button
             @click="$emit('upgrade')"
-            class="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full hover:shadow-lg transition-shadow"
+            class="px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-full hover:shadow-lg hover:shadow-yellow-500/50 transition-all"
           >
             Assinar
           </button>

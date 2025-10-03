@@ -139,6 +139,25 @@
             <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
           </svg>
         </button>
+
+        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+
+        <!-- Screenshot/Capture Tool -->
+        <button
+          @click="toggleScreenshotMode"
+          title="Capturar área para IA - Selecione uma área do conteúdo"
+          :class="[
+            'p-2 rounded transition-colors',
+            screenshotMode
+              ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+              : 'text-gray-700 hover:bg-gray-100'
+          ]"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 6h-3.17L16 4h-6v2h5.12l1.83 2H21v12H3V8h3v2H5v8h14V8h-2V6h4v14H3V6h3.17L8 4h8l1.83 2zM12 9c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+          </svg>
+        </button>
       </div>
 
       <div class="ml-auto flex items-center gap-2">
@@ -258,18 +277,54 @@
       contenteditable="true"
       @input="handleInput"
       @mouseup="handleTextSelection"
+      @mousedown="handleEditorMouseDown"
       @keyup="handleTextSelection"
       @keydown="handleKeyDown"
       @click="handleEditorClick"
-      @mousemove="handleMouseMove"
+      @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
       @focus="updateActiveFormats"
       class="min-h-[500px] p-8 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
-        'cursor-text': !isSelecting && !commentMode && !geometryTool,
-        'cursor-crosshair': commentMode || geometryTool
+        'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode,
+        'cursor-crosshair': commentMode || geometryTool || screenshotMode
       }"
       @paste="handlePaste"
-    ></div>
+      @mouseup.capture="handleEditorMouseUp"
+    >
+      <!-- Screenshot Selection Overlay -->
+      <div
+        v-if="screenshotSelection && isDrawingSelection"
+        class="absolute border-2 border-primary-500 bg-primary-500/20 pointer-events-none z-50"
+        :style="{
+          left: Math.min(screenshotSelection.startX, screenshotSelection.endX) + 'px',
+          top: Math.min(screenshotSelection.startY, screenshotSelection.endY) + 'px',
+          width: Math.abs(screenshotSelection.endX - screenshotSelection.startX) + 'px',
+          height: Math.abs(screenshotSelection.endY - screenshotSelection.startY) + 'px'
+        }"
+      ></div>
+    </div>
+
+    <!-- Screenshot Mode Indicator -->
+    <Transition
+      enter-active-class="transition-all duration-300"
+      enter-from-class="opacity-0 -translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-200"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+      <div
+        v-if="screenshotMode"
+        class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none"
+      >
+        <div class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center space-x-3 animate-pulse">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 6h-3.17L16 4h-6v2h5.12l1.83 2H21v12H3V8h3v2H5v8h14V8h-2V6h4v14H3V6h3.17L8 4h8l1.83 2zM12 9c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+          </svg>
+          <span class="font-medium">🎯 Selecione a área para capturar</span>
+        </div>
+      </div>
+    </Transition>
 
     <!-- Comment Cursor Icon -->
     <div
@@ -296,6 +351,17 @@
       context="selection"
       @close="showSelectionMenu = false"
       @select="handleAIMenuSelect"
+      @upgrade="$emit('upgrade')"
+    />
+
+    <!-- Screenshot AI Menu -->
+    <AIPopupMenu
+      :is-visible="showScreenshotAIMenu"
+      :position="menuPosition"
+      :is-pro="isPro"
+      context="screenshot"
+      @close="showScreenshotAIMenu = false"
+      @select="handleScreenshotAIAction"
       @upgrade="$emit('upgrade')"
     />
 
@@ -550,6 +616,13 @@ const activeFormats = ref<Set<string>>(new Set())
 const textBoxMode = ref(false)
 const imageInput = ref<HTMLInputElement | null>(null)
 
+// Screenshot/Capture mode
+const screenshotMode = ref(false)
+const screenshotSelection = ref<{ startX: number, startY: number, endX: number, endY: number } | null>(null)
+const isDrawingSelection = ref(false)
+const capturedImage = ref<string | null>(null)
+const showScreenshotAIMenu = ref(false)
+
 // New tools
 const showCalculator = ref(false)
 const showReminders = ref(false)
@@ -771,6 +844,107 @@ const closeYouTubeModal = () => {
   youtubeUrl.value = ''
   youtubeStartTime.value = ''
   youtubeEndTime.value = ''
+}
+
+// Screenshot/Capture functions
+const toggleScreenshotMode = () => {
+  screenshotMode.value = !screenshotMode.value
+  if (!screenshotMode.value) {
+    screenshotSelection.value = null
+    isDrawingSelection.value = false
+  }
+}
+
+const handleEditorMouseDown = (event: MouseEvent) => {
+  if (!screenshotMode.value || !editorRef.value) return
+
+  isDrawingSelection.value = true
+  const rect = editorRef.value.getBoundingClientRect()
+
+  screenshotSelection.value = {
+    startX: event.clientX - rect.left,
+    startY: event.clientY - rect.top,
+    endX: event.clientX - rect.left,
+    endY: event.clientY - rect.top
+  }
+}
+
+const handleEditorMouseMove = (event: MouseEvent) => {
+  if (!screenshotMode.value || !isDrawingSelection.value || !screenshotSelection.value || !editorRef.value) return
+
+  const rect = editorRef.value.getBoundingClientRect()
+  screenshotSelection.value.endX = event.clientX - rect.left
+  screenshotSelection.value.endY = event.clientY - rect.top
+}
+
+const handleEditorMouseUp = async (event: MouseEvent) => {
+  if (!screenshotMode.value || !isDrawingSelection.value || !screenshotSelection.value || !editorRef.value) return
+
+  isDrawingSelection.value = false
+
+  const selection = screenshotSelection.value
+  const width = Math.abs(selection.endX - selection.startX)
+  const height = Math.abs(selection.endY - selection.startY)
+
+  // Verificar se a seleção é grande o suficiente
+  if (width < 50 || height < 50) {
+    screenshotSelection.value = null
+    return
+  }
+
+  // Capturar a área selecionada usando html2canvas
+  try {
+    // Importar html2canvas dinamicamente
+    const html2canvas = (await import('html2canvas')).default
+
+    const x = Math.min(selection.startX, selection.endX)
+    const y = Math.min(selection.startY, selection.endY)
+
+    const canvas = await html2canvas(editorRef.value, {
+      x,
+      y,
+      width,
+      height,
+      backgroundColor: '#1f2937',
+      scale: 2,
+      logging: false
+    })
+
+    capturedImage.value = canvas.toDataURL('image/png')
+
+    // Copiar para área de transferência
+    canvas.toBlob((blob) => {
+      if (blob) {
+        navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]).then(() => {
+          console.log('✅ Imagem copiada para área de transferência')
+        })
+      }
+    })
+
+    // Mostrar menu de IA
+    menuPosition.value = {
+      x: event.clientX,
+      y: event.clientY - 10
+    }
+    showScreenshotAIMenu.value = true
+
+  } catch (error) {
+    console.error('Erro ao capturar área:', error)
+  }
+
+  screenshotSelection.value = null
+  screenshotMode.value = false
+}
+
+const handleScreenshotAIAction = (action: string) => {
+  if (capturedImage.value) {
+    // Emitir ação com a imagem capturada
+    emit('ai-action', action, capturedImage.value)
+    showScreenshotAIMenu.value = false
+    capturedImage.value = null
+  }
 }
 
 const handleMouseMove = (event: MouseEvent) => {
@@ -1041,11 +1215,15 @@ const handleTextSelection = () => {
     const rect = range.getBoundingClientRect()
 
     menuPosition.value = {
-      x: rect.left + rect.width / 2 - 112, // Center the menu (224px width / 2)
+      x: rect.left + rect.width / 2 - 128, // Center the menu (256px width / 2)
       y: rect.top - 10 + window.scrollY
     }
 
     isSelecting.value = true
+    // Mostrar menu automaticamente após seleção
+    setTimeout(() => {
+      showSelectionMenu.value = true
+    }, 100)
   } else {
     isSelecting.value = false
     showSelectionMenu.value = false

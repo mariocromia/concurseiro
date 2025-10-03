@@ -3,22 +3,22 @@
     <Transition name="modal">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
         @click.self="close"
       >
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        <div class="bg-dark-800 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
           <!-- Header -->
-          <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex items-center justify-between">
+          <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-6 py-4 flex items-center justify-between border-b border-dark-600">
             <div class="flex items-center space-x-3">
               <span class="text-3xl">✨</span>
               <div>
                 <h2 class="text-xl font-bold text-white">{{ title }}</h2>
-                <p class="text-sm text-blue-100">{{ subtitle }}</p>
+                <p class="text-sm text-primary-100">{{ subtitle }}</p>
               </div>
             </div>
             <button
               @click="close"
-              class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors"
+              class="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -27,14 +27,14 @@
           </div>
 
           <!-- Content Area -->
-          <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+          <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-dark-900">
             <!-- Initial Content / Summary -->
-            <div v-if="initialContent" class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <div v-if="initialContent" class="bg-dark-700 rounded-xl p-6 shadow-sm border border-dark-600">
               <div class="flex items-start space-x-3">
                 <span class="text-2xl">🤖</span>
                 <div class="flex-1">
-                  <div class="text-sm font-semibold text-gray-900 mb-2">Resposta da IA</div>
-                  <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">{{ initialContent }}</div>
+                  <div class="text-sm font-semibold text-white mb-2">Resposta da IA</div>
+                  <div class="prose prose-sm max-w-none text-gray-300 whitespace-pre-wrap">{{ initialContent }}</div>
                 </div>
               </div>
             </div>
@@ -48,29 +48,29 @@
             >
               <div
                 v-if="message.role === 'assistant'"
-                class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 max-w-[80%]"
+                class="bg-dark-700 rounded-xl p-4 shadow-sm border border-dark-600 max-w-[80%]"
               >
                 <div class="flex items-start space-x-2">
                   <span class="text-xl">🤖</span>
-                  <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+                  <div class="prose prose-sm max-w-none text-gray-300 whitespace-pre-wrap">
                     {{ message.content }}
                   </div>
                 </div>
               </div>
               <div
                 v-else
-                class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 shadow-sm max-w-[80%]"
+                class="bg-gradient-to-r from-primary-600 to-purple-600 rounded-xl p-4 shadow-sm max-w-[80%]"
               >
                 <p class="text-white whitespace-pre-wrap">{{ message.content }}</p>
               </div>
             </div>
 
             <!-- Loading -->
-            <div v-if="loading" class="flex items-center space-x-2 text-gray-500">
+            <div v-if="loading" class="flex items-center space-x-2 text-gray-400">
               <div class="flex space-x-1">
-                <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                <div class="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                <div class="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                <div class="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
               </div>
               <span class="text-sm">IA pensando...</span>
             </div>
@@ -79,14 +79,14 @@
           </div>
 
           <!-- Input Area -->
-          <div class="border-t border-gray-200 bg-white px-6 py-4">
+          <div class="border-t border-dark-600 bg-dark-800 px-6 py-4">
             <form @submit.prevent="sendMessage" class="flex items-end space-x-3">
               <div class="flex-1">
                 <textarea
                   v-model="inputMessage"
                   :placeholder="placeholder"
                   rows="2"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  class="w-full px-4 py-3 bg-dark-900 border border-dark-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                   @keydown.enter.exact.prevent="sendMessage"
                   @keydown.enter.shift.exact="inputMessage += '\n'"
                   :disabled="loading"
@@ -96,7 +96,7 @@
               <button
                 type="submit"
                 :disabled="!inputMessage.trim() || loading"
-                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                class="px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 <svg v-if="!loading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
