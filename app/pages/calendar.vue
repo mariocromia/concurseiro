@@ -63,15 +63,40 @@
             </button>
           </div>
 
-          <button
-            @click="openRecurringModal"
-            class="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Agendar Recorrente
-          </button>
+          <div class="flex items-center gap-4">
+            <!-- Toggle Modo -->
+            <div class="flex bg-dark-700 rounded-lg p-1">
+              <button
+                @click="viewMode = 'schedule'"
+                :class="[
+                  'px-4 py-2 rounded-md text-sm font-medium transition',
+                  viewMode === 'schedule' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                ]"
+              >
+                📅 Lançamento
+              </button>
+              <button
+                @click="viewMode = 'report'"
+                :class="[
+                  'px-4 py-2 rounded-md text-sm font-medium transition',
+                  viewMode === 'report' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                ]"
+              >
+                📊 Relatório
+              </button>
+            </div>
+
+            <button
+              v-if="viewMode === 'schedule'"
+              @click="openRecurringModal"
+              class="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition flex items-center gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Agendar Recorrente
+            </button>
+          </div>
         </div>
 
         <!-- Calendar Grid -->
@@ -85,7 +110,7 @@
           <div
             v-for="(day, index) in calendarDays"
             :key="index"
-            @click="day.date ? selectDay(day.date) : null"
+            @click="day.date ? handleDayClick(day.date) : null"
             :class="[
               'min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer',
               day.date ? 'border-dark-700 bg-dark-900/50 hover:border-primary-500/50' : 'border-transparent bg-dark-800/20',
@@ -547,6 +572,137 @@
       </div>
     </div>
 
+    <!-- Modal: Relatório Diário -->
+    <div
+      v-if="showDayReportModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
+      @click.self="closeDayReportModal"
+    >
+      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-2xl w-full p-6 shadow-2xl my-8">
+        <h3 class="text-2xl font-bold text-white mb-2">
+          Relatório do Dia - {{ formatDate(selectedDate) }}
+        </h3>
+        <p class="text-gray-400 text-sm mb-6">Resumo completo das atividades</p>
+
+        <div v-if="dayReport.sessions.length === 0" class="text-center py-12">
+          <div class="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <p class="text-gray-400">Nenhuma atividade registrada neste dia</p>
+        </div>
+
+        <div v-else class="space-y-6">
+          <!-- Resumo Geral -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
+              <div class="text-xs text-gray-400 mb-1">Tempo Total</div>
+              <div class="text-2xl font-bold text-primary-400">{{ formatMinutes(dayReport.totalMinutes) }}</div>
+            </div>
+            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
+              <div class="text-xs text-gray-400 mb-1">Sessões</div>
+              <div class="text-2xl font-bold text-white">{{ dayReport.sessions.length }}</div>
+            </div>
+            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
+              <div class="text-xs text-gray-400 mb-1">Questões</div>
+              <div class="text-2xl font-bold text-white">{{ dayReport.totalQuestions }}</div>
+            </div>
+            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
+              <div class="text-xs text-gray-400 mb-1">Taxa Acerto</div>
+              <div class="text-2xl font-bold text-green-400">{{ dayReport.successRate }}%</div>
+            </div>
+          </div>
+
+          <!-- Sessões Detalhadas -->
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Sessões de Estudo
+            </h4>
+            <div class="space-y-3">
+              <div
+                v-for="session in dayReport.sessions"
+                :key="session.id"
+                class="bg-dark-900 border border-dark-700 rounded-lg p-4 hover:border-primary-500/50 transition"
+              >
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-3 h-3 rounded-full"
+                      :style="{ backgroundColor: session.subjects?.color || '#22C55E' }"
+                    ></div>
+                    <div>
+                      <div class="font-medium text-white">{{ session.subjects?.name }}</div>
+                      <div class="text-xs text-gray-400">
+                        {{ session.scheduled_time || 'Sem horário' }} • {{ formatMinutes(session.actual_duration || session.planned_duration) }}
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-xs px-2 py-1 rounded-full bg-primary-500/20 text-primary-400">
+                    {{ session.study_type === 'conteudo' ? '📖 Conteúdo' :
+                       session.study_type === 'questoes' ? '📝 Questões' : '🔄 Revisão' }}
+                  </span>
+                </div>
+
+                <div v-if="session.study_type === 'questoes' && session.completed_questions" class="grid grid-cols-3 gap-2 text-sm">
+                  <div class="bg-dark-800 rounded p-2">
+                    <div class="text-xs text-gray-400">Questões</div>
+                    <div class="font-semibold text-white">{{ session.completed_questions }}</div>
+                  </div>
+                  <div class="bg-dark-800 rounded p-2">
+                    <div class="text-xs text-gray-400">Acertos</div>
+                    <div class="font-semibold text-green-400">{{ session.correct_questions || 0 }}</div>
+                  </div>
+                  <div class="bg-dark-800 rounded p-2">
+                    <div class="text-xs text-gray-400">Taxa</div>
+                    <div class="font-semibold text-green-400">
+                      {{ session.correct_questions ? Math.round((session.correct_questions / session.completed_questions) * 100) : 0 }}%
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="session.notes" class="mt-3 text-sm text-gray-400 italic border-t border-dark-700 pt-3">
+                  "{{ session.notes }}"
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Por Matéria -->
+          <div v-if="dayReport.bySubject.length > 0">
+            <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+              Tempo por Matéria
+            </h4>
+            <div class="space-y-2">
+              <div
+                v-for="item in dayReport.bySubject"
+                :key="item.subject"
+                class="flex items-center justify-between bg-dark-900 border border-dark-700 rounded-lg p-3"
+              >
+                <span class="text-white font-medium">{{ item.subject }}</span>
+                <span class="text-primary-400 font-mono">{{ formatMinutes(item.minutes) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button
+            @click="closeDayReportModal"
+            class="px-6 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div class="fixed top-4 right-4 z-50 space-y-2">
       <TransitionGroup name="toast">
@@ -579,10 +735,19 @@ const subjects = ref<any[]>([])
 const schedules = ref<any[]>([])
 const loading = ref(false)
 
+const viewMode = ref<'schedule' | 'report'>('schedule')
 const showDayModal = ref(false)
 const showRecurringModal = ref(false)
 const showViewModal = ref(false)
+const showDayReportModal = ref(false)
 const viewingSchedule = ref<any>(null)
+const dayReport = ref<any>({
+  sessions: [],
+  totalMinutes: 0,
+  totalQuestions: 0,
+  successRate: 0,
+  bySubject: []
+})
 
 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
@@ -664,6 +829,15 @@ const formatDate = (dateInput: any) => {
   return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
+const formatMinutes = (minutes: number) => {
+  if (!minutes) return '0min'
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  if (h > 0 && m > 0) return `${h}h ${m}min`
+  if (h > 0) return `${h}h`
+  return `${m}min`
+}
+
 const previousMonth = () => {
   if (currentMonth.value === 0) {
     currentMonth.value = 11
@@ -691,9 +865,59 @@ const goToToday = () => {
   loadSchedules()
 }
 
+const handleDayClick = (date: Date) => {
+  selectedDate.value = date
+  if (viewMode.value === 'schedule') {
+    showDayModal.value = true
+  } else {
+    openDayReport(date)
+  }
+}
+
 const selectDay = (date: Date) => {
   selectedDate.value = date
   showDayModal.value = true
+}
+
+const openDayReport = (date: Date) => {
+  selectedDate.value = date
+  const dateStr = date.toISOString().split('T')[0]
+  const daySessions = schedules.value.filter(s => s.scheduled_date === dateStr)
+
+  // Calcular estatísticas
+  let totalMinutes = 0
+  let totalQuestions = 0
+  let totalCorrect = 0
+  const bySubject: Record<string, number> = {}
+
+  daySessions.forEach(session => {
+    const minutes = session.actual_duration || session.planned_duration || 0
+    totalMinutes += minutes
+
+    if (session.study_type === 'questoes') {
+      totalQuestions += session.completed_questions || 0
+      totalCorrect += session.correct_questions || 0
+    }
+
+    const subjectName = session.subjects?.name || 'Sem matéria'
+    bySubject[subjectName] = (bySubject[subjectName] || 0) + minutes
+  })
+
+  const successRate = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0
+
+  dayReport.value = {
+    sessions: daySessions,
+    totalMinutes,
+    totalQuestions,
+    successRate,
+    bySubject: Object.entries(bySubject).map(([subject, minutes]) => ({ subject, minutes }))
+  }
+
+  showDayReportModal.value = true
+}
+
+const closeDayReportModal = () => {
+  showDayReportModal.value = false
 }
 
 const closeDayModal = () => {
@@ -912,7 +1136,9 @@ const loadSchedules = async () => {
   const firstDay = new Date(currentYear.value, currentMonth.value, 1)
   const lastDay = new Date(currentYear.value, currentMonth.value + 1, 0)
 
-  const { data } = await supabase
+  console.log('📅 Carregando agendamentos de', firstDay.toISOString().split('T')[0], 'até', lastDay.toISOString().split('T')[0])
+
+  const { data, error } = await supabase
     .from('study_schedules')
     .select('*, subjects(name, color)')
     .eq('user_id', user.value.id)
@@ -920,6 +1146,12 @@ const loadSchedules = async () => {
     .lte('scheduled_date', lastDay.toISOString().split('T')[0])
     .order('scheduled_date')
     .order('scheduled_time')
+
+  if (error) {
+    console.error('❌ Erro ao carregar agendamentos:', error)
+  } else {
+    console.log('✅ Agendamentos carregados:', data)
+  }
 
   schedules.value = data || []
 }

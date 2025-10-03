@@ -138,7 +138,13 @@ export const useStudyTimer = () => {
       is_recurring: false
     }
 
-    await supabase.from('study_schedules').insert(scheduleData)
+    console.log('📅 Salvando no calendário:', scheduleData)
+    const { data: scheduleResult, error: scheduleError } = await supabase.from('study_schedules').insert(scheduleData).select()
+    if (scheduleError) {
+      console.error('❌ Erro ao salvar no calendário:', scheduleError)
+    } else {
+      console.log('✅ Sessão salva no calendário:', scheduleResult)
+    }
 
     // Agendar revisões R1→R7 baseadas na data de término
     try {
