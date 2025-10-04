@@ -1,155 +1,166 @@
 <template>
   <div>
-    <!-- Top Navigation Bar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-dark-900 via-dark-800 to-dark-900 border-b border-dark-700 shadow-2xl backdrop-blur-xl">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V9h7V2.99c3.85.81 6.84 3.97 7.41 7.83L12 10.99z"/>
+    <!-- Compact Modern Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-dark-900/95 backdrop-blur-md border-b border-dark-700/50 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4">
+        <!-- Main Header Row -->
+        <div class="flex items-center justify-between h-14">
+          <!-- Logo & Brand -->
+          <NuxtLink to="/dashboard" class="flex items-center space-x-2 group">
+            <div class="w-8 h-8 bg-primary-500/10 border border-primary-500/30 rounded-lg flex items-center justify-center group-hover:bg-primary-500/20 transition-all">
+              <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
               </svg>
             </div>
-            <div>
-              <h1 class="text-xl font-bold text-white">Concurseiro</h1>
-              <p class="text-xs text-gray-400">Sua jornada de estudos</p>
-            </div>
+            <span class="text-sm font-semibold text-white">Concurseiro</span>
+          </NuxtLink>
+
+          <!-- Quick Actions (Horizontal) -->
+          <div class="hidden md:flex items-center space-x-1">
+            <NuxtLink
+              v-for="action in quickActions"
+              :key="action.name"
+              :to="action.route"
+              class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg hover:bg-dark-700/50 transition-all text-gray-400 hover:text-white group"
+            >
+              <component :is="action.icon" class="w-4 h-4" />
+              <span class="text-xs font-medium">{{ action.name }}</span>
+            </NuxtLink>
           </div>
 
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-            <!-- User Avatar -->
+          <!-- Right Section -->
+          <div class="flex items-center space-x-3">
+            <!-- Search Toggle -->
+            <button
+              @click="showSearchBar = !showSearchBar"
+              class="p-2 rounded-lg hover:bg-dark-700/50 text-gray-400 hover:text-white transition-all"
+              title="Pesquisar"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </button>
+
+            <!-- User Menu -->
             <div class="relative">
               <button
                 @click="showUserMenu = !showUserMenu"
-                class="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-dark-700 transition-colors"
+                class="flex items-center space-x-2 px-2 py-1 rounded-lg hover:bg-dark-700/50 transition-all"
               >
-                <div class="w-9 h-9 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                <div class="w-7 h-7 bg-primary-500/20 border border-primary-500/30 rounded-full flex items-center justify-center text-xs font-semibold text-primary-400">
                   {{ userInitial }}
                 </div>
-                <div class="text-left hidden md:block">
-                  <p class="text-sm font-medium text-white">{{ userName }}</p>
-                  <p class="text-xs text-gray-400">{{ userEmail }}</p>
-                </div>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </button>
 
               <!-- User Dropdown -->
-              <div
-                v-if="showUserMenu"
-                class="absolute right-0 mt-2 w-64 bg-dark-800 border border-dark-600 rounded-xl shadow-2xl py-2"
+              <Transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
               >
-                <NuxtLink
-                  to="/profile"
-                  @click="showUserMenu = false"
-                  class="flex items-center space-x-3 px-4 py-3 hover:bg-dark-700 transition-colors text-gray-300 hover:text-white"
+                <div
+                  v-if="showUserMenu"
+                  class="absolute right-0 mt-2 w-48 bg-dark-800 border border-dark-700 rounded-lg shadow-xl py-1"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                  <span>Perfil</span>
-                </NuxtLink>
-                <NuxtLink
-                  to="/change-password"
-                  @click="showUserMenu = false"
-                  class="flex items-center space-x-3 px-4 py-3 hover:bg-dark-700 transition-colors text-gray-300 hover:text-white"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                  </svg>
-                  <span>Mudar Senha</span>
-                </NuxtLink>
-                <hr class="my-2 border-dark-600"/>
-                <button
-                  @click="handleLogout"
-                  class="flex items-center space-x-3 px-4 py-3 hover:bg-dark-700 transition-colors text-red-400 hover:text-red-300 w-full"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                  </svg>
-                  <span>Sair</span>
-                </button>
-              </div>
+                  <div class="px-3 py-2 border-b border-dark-700">
+                    <p class="text-xs font-medium text-white truncate">{{ userName }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ userEmail }}</p>
+                  </div>
+                  <NuxtLink
+                    to="/profile"
+                    @click="showUserMenu = false"
+                    class="flex items-center space-x-2 px-3 py-2 hover:bg-dark-700 transition-colors text-gray-300 hover:text-white text-sm"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>Perfil</span>
+                  </NuxtLink>
+                  <NuxtLink
+                    to="/change-password"
+                    @click="showUserMenu = false"
+                    class="flex items-center space-x-2 px-3 py-2 hover:bg-dark-700 transition-colors text-gray-300 hover:text-white text-sm"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                    </svg>
+                    <span>Mudar Senha</span>
+                  </NuxtLink>
+                  <hr class="my-1 border-dark-700"/>
+                  <button
+                    @click="handleLogout"
+                    class="flex items-center space-x-2 px-3 py-2 hover:bg-dark-700 transition-colors text-red-400 hover:text-red-300 w-full text-sm"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>Sair</span>
+                  </button>
+                </div>
+              </Transition>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Quick Actions Bar -->
-      <div class="border-t border-dark-700 bg-dark-900/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center space-x-2 py-3 overflow-x-auto scrollbar-hide">
-            <NuxtLink
-              v-for="action in quickActions"
-              :key="action.name"
-              :to="action.route"
-              class="flex flex-col items-center justify-center min-w-[140px] p-4 bg-dark-800 hover:bg-dark-700 border border-dark-600 rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:border-primary-500/50 group"
-            >
-              <div class="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-primary-600/20 rounded-xl flex items-center justify-center mb-2 group-hover:from-primary-500/30 group-hover:to-primary-600/30 transition-all">
-                <component :is="action.icon" class="w-6 h-6 text-primary-400" />
-              </div>
-              <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">{{ action.name }}</span>
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
+        <!-- Expandable Search Bar -->
+        <Transition
+          enter-active-class="transition-all ease-out duration-200"
+          enter-from-class="opacity-0 -translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all ease-in duration-150"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-2"
+        >
+          <div v-if="showSearchBar" class="pb-3">
+            <div class="relative">
+              <input
+                v-model="searchQuery"
+                @input="handleSearch"
+                type="text"
+                placeholder="Pesquisar cadernos, capítulos..."
+                class="w-full px-4 py-2 pl-10 bg-dark-800/50 border border-dark-700 text-white placeholder-gray-500 rounded-lg focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
+              />
+              <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
 
-      <!-- Search Bar (Below Menu) -->
-      <div class="border-t border-dark-700 bg-dark-800/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div class="relative max-w-3xl mx-auto">
-            <input
-              v-model="searchQuery"
-              @focus="showSearchResults = true"
-              @input="handleSearch"
-              type="text"
-              placeholder="Pesquisar em todo o sistema..."
-              class="w-full px-4 py-3 pl-12 bg-dark-700/50 border border-dark-600 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
-            />
-            <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-
-            <!-- Search Results Dropdown -->
-            <div
-              v-if="showSearchResults && searchQuery.length > 0"
-              class="absolute top-full mt-2 left-0 right-0 bg-dark-800 border border-dark-600 rounded-xl shadow-2xl max-h-96 overflow-y-auto z-50"
-            >
-              <div v-if="searchResults.length === 0" class="p-4 text-center text-gray-400">
-                Nenhum resultado encontrado
-              </div>
-              <div v-else>
+              <!-- Search Results -->
+              <div
+                v-if="searchQuery.length > 0 && searchResults.length > 0"
+                class="absolute top-full mt-1 left-0 right-0 bg-dark-800 border border-dark-700 rounded-lg shadow-xl max-h-64 overflow-y-auto"
+              >
                 <div
                   v-for="result in searchResults"
                   :key="result.id"
                   @click="navigateToResult(result)"
-                  class="p-3 hover:bg-dark-700 cursor-pointer border-b border-dark-700 last:border-b-0 transition-colors"
+                  class="flex items-center space-x-3 px-3 py-2 hover:bg-dark-700 cursor-pointer border-b border-dark-700 last:border-b-0 transition-colors"
                 >
-                  <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center">
-                      <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                      </svg>
-                    </div>
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-white">{{ result.title }}</p>
-                      <p class="text-xs text-gray-400">{{ result.type }}</p>
-                    </div>
+                  <div class="w-6 h-6 bg-primary-500/10 border border-primary-500/20 rounded flex items-center justify-center">
+                    <svg class="w-3 h-3 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                      <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-medium text-white truncate">{{ result.title }}</p>
+                    <p class="text-xs text-gray-500">{{ result.type }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </Transition>
       </div>
     </nav>
 
-    <!-- Spacer to prevent content from being hidden under fixed nav -->
-    <div class="h-64"></div>
+    <!-- Spacer -->
+    <div class="h-14"></div>
   </div>
 </template>
 
@@ -164,46 +175,20 @@ const userName = ref('Usuário')
 const userEmail = ref('')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 
-// Search
+// UI state
 const searchQuery = ref('')
-const showSearchResults = ref(false)
 const searchResults = ref<any[]>([])
-
-// User menu
 const showUserMenu = ref(false)
+const showSearchBar = ref(false)
 
-// Quick actions with icon components
+// Quick actions
 const quickActions = [
-  {
-    name: 'Calendário',
-    route: '/calendar',
-    icon: 'IconCalendar'
-  },
-  {
-    name: 'Relatórios',
-    route: '/reports',
-    icon: 'IconChart'
-  },
-  {
-    name: 'Configurar Meta',
-    route: '/study',
-    icon: 'IconTarget'
-  },
-  {
-    name: 'Gerenciar Matérias',
-    route: '/subjects',
-    icon: 'IconBook'
-  },
-  {
-    name: 'Iniciar Estudo',
-    route: '/study',
-    icon: 'IconClock'
-  },
-  {
-    name: 'Caderno Virtual',
-    route: '/notebook',
-    icon: 'IconNotebook'
-  }
+  { name: 'Calendário', route: '/calendar', icon: 'IconCalendar' },
+  { name: 'Relatórios', route: '/reports', icon: 'IconChart' },
+  { name: 'Meta', route: '/study', icon: 'IconTarget' },
+  { name: 'Matérias', route: '/subjects', icon: 'IconBook' },
+  { name: 'Estudo', route: '/study', icon: 'IconClock' },
+  { name: 'Caderno', route: '/notebook', icon: 'IconNotebook' }
 ]
 
 // Load user data
@@ -226,7 +211,6 @@ const handleSearch = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // Search in subjects
     const { data: subjects } = await supabase
       .from('subjects')
       .select('id, name')
@@ -234,7 +218,6 @@ const handleSearch = async () => {
       .ilike('name', `%${searchQuery.value}%`)
       .limit(5)
 
-    // Search in chapters
     const { data: chapters } = await supabase
       .from('chapters')
       .select('id, title, subject_id')
@@ -248,8 +231,7 @@ const handleSearch = async () => {
         id: `subject-${s.id}`,
         title: s.name,
         type: 'Caderno',
-        route: '/notebook',
-        data: s
+        route: '/notebook'
       })))
     }
 
@@ -258,8 +240,7 @@ const handleSearch = async () => {
         id: `chapter-${c.id}`,
         title: c.title,
         type: 'Capítulo',
-        route: '/notebook',
-        data: c
+        route: '/notebook'
       })))
     }
 
@@ -269,25 +250,21 @@ const handleSearch = async () => {
   }
 }
 
-// Navigate to search result
 const navigateToResult = (result: any) => {
-  showSearchResults.value = false
+  showSearchBar.value = false
   searchQuery.value = ''
   router.push(result.route)
 }
 
-// Handle logout
 const handleLogout = async () => {
   await supabase.auth.signOut()
   router.push('/login')
 }
 
-// Close dropdowns when clicking outside
 const handleClickOutside = (e: MouseEvent) => {
   const target = e.target as HTMLElement
   if (!target.closest('.relative')) {
     showUserMenu.value = false
-    showSearchResults.value = false
   }
 }
 
@@ -301,19 +278,19 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-// Icon components
+// Icon components (monocromáticos)
 const IconCalendar = {
   template: `
-    <svg fill="currentColor" viewBox="0 0 24 24">
-      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/>
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
     </svg>
   `
 }
 
 const IconChart = {
   template: `
-    <svg fill="currentColor" viewBox="0 0 24 24">
-      <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
     </svg>
   `
 }
@@ -328,8 +305,8 @@ const IconTarget = {
 
 const IconBook = {
   template: `
-    <svg fill="currentColor" viewBox="0 0 24 24">
-      <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
     </svg>
   `
 }
@@ -350,14 +327,3 @@ const IconNotebook = {
   `
 }
 </script>
-
-<style scoped>
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-</style>

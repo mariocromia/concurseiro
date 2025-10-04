@@ -177,64 +177,74 @@
     ></div>
 
     <div class="flex h-[calc(100vh-73px)]">
-      <!-- Sidebar - Matérias e Capítulos -->
-      <aside class="w-80 bg-dark-800/50 border-r border-dark-700 overflow-y-auto flex-shrink-0 backdrop-blur-sm">
-        <div class="p-4 border-b border-dark-700">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-white uppercase tracking-wide">Cadernos</h3>
-            <div class="flex items-center gap-2">
-              <button
-                @click="showSubjectForm = !showSubjectForm"
-                class="p-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-                title="Adicionar caderno"
-              >
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
-              </button>
-            </div>
+      <!-- Modern Compact Sidebar -->
+      <aside class="w-72 bg-dark-900/50 border-r border-dark-700/50 overflow-y-auto flex-shrink-0">
+        <!-- Sidebar Header -->
+        <div class="p-3 border-b border-dark-700/50 bg-dark-800/30">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Meus Cadernos</h3>
+            <button
+              @click="showSubjectForm = !showSubjectForm"
+              class="p-1 hover:bg-dark-700 rounded transition-colors"
+              title="Adicionar caderno"
+            >
+              <svg class="w-4 h-4 text-gray-400 hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
           </div>
 
-          <!-- New Subject Form -->
-          <div v-if="showSubjectForm" class="p-3 bg-dark-700/50 rounded-lg border border-dark-600">
-            <form @submit.prevent="createSubject" class="space-y-2">
-              <input
-                v-model="subjectForm.name"
-                type="text"
-                placeholder="Nome do caderno"
-                class="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 text-white placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                required
-              />
-              <div class="grid grid-cols-2 gap-2">
-                <button
-                  type="submit"
-                  :disabled="loading"
-                  class="px-3 py-2 text-xs bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 font-medium"
-                >
-                  Criar
-                </button>
-                <button
-                  type="button"
-                  @click="cancelSubjectForm"
-                  class="px-3 py-2 text-xs border border-dark-600 text-gray-400 rounded-lg hover:bg-dark-700 font-medium"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
+          <!-- Compact Subject Form -->
+          <Transition
+            enter-active-class="transition-all ease-out duration-200"
+            enter-from-class="opacity-0 -translate-y-1"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all ease-in duration-150"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-1"
+          >
+            <div v-if="showSubjectForm" class="mt-2">
+              <form @submit.prevent="createSubject" class="space-y-2">
+                <input
+                  v-model="subjectForm.name"
+                  type="text"
+                  placeholder="Nome do caderno..."
+                  class="w-full px-2 py-1.5 text-xs bg-dark-800 border border-dark-700 text-white placeholder-gray-600 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  required
+                />
+                <div class="flex gap-1.5">
+                  <button
+                    type="submit"
+                    :disabled="loading"
+                    class="flex-1 px-2 py-1 text-xs bg-primary-500/20 border border-primary-500/30 text-primary-400 rounded hover:bg-primary-500/30 disabled:opacity-50 font-medium transition-all"
+                  >
+                    Criar
+                  </button>
+                  <button
+                    type="button"
+                    @click="cancelSubjectForm"
+                    class="px-2 py-1 text-xs border border-dark-700 text-gray-500 rounded hover:bg-dark-700 transition-all"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </form>
+            </div>
+          </Transition>
         </div>
 
         <!-- Subjects Tree -->
         <div class="p-2">
-          <div v-if="subjects.length === 0 && !showSubjectForm" class="text-center py-8 px-4">
-            <div class="text-4xl mb-3">📚</div>
-            <p class="text-sm text-gray-400 mb-3">Nenhum caderno ainda</p>
+          <div v-if="subjects.length === 0 && !showSubjectForm" class="text-center py-12 px-3">
+            <svg class="w-12 h-12 text-gray-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            <p class="text-xs text-gray-500 mb-2">Nenhum caderno</p>
             <button
               @click="showSubjectForm = true"
-              class="text-xs text-primary-400 hover:text-primary-300"
+              class="text-xs text-primary-400 hover:text-primary-300 transition-colors"
             >
-              Clique no + para criar
+              Criar primeiro caderno
             </button>
           </div>
 
@@ -249,30 +259,31 @@
             class="space-y-1"
           >
             <template #item="{ element: subject }">
-              <div class="mb-1">
+              <div class="mb-0.5">
                 <div
-                  class="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group"
-                  :class="{ 'bg-dark-700 border border-primary-500/30': selectedSubject?.id === subject.id }"
+                  class="flex items-center justify-between px-2 py-1.5 rounded hover:bg-dark-800/50 transition-colors group"
+                  :class="{ 'bg-dark-800/70 border-l-2 border-primary-500': selectedSubject?.id === subject.id }"
                 >
-                  <div class="flex items-center space-x-2 flex-1">
+                  <div class="flex items-center space-x-1.5 flex-1 min-w-0">
                     <!-- Drag Handle -->
                     <svg
-                      class="w-4 h-4 text-gray-600 hover:text-gray-400 cursor-move drag-handle"
+                      class="w-3 h-3 text-gray-700 hover:text-gray-500 cursor-move drag-handle flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
-                      title="Arrastar para reordenar"
+                      title="Arrastar"
                     >
                       <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                     </svg>
 
                     <svg
                       @click.stop="toggleSubject(subject.id)"
-                      class="w-4 h-4 text-gray-500 transition-transform cursor-pointer"
+                      class="w-3 h-3 text-gray-600 transition-transform cursor-pointer flex-shrink-0"
                       :class="{ 'rotate-90': expandedSubjects[subject.id] }"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
 
                     <!-- Nome ou Input de Edição -->
@@ -283,37 +294,37 @@
                       @keyup.enter="saveSubjectEdit(subject.id)"
                       @keyup.esc="cancelSubjectEdit"
                       :data-subject-id="subject.id"
-                      class="subject-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-primary-500 text-white rounded focus:outline-none"
+                      class="subject-edit-input flex-1 px-1.5 py-0.5 text-xs bg-dark-900 border border-primary-500 text-white rounded focus:outline-none"
                       @click.stop
                     />
                     <span
                       v-else
                       @click.stop="toggleSubject(subject.id)"
                       @dblclick.stop="startEditSubject(subject)"
-                      class="text-sm font-medium text-white cursor-pointer hover:text-primary-400 transition-colors flex-1"
+                      class="text-xs font-medium text-gray-300 cursor-pointer hover:text-white transition-colors flex-1 truncate"
                       title="Duplo clique para editar"
                     >
                       {{ subject.name }}
                     </span>
                   </div>
 
-                  <div class="flex items-center space-x-1">
+                  <div class="flex items-center space-x-0.5 flex-shrink-0">
                     <button
                       @click.stop="openChapterMenu(subject)"
-                      class="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary-500/20 rounded transition-all"
+                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
                       title="Adicionar capítulo"
                     >
-                      <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                      <svg class="w-3 h-3 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                       </svg>
                     </button>
                     <button
                       @click.stop="confirmDeleteSubject(subject)"
-                      class="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
-                      title="Excluir matéria"
+                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-500/20 rounded transition-all"
+                      title="Excluir caderno"
                     >
-                      <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                      <svg class="w-3 h-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                       </svg>
                     </button>
                   </div>
