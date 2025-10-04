@@ -10,7 +10,7 @@ export const useGeminiAI = () => {
    */
   const generateText = async (prompt: string, context?: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
 
       const fullPrompt = context
         ? `${context}\n\n${prompt}`
@@ -162,7 +162,7 @@ Inclua:
    * Chat com contexto (para conversação)
    */
   const chat = async (messages: { role: 'user' | 'assistant', content: string }[]) => {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
     const chat = model.startChat({
       history: messages.slice(0, -1).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
