@@ -1,0 +1,20 @@
+/* Content Script Styles - Injected into pages */
+
+/* Ensure our styles don't interfere with page */
+.concurseiro-highlight,
+.concurseiro-block-overlay,
+.concurseiro-quick-toolbar {
+  all: initial !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Text highlighting */
+.concurseiro-highlight {
+  background-color: #fef08a !important;
+  padding: 2px 4px !important;
+  border-radius: 2px !important;
+  display: inline !important;
+}
+
+/* These styles are also defined in content-script.js for better isolation */
+/* Keeping here for reference and fallback */

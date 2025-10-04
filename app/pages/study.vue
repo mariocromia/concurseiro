@@ -1,32 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
-    <!-- Header -->
-    <header class="border-b border-dark-700 bg-dark-900/50 backdrop-blur-sm">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <div>
-              <h1 class="text-2xl font-bold text-white">Cronômetro de Estudo</h1>
-              <p class="text-sm text-gray-400">Monitore seu tempo e mantenha o foco</p>
-            </div>
-          </div>
-          <NuxtLink
-            to="/dashboard"
-            class="inline-flex items-center px-4 py-2 border border-dark-700 rounded-lg text-gray-300 bg-dark-800 hover:bg-dark-700 transition-colors"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Voltar
-          </NuxtLink>
-        </div>
-      </div>
-    </header>
+
 
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

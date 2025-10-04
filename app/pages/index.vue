@@ -1,20 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
-    <!-- Header -->
-    <header class="border-b border-dark-700 bg-dark-900/50 backdrop-blur-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg"></div>
-          <span class="text-xl font-bold text-white">Concurseiro</span>
-        </div>
-        <NuxtLink
-          to="/login"
-          class="px-6 py-2 text-primary-400 hover:text-primary-300 font-semibold transition"
-        >
-          Entrar
-        </NuxtLink>
-      </div>
-    </header>
+
 
     <!-- Hero Section -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

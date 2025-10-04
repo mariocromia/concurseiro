@@ -1,32 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
-    <!-- Header -->
-    <header class="border-b border-dark-700 bg-dark-900/50 backdrop-blur-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-            </div>
-            <div>
-              <h1 class="text-2xl font-bold text-white">Gestão de Matérias</h1>
-              <p class="text-sm text-gray-400">Organize e gerencie suas matérias de estudo</p>
-            </div>
-          </div>
-          <NuxtLink
-            to="/dashboard"
-            class="inline-flex items-center px-4 py-2 border border-dark-700 rounded-lg text-gray-300 bg-dark-800 hover:bg-dark-700 transition-colors"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Voltar
-          </NuxtLink>
-        </div>
-      </div>
-    </header>
+
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Add/Edit Form -->

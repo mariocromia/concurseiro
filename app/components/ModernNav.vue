@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Compact Modern Header -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-dark-900/95 backdrop-blur-md border-b border-dark-700/50 shadow-lg">
+    <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-dark-700/50 shadow-lg" style="background-color: #0f172a;">
       <div class="max-w-7xl mx-auto px-4">
         <!-- Main Header Row -->
         <div class="flex items-center justify-between h-16">
