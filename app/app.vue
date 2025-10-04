@@ -5,7 +5,9 @@
       <FloatingTimer />
       <WhatsAppButton />
     </ClientOnly>
-    <NuxtPage />
+    <div :class="{ 'pt-16': showNav }">
+      <NuxtPage />
+    </div>
   </div>
 </template>
 
