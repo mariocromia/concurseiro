@@ -13,6 +13,134 @@
       title="Clique para fechar a busca"
     ></div>
 
+    <!-- Advanced Search Panel -->
+    <Transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0 translate-y-1"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-1"
+    >
+      <div
+        v-if="showInlineSearch"
+        class="fixed top-20 left-0 right-0 bg-dark-900/98 backdrop-blur-xl border border-dark-700 shadow-2xl max-h-[75vh] flex flex-col z-50"
+      >
+        <!-- Fixed Header -->
+        <div class="sticky top-0 bg-dark-900/98 backdrop-blur-xl border-b border-dark-700 z-10">
+          <div class="max-w-4xl mx-auto px-6 py-6">
+            <div class="flex items-start gap-4">
+              <!-- Search Input -->
+              <div class="flex-1">
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    ref="searchInput"
+                    v-model="inlineSearchQuery"
+                    @input="performInlineSearch"
+                    type="text"
+                    placeholder="Digite para buscar... (use + para múltiplos termos: dia+lindo)"
+                    class="w-full pl-12 pr-4 py-3.5 bg-dark-800 border-2 border-dark-600 text-white text-base placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    autofocus
+                  />
+                </div>
+              </div>
+
+              <!-- Close/Clear Button -->
+              <button
+                @click.stop="inlineSearchQuery ? (inlineSearchQuery = '', inlineResults = []) : (showInlineSearch = false)"
+                class="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-colors"
+                :title="inlineSearchQuery ? 'Limpar busca' : 'Fechar busca'"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-2 mt-4">
+              <button
+                v-for="filter in searchFilters"
+                :key="filter.value"
+                @click="toggleInlineFilter(filter.value)"
+                :class="[
+                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                  activeInlineFilters.includes(filter.value)
+                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/50'
+                    : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white'
+                ]"
+              >
+                {{ filter.icon }} {{ filter.label }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="max-w-4xl mx-auto px-6 py-6">
+
+          <!-- Initial State -->
+          <div v-if="!inlineSearchQuery && !searchingInline" class="text-center py-12 text-gray-500">
+            <div class="text-6xl mb-4">🔍</div>
+            <p class="text-lg font-medium text-white">Buscar nos Cadernos</p>
+            <p class="text-sm mt-2">Digite acima para buscar em cadernos, capítulos, conteúdos e lembretes</p>
+          </div>
+
+          <!-- Loading -->
+          <div v-else-if="searchingInline" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
+            <p class="text-gray-400 mt-4">Buscando...</p>
+          </div>
+
+          <!-- No Results -->
+          <div v-else-if="inlineSearchQuery && inlineResults.length === 0" class="text-center py-12 text-gray-500">
+            <div class="text-6xl mb-4">🔍</div>
+            <p class="text-lg font-medium">Nenhum resultado encontrado</p>
+            <p class="text-sm mt-2">Tente buscar por outros termos</p>
+          </div>
+
+          <!-- Results -->
+          <div v-else-if="inlineResults.length > 0" class="space-y-5">
+            <div class="text-sm text-gray-400 mb-4">
+              <span class="font-medium text-white">{{ inlineResults.length }}</span> resultado(s) encontrado(s)
+            </div>
+
+            <div
+              v-for="result in inlineResults"
+              :key="result.id"
+              @click="handleInlineResultClick(result)"
+              class="group cursor-pointer p-4 rounded-xl bg-dark-800/50 hover:bg-dark-700/70 border border-dark-600 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10"
+            >
+              <!-- Title -->
+              <h3 class="text-lg mb-1.5">
+                <span class="text-primary-400" v-html="getSubjectNameInline(result)"></span>
+                <span v-if="getChapterNameInline(result)" class="text-primary-400"> › </span>
+                <span v-if="getChapterNameInline(result)" class="text-primary-400" v-html="getChapterNameInline(result)"></span>
+              </h3>
+
+              <!-- Meta -->
+              <div class="flex items-center gap-3 text-xs mb-2">
+                <span class="text-green-600">{{ formatDateInline(result.date) }}</span>
+                <span v-if="result.matchCount > 1" class="text-gray-500">•</span>
+                <span v-if="result.matchCount > 1" class="text-gray-400">{{ result.matchCount }} ocorrência(s)</span>
+              </div>
+
+              <!-- Snippet -->
+              <div class="text-sm text-gray-400 leading-relaxed" v-html="highlightTextInline(result.snippet)"></div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+
     <div class="flex h-[calc(100vh-73px)]">
       <!-- Modern Compact Sidebar -->
       <aside class="w-80 bg-dark-900/50 border-r border-dark-700/50 overflow-y-auto flex-shrink-0">
