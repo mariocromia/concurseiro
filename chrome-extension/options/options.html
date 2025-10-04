@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - Concurseiro</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="options-header">
+      <h1>⚙️ Configurações da Extensão</h1>
+      <p>Configure o comportamento da extensão Concurseiro</p>
+    </header>
+
+    <main class="options-main">
+      <!-- Block Settings -->
+      <section class="settings-section">
+        <h2>🔒 Bloqueio de Sites</h2>
+        <p class="section-description">Configure quais sites serão bloqueados durante suas sessões de estudo</p>
+
+        <div class="form-group">
+          <label for="block-mode">Modo de Bloqueio:</label>
+          <select id="block-mode" class="form-select">
+            <option value="strict">Strict - Bloqueia redes sociais, streaming, jogos</option>
+            <option value="moderate" selected>Moderate - Apenas redes sociais principais</option>
+            <option value="custom">Custom - Personalizado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="block-only-study" checked>
+            <span>Bloquear apenas durante sessões de estudo</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="blocked-sites">Sites Bloqueados (um por linha):</label>
+          <textarea id="blocked-sites" rows="6" placeholder="facebook.com&#10;instagram.com&#10;youtube.com"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="allowed-sites">Sites Sempre Permitidos:</label>
+          <textarea id="allowed-sites" rows="4" placeholder="qconcursos.com&#10;estrategiaconcursos.com.br"></textarea>
+        </div>
+      </section>
+
+      <!-- Tracking Settings -->
+      <section class="settings-section">
+        <h2>📊 Rastreamento</h2>
+        <p class="section-description">Configure como seus dados de navegação são rastreados</p>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tracking-enabled" checked>
+            <span>Ativar rastreamento de tempo</span>
+          </label>
+          <p class="help-text">Rastreia tempo gasto em cada site durante sessões de estudo</p>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="categorization-enabled" checked>
+            <span>Categorizar sites automaticamente</span>
+          </label>
+          <p class="help-text">Classifica sites em educacionais, distrações ou neutros</p>
+        </div>
+      </section>
+
+      <!-- Notifications Settings -->
+      <section class="settings-section">
+        <h2>🔔 Notificações</h2>
+        <p class="section-description">Configure quando e como receber notificações</p>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="notifications-enabled" checked>
+            <span>Ativar notificações</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="pomodoro-notifications" checked>
+            <span>Notificações de Pomodoro</span>
+          </label>
+          <p class="help-text">Avisos 5 minutos antes e ao finalizar sessões</p>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="capture-notifications" checked>
+            <span>Notificações de captura</span>
+          </label>
+          <p class="help-text">Confirmar quando questões forem salvas com sucesso</p>
+        </div>
+      </section>
+
+      <!-- Capture Settings -->
+      <section class="settings-section">
+        <h2>📝 Captura de Conteúdo</h2>
+        <p class="section-description">Configure o comportamento da captura de questões</p>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="auto-detect">
+            <span>Detectar questões automaticamente</span>
+          </label>
+          <p class="help-text">Tenta identificar tipo de questão e matéria automaticamente</p>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="quick-toolbar" checked>
+            <span>Mostrar toolbar rápida ao selecionar texto</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="capture-images" checked>
+            <span>Capturar imagens junto com o texto</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Data & Privacy -->
+      <section class="settings-section">
+        <h2>🔐 Dados e Privacidade</h2>
+        <p class="section-description">Gerencie seus dados e privacidade</p>
+
+        <div class="form-group">
+          <button id="clear-cache-btn" class="btn-secondary">
+            Limpar Cache Local
+          </button>
+          <p class="help-text">Remove dados temporários armazenados localmente</p>
+        </div>
+
+        <div class="form-group">
+          <button id="export-data-btn" class="btn-secondary">
+            Exportar Dados
+          </button>
+          <p class="help-text">Baixar todas as suas capturas e configurações</p>
+        </div>
+
+        <div class="form-group danger-zone">
+          <button id="reset-settings-btn" class="btn-danger">
+            Restaurar Configurações Padrão
+          </button>
+          <p class="help-text">⚠️ Isso resetará todas as configurações</p>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section class="settings-section">
+        <h2>ℹ️ Sobre</h2>
+        <div class="about-info">
+          <p><strong>Versão:</strong> 1.0.0</p>
+          <p><strong>App Web:</strong> <a href="http://localhost:3000" target="_blank">localhost:3000</a></p>
+          <p><strong>Suporte:</strong> <a href="https://wa.me/5521997808370" target="_blank">WhatsApp</a></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="options-footer">
+      <button id="save-btn" class="btn-primary">
+        💾 Salvar Configurações
+      </button>
+    </footer>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast hidden">
+      Configurações salvas com sucesso!
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
