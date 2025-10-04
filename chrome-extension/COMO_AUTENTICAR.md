@@ -60,11 +60,16 @@ Precisamos copiar essa sessão para a extensão.
    [Extension] ✅ Active session found!
    ```
 
-### Método 2: Auto-Sync (Código Melhorado)
+### Método 2: Auto-Sync (Código Melhorado) - RECOMENDADO PARA PRODUÇÃO
 
-Vou criar um arquivo que sincroniza automaticamente:
+#### Passo 1: Pegar o Extension ID
 
-#### Adicionar ao App Web:
+1. Vá em: `chrome://extensions/`
+2. Ative o "Modo do desenvolvedor" no canto superior direito
+3. Encontre a extensão "Concurseiro - Extensão de Estudo"
+4. Copie o **ID** que aparece abaixo do nome (exemplo: `abcdefghijklmnopqrstuvwxyz123456`)
+
+#### Passo 2: Adicionar Plugin ao App Web
 
 Crie um arquivo `app/plugins/extension-sync.client.ts`:
 
@@ -72,15 +77,16 @@ Crie um arquivo `app/plugins/extension-sync.client.ts`:
 export default defineNuxtPlugin((nuxtApp) => {
   const supabase = useSupabaseClient()
 
-  // Detectar se extensão está instalada
-  const EXTENSION_ID = 'SEU_EXTENSION_ID_AQUI' // Pegar em chrome://extensions/
+  // IMPORTANTE: Substitua pelo ID da sua extensão (veja passo 1)
+  const EXTENSION_ID = 'COLE_SEU_EXTENSION_ID_AQUI'
 
+  // Sincronizar sessão quando houver mudanças de autenticação
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth changed:', event)
+    console.log('[App] Auth changed:', event)
 
-    if (event === 'SIGNED_IN' && session) {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
       // Enviar sessão para extensão
-      if (window.chrome && chrome.runtime) {
+      if (window.chrome?.runtime) {
         chrome.runtime.sendMessage(
           EXTENSION_ID,
           {
@@ -88,67 +94,32 @@ export default defineNuxtPlugin((nuxtApp) => {
             session: session
           },
           (response) => {
-            console.log('Sessão enviada para extensão:', response)
+            if (chrome.runtime.lastError) {
+              console.log('[App] Extension não instalada ou ID incorreto')
+            } else {
+              console.log('[App] ✅ Sessão enviada para extensão:', response)
+            }
           }
         )
       }
-
-      // Também salvar no storage compartilhado
-      localStorage.setItem('supabase_session', JSON.stringify(session))
     }
   })
 })
 ```
 
-#### Adicionar na Extensão:
+#### Passo 3: Testar
 
-No `background/background.js`, adicionar no início:
+1. Recarregue o app web (`npm run dev`)
+2. Faça logout e login novamente
+3. Abra o DevTools da extensão (chrome://extensions/ → Service Worker → Console)
+4. Deve aparecer:
+   ```
+   [Extension] 🔐 Session received from web app!
+   [Extension] ✅ Session restored successfully!
+   [Extension] ✅ User authenticated: xxx-xxx-xxx
+   ```
 
-```javascript
-// Escutar mensagens do app web
-chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
-  if (request.type === 'AUTH_SESSION') {
-    console.log('[Extension] Sessão recebida do app web!')
-
-    // Salvar sessão
-    chrome.storage.local.set({
-      supabase_session: request.session
-    })
-
-    // Autenticar Supabase
-    supabaseClient.auth.setSession(request.session)
-
-    // Verificar sessão imediatamente
-    checkActiveSession()
-
-    sendResponse({ success: true })
-  }
-  return true
-})
-
-// Também tentar ler do localStorage compartilhado
-async function tryLoadSessionFromLocalStorage() {
-  // Injetar script na aba do app para ler localStorage
-  const tabs = await chrome.tabs.query({ url: 'http://localhost:3000/*' })
-
-  if (tabs.length > 0) {
-    const result = await chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      func: () => localStorage.getItem('supabase_session')
-    })
-
-    if (result && result[0].result) {
-      const session = JSON.parse(result[0].result)
-      await chrome.storage.local.set({ supabase_session: session })
-      await supabaseClient.auth.setSession(session)
-      console.log('[Extension] Sessão carregada do localStorage!')
-    }
-  }
-}
-
-// Tentar carregar ao iniciar
-setTimeout(tryLoadSessionFromLocalStorage, 3000)
-```
+**Nota:** A extensão já está preparada para receber a sessão do app! Não precisa modificar código na extensão.
 
 ### Método 3: Token Compartilhado
 

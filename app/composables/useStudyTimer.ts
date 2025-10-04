@@ -31,7 +31,7 @@ export const useStudyTimer = () => {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   })
 
-  const startTimer = (subjectId: string, studyType: 'conteudo' | 'questoes' | 'revisao' = 'conteudo', plannedQuestions?: number) => {
+  const startTimer = async (subjectId: string, studyType: 'conteudo' | 'questoes' | 'revisao' = 'conteudo', plannedQuestions?: number) => {
     if (timer.value.isRunning) return
     console.log('⏱️ Iniciando timer para subject:', subjectId, 'tipo:', studyType)
     timer.value.subjectId = subjectId
@@ -44,6 +44,38 @@ export const useStudyTimer = () => {
     now.value = Date.now()
     if (globalInterval) clearInterval(globalInterval)
     globalInterval = setInterval(() => { now.value = Date.now() }, 1000)
+
+    // Enviar sessão para extensão Chrome via postMessage (não depende de ID)
+    try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (sessionData?.session) {
+        // Enviar autenticação
+        window.postMessage({
+          source: 'concurseiro-app',
+          type: 'AUTH_SESSION',
+          session: {
+            access_token: sessionData.session.access_token,
+            refresh_token: sessionData.session.refresh_token
+          }
+        }, '*')
+
+        // Enviar informação de que timer foi iniciado
+        window.postMessage({
+          source: 'concurseiro-app',
+          type: 'STUDY_SESSION_STARTED',
+          data: {
+            subjectId: subjectId,
+            studyType: studyType,
+            plannedQuestions: plannedQuestions,
+            startedAt: new Date().toISOString()
+          }
+        }, '*')
+
+        console.log('✅ Timer iniciado - sessão e dados enviados para extensão')
+      }
+    } catch (error) {
+      console.log('⚠️ Erro ao comunicar com extensão:', error)
+    }
   }
 
   const pauseTimer = () => {
@@ -57,6 +89,14 @@ export const useStudyTimer = () => {
       clearInterval(globalInterval)
       globalInterval = null
     }
+
+    // Notificar extensão
+    if (process.client) {
+      window.postMessage({
+        source: 'concurseiro-app',
+        type: 'STUDY_SESSION_PAUSED'
+      }, '*')
+    }
   }
 
   const resumeTimer = () => {
@@ -68,6 +108,14 @@ export const useStudyTimer = () => {
     console.log('⏱️ Novo startTime:', timer.value.startTime)
     if (globalInterval) clearInterval(globalInterval)
     globalInterval = setInterval(() => { now.value = Date.now() }, 1000)
+
+    // Notificar extensão
+    if (process.client) {
+      window.postMessage({
+        source: 'concurseiro-app',
+        type: 'STUDY_SESSION_RESUMED'
+      }, '*')
+    }
   }
 
   const stopTimer = async (completionData?: { notes?: string, completedQuestions?: number, correctQuestions?: number }) => {
@@ -88,6 +136,19 @@ export const useStudyTimer = () => {
     const studyType = timer.value.studyType
     const plannedQuestions = timer.value.plannedQuestions
     const subjectId = timer.value.subjectId
+
+    // Notificar extensão antes de resetar
+    if (process.client) {
+      window.postMessage({
+        source: 'concurseiro-app',
+        type: 'STUDY_SESSION_STOPPED',
+        data: {
+          duration,
+          completedQuestions: completionData?.completedQuestions,
+          correctQuestions: completionData?.correctQuestions
+        }
+      }, '*')
+    }
 
     // Reset state
     timer.value.isRunning = false

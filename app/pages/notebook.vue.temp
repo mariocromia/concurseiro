@@ -1,87 +1,243 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <!-- Header -->
+    <header class="border-b border-dark-700 bg-dark-900/50 backdrop-blur-sm sticky top-0 z-40">
+      <div class="max-w-[1920px] mx-auto px-6 py-4">
+        <div class="flex items-center justify-between gap-6">
+          <div class="flex items-center space-x-3 flex-shrink-0">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center text-xl">
+              📚
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-white">
+                Caderno Inteligente
+              </h1>
+              <p class="text-xs text-gray-400">Seus estudos potencializados por IA</p>
+            </div>
+          </div>
 
+          <div class="flex-1"></div>
+
+          <div class="flex items-center space-x-3 flex-shrink-0">
+            <div v-if="!isPro" @click="handleUpgrade" class="px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg text-xs font-semibold cursor-pointer hover:shadow-lg transition-shadow">
+              ⭐ Upgrade PRO
+            </div>
+            <NuxtLink
+              to="/dashboard"
+              class="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition"
+            >
+              ← Voltar
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inline Search Modal -->
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0 translate-y-1"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-1"
+      >
+        <div
+          v-if="showInlineSearch"
+          class="absolute top-full left-0 right-0 bg-dark-900/98 backdrop-blur-xl border-t border-dark-700 shadow-2xl max-h-[75vh] flex flex-col z-50"
+        >
+          <!-- Fixed Header -->
+          <div class="sticky top-0 bg-dark-900/98 backdrop-blur-xl border-b border-dark-700 z-10">
+            <div class="max-w-4xl mx-auto px-6 py-6">
+              <div class="flex items-start gap-4">
+                <!-- Search Input -->
+                <div class="flex-1">
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <input
+                      ref="searchInput"
+                      v-model="inlineSearchQuery"
+                      @input="performInlineSearch"
+                      type="text"
+                      placeholder="Digite para buscar... (use + para múltiplos termos: dia+lindo)"
+                      class="w-full pl-12 pr-4 py-3.5 bg-dark-800 border-2 border-dark-600 text-white text-base placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                      autofocus
+                    />
+                  </div>
+                </div>
+
+                <!-- Close/Clear Button -->
+                <button
+                  @click.stop="inlineSearchQuery ? (inlineSearchQuery = '', inlineResults = []) : (showInlineSearch = false)"
+                  class="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-colors"
+                  :title="inlineSearchQuery ? 'Limpar busca' : 'Fechar busca'"
+                >
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Filters -->
+              <div class="flex flex-wrap gap-2 mt-4">
+                <button
+                  v-for="filter in searchFilters"
+                  :key="filter.value"
+                  @click="toggleInlineFilter(filter.value)"
+                  :class="[
+                    'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                    activeInlineFilters.includes(filter.value)
+                      ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/50'
+                      : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white'
+                  ]"
+                >
+                  {{ filter.icon }} {{ filter.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scrollable Content -->
+          <div class="flex-1 overflow-y-auto">
+            <div class="max-w-4xl mx-auto px-6 py-6">
+
+            <!-- Initial State -->
+            <div v-if="!inlineSearchQuery && !searchingInline" class="text-center py-12 text-gray-500">
+              <div class="text-6xl mb-4">🔍</div>
+              <p class="text-lg font-medium text-white">Buscar nos Cadernos</p>
+              <p class="text-sm mt-2">Digite acima para buscar em cadernos, capítulos, conteúdos e lembretes</p>
+            </div>
+
+            <!-- Loading -->
+            <div v-else-if="searchingInline" class="text-center py-12">
+              <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
+              <p class="text-gray-400 mt-4">Buscando...</p>
+            </div>
+
+            <!-- No Results -->
+            <div v-else-if="inlineSearchQuery && inlineResults.length === 0" class="text-center py-12 text-gray-500">
+              <div class="text-6xl mb-4">🔍</div>
+              <p class="text-lg font-medium">Nenhum resultado encontrado</p>
+              <p class="text-sm mt-2">Tente buscar por outros termos</p>
+            </div>
+
+            <!-- Results -->
+            <div v-else-if="inlineResults.length > 0" class="space-y-5">
+              <div class="text-sm text-gray-400 mb-4">
+                <span class="font-medium text-white">{{ inlineResults.length }}</span> resultado(s) encontrado(s)
+              </div>
+
+              <div
+                v-for="result in inlineResults"
+                :key="result.id"
+                @click="handleInlineResultClick(result)"
+                class="group cursor-pointer p-4 rounded-xl bg-dark-800/50 hover:bg-dark-700/70 border border-dark-600 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10"
+              >
+                <!-- Title -->
+                <h3 class="text-lg mb-1.5">
+                  <span class="text-primary-400" v-html="getSubjectNameInline(result)"></span>
+                  <span v-if="getChapterNameInline(result)" class="text-primary-400"> › </span>
+                  <span v-if="getChapterNameInline(result)" class="text-primary-400" v-html="getChapterNameInline(result)"></span>
+                </h3>
+
+                <!-- Meta -->
+                <div class="flex items-center gap-3 text-xs mb-2">
+                  <span class="text-green-600">{{ formatDateInline(result.date) }}</span>
+                  <span v-if="result.matchCount > 1" class="text-gray-500">•</span>
+                  <span v-if="result.matchCount > 1" class="text-gray-400">{{ result.matchCount }} ocorrência(s)</span>
+                </div>
+
+                <!-- Snippet -->
+                <div class="text-sm text-gray-400 leading-relaxed" v-html="highlightTextInline(result.snippet)"></div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </header>
 
     <!-- Overlay for search (clicável para fechar) -->
     <div
       v-show="showInlineSearch"
-      @click="showInlineSearch = false; inlineSearchQuery = ''; inlineResults = []"
+      @click="showInlineSearch = false"
       class="fixed inset-0 bg-black/80 backdrop-blur-md z-30 transition-opacity duration-200"
-      :class="[
-        showInlineSearch ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-      ]"
+      :class="showInlineSearch ? 'opacity-100' : 'opacity-0'"
       title="Clique para fechar a busca"
     ></div>
 
     <div class="flex h-[calc(100vh-73px)]">
-      <!-- Modern Compact Sidebar -->
-      <aside class="w-80 bg-dark-900/50 border-r border-dark-700/50 overflow-y-auto flex-shrink-0">
-        <!-- Sidebar Header -->
-        <div class="p-4 border-b border-dark-700/50 bg-dark-800/30">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Meus Cadernos</h3>
-            <button
-              @click="showSubjectForm = !showSubjectForm"
-              class="p-1 hover:bg-dark-700 rounded transition-colors"
-              title="Adicionar caderno"
-            >
-              <svg class="w-5 h-5 text-gray-400 hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-            </button>
+      <!-- Sidebar - Matérias e Capítulos -->
+      <aside class="w-80 bg-dark-800/50 border-r border-dark-700 overflow-y-auto flex-shrink-0 backdrop-blur-sm">
+        <div class="p-4 border-b border-dark-700">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wide">Cadernos</h3>
+            <div class="flex items-center gap-2">
+              <!-- Search Button -->
+              <button
+                @click="showSmartSearch = true"
+                class="p-1.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+                title="Busca inteligente"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              <button
+                @click="showSubjectForm = !showSubjectForm"
+                class="p-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+                title="Adicionar caderno"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <!-- Compact Subject Form -->
-          <Transition
-            enter-active-class="transition-all ease-out duration-200"
-            enter-from-class="opacity-0 -translate-y-1"
-            enter-to-class="opacity-100 translate-y-0"
-            leave-active-class="transition-all ease-in duration-150"
-            leave-from-class="opacity-100 translate-y-0"
-            leave-to-class="opacity-0 -translate-y-1"
-          >
-            <div v-if="showSubjectForm" class="mt-2">
-              <form @submit.prevent="createSubject" class="space-y-2">
-                <input
-                  v-model="subjectForm.name"
-                  type="text"
-                  placeholder="Nome do caderno..."
-                  class="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-700 text-white placeholder-gray-600 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-                <div class="flex gap-1.5">
-                  <button
-                    type="submit"
-                    :disabled="loading"
-                    class="flex-1 px-3 py-1.5 text-sm bg-primary-500/20 border border-primary-500/30 text-primary-400 rounded hover:bg-primary-500/30 disabled:opacity-50 font-medium transition-all"
-                  >
-                    Criar
-                  </button>
-                  <button
-                    type="button"
-                    @click="cancelSubjectForm"
-                    class="px-3 py-1.5 text-sm border border-dark-700 text-gray-500 rounded hover:bg-dark-700 transition-all"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </form>
-            </div>
-          </Transition>
+          <!-- New Subject Form -->
+          <div v-if="showSubjectForm" class="p-3 bg-dark-700/50 rounded-lg border border-dark-600">
+            <form @submit.prevent="createSubject" class="space-y-2">
+              <input
+                v-model="subjectForm.name"
+                type="text"
+                placeholder="Nome do caderno"
+                class="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 text-white placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                required
+              />
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  type="submit"
+                  :disabled="loading"
+                  class="px-3 py-2 text-xs bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 font-medium"
+                >
+                  Criar
+                </button>
+                <button
+                  type="button"
+                  @click="cancelSubjectForm"
+                  class="px-3 py-2 text-xs border border-dark-600 text-gray-400 rounded-lg hover:bg-dark-700 font-medium"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <!-- Subjects Tree -->
-        <div class="p-3">
-          <div v-if="subjects.length === 0 && !showSubjectForm" class="text-center py-12 px-3">
-            <svg class="w-12 h-12 text-gray-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-            </svg>
-            <p class="text-sm text-gray-500 mb-2">Nenhum caderno</p>
+        <div class="p-2">
+          <div v-if="subjects.length === 0 && !showSubjectForm" class="text-center py-8 px-4">
+            <div class="text-4xl mb-3">📚</div>
+            <p class="text-sm text-gray-400 mb-3">Nenhum caderno ainda</p>
             <button
               @click="showSubjectForm = true"
-              class="text-sm text-primary-400 hover:text-primary-300 transition-colors"
+              class="text-xs text-primary-400 hover:text-primary-300"
             >
-              Criar primeiro caderno
+              Clique no + para criar
             </button>
           </div>
 
@@ -90,37 +246,34 @@
             @end="onSubjectDragEnd"
             item-key="id"
             handle=".drag-handle"
-            ghost-class="opacity-50 bg-primary-500/20"
-            chosen-class="shadow-lg shadow-primary-500/50 scale-105"
-            drag-class="opacity-0"
+            ghost-class="opacity-50"
             class="space-y-1"
           >
             <template #item="{ element: subject }">
-              <div class="mb-0.5">
+              <div class="mb-1">
                 <div
-                  class="flex items-center justify-between px-3 py-2 rounded hover:bg-dark-800/50 transition-colors group"
-                  :class="{ 'bg-dark-800/70 border-l-2 border-primary-500': selectedSubject?.id === subject.id }"
+                  class="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group"
+                  :class="{ 'bg-dark-700 border border-primary-500/30': selectedSubject?.id === subject.id }"
                 >
-                  <div class="flex items-center space-x-1.5 flex-1 min-w-0">
+                  <div class="flex items-center space-x-2 flex-1">
                     <!-- Drag Handle -->
                     <svg
-                      class="w-4 h-4 text-gray-700 hover:text-gray-500 cursor-move drag-handle flex-shrink-0"
+                      class="w-4 h-4 text-gray-600 hover:text-gray-400 cursor-move drag-handle"
                       fill="currentColor"
                       viewBox="0 0 20 20"
-                      title="Arrastar"
+                      title="Arrastar para reordenar"
                     >
                       <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                     </svg>
 
                     <svg
                       @click.stop="toggleSubject(subject.id)"
-                      class="w-4 h-4 text-gray-600 transition-transform cursor-pointer flex-shrink-0"
+                      class="w-4 h-4 text-gray-500 transition-transform cursor-pointer"
                       :class="{ 'rotate-90': expandedSubjects[subject.id] }"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
                     >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                     </svg>
 
                     <!-- Nome ou Input de Edição -->
@@ -138,73 +291,67 @@
                       v-else
                       @click.stop="toggleSubject(subject.id)"
                       @dblclick.stop="startEditSubject(subject)"
-                      class="text-sm font-medium text-gray-300 cursor-pointer hover:text-white transition-colors flex-1 truncate"
+                      class="text-sm font-medium text-white cursor-pointer hover:text-primary-400 transition-colors flex-1"
                       title="Duplo clique para editar"
                     >
                       {{ subject.name }}
                     </span>
                   </div>
 
-                  <div class="flex items-center space-x-0.5 flex-shrink-0">
+                  <div class="flex items-center space-x-1">
                     <button
                       @click.stop="openChapterMenu(subject)"
-                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
+                      class="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary-500/20 rounded transition-all"
                       title="Adicionar capítulo"
                     >
-                      <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                       </svg>
                     </button>
                     <button
                       @click.stop="confirmDeleteSubject(subject)"
-                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-500/20 rounded transition-all"
-                      title="Excluir caderno"
+                      class="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
+                      title="Excluir matéria"
                     >
-                      <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                       </svg>
                     </button>
                   </div>
                 </div>
 
                 <!-- Chapters -->
-                <div v-if="expandedSubjects[subject.id]" class="ml-6 mt-1 space-y-1 relative">
-                  <!-- Vertical Line -->
-                  <div class="absolute left-4 top-0 bottom-0 w-px bg-primary-500/30"></div>
-
+                <div v-if="expandedSubjects[subject.id]" class="ml-6 mt-1 space-y-1">
                   <draggable
                     :model-value="getChaptersBySubject(subject.id)"
                     @update:model-value="(newChapters) => updateChapters(subject.id, newChapters)"
                     @end="onChapterDragEnd"
                     item-key="id"
                     handle=".chapter-drag-handle"
-                    ghost-class="opacity-50 bg-primary-500/20"
-                    chosen-class="shadow-lg shadow-primary-500/50 scale-105"
-                    drag-class="opacity-0"
-                    class="space-y-1"
+                    ghost-class="opacity-50"
                   >
                     <template #item="{ element: chapter }">
                       <div
-                        class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group relative"
+                        class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group"
                         :class="{ 'bg-primary-500/20 border border-primary-500/50': selectedChapter?.id === chapter.id }"
                       >
-                        <!-- Connection Dot / Drag Icon -->
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10">
-                          <!-- Bolinha (visível por padrão) -->
-                          <div class="w-2 h-2 rounded-full bg-primary-400 border-2 border-dark-800 group-hover:hidden"></div>
-                          <!-- Ícone de arrastar (visível no hover) -->
-                          <svg class="hidden group-hover:block chapter-drag-handle cursor-move w-4 h-4 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"></path>
+                        <div class="flex items-center space-x-2 flex-1">
+                          <svg
+                            class="w-3 h-3 text-gray-600 hover:text-gray-400 cursor-move chapter-drag-handle"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            title="Arrastar para reordenar"
+                          >
+                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                           </svg>
-                        </div>
-                        <div class="flex items-center space-x-2 flex-1 pl-8">
+
                           <!-- Título ou Input de Edição -->
                           <input
                             v-if="editingChapterId === chapter.id"
                             v-model="editingChapterTitle"
-                            @blur="handleChapterBlur(chapter.id)"
-                            @keydown.enter="(e) => { e.preventDefault(); handleChapterEnter(chapter.id); }"
-                            @keydown.esc="handleChapterEsc(chapter.id)"
+                            @blur="saveChapterEdit(chapter.id)"
+                            @keyup.enter="saveChapterEdit(chapter.id)"
+                            @keyup.esc="cancelChapterEdit"
                             :data-chapter-id="chapter.id"
                             class="chapter-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-primary-500 text-white rounded focus:outline-none"
                             @click.stop
@@ -224,20 +371,16 @@
                           <button
                             v-if="isPro"
                             @click.stop="showAIMenuForChapter($event, chapter)"
-                            class="opacity-0 group-hover:opacity-100 px-2 py-1 hover:bg-purple-500/20 rounded transition-all flex items-center space-x-1"
-                            title="Assistente IA"
+                            class="opacity-0 group-hover:opacity-100 p-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded hover:shadow-md transition-all"
                           >
-                            <svg class="w-3.5 h-3.5 text-purple-400 hover:text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-xs text-purple-400">IA</span>
+                            <span class="text-xs">✨</span>
                           </button>
                           <button
                             @click.stop="confirmDeleteChapter(chapter)"
                             class="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
                             title="Excluir capítulo"
                           >
-                            <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                               <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
                           </button>
@@ -249,7 +392,7 @@
                   <!-- Add Chapter Button -->
                   <button
                     @click.stop="openChapterForm(subject)"
-                    class="w-full text-left p-2 pl-8 text-sm text-primary-400 hover:bg-dark-700/50 rounded-lg transition-colors flex items-center space-x-1"
+                    class="w-full text-left p-2 text-xs text-primary-400 hover:bg-dark-700/50 rounded-lg transition-colors flex items-center space-x-1"
                   >
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -278,12 +421,7 @@
         <div v-if="!selectedChapter" class="p-8 max-w-5xl mx-auto">
           <div class="mb-6 flex items-start justify-between">
             <div>
-              <div class="text-sm text-primary-400 font-medium mb-1 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                </svg>
-                <span>Central de Estudos</span>
-              </div>
+              <div class="text-sm text-primary-400 font-medium mb-1">📰 Central de Estudos</div>
               <h2 class="text-3xl font-bold text-white mb-2">Notícias</h2>
               <p class="text-sm text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
             </div>
@@ -314,19 +452,10 @@
               :key="newsItem.id"
               class="bg-dark-800/50 border border-dark-600 rounded-xl p-6 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10 cursor-pointer"
             >
-              <div class="mb-4">
-                <svg class="w-12 h-12 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
+              <div class="text-4xl mb-4">{{ newsItem.icon }}</div>
               <h3 class="text-xl font-bold text-white mb-2">{{ newsItem.title }}</h3>
               <p class="text-gray-400 text-sm mb-4">{{ newsItem.description }}</p>
-              <div class="text-sm text-primary-400 flex items-center space-x-1">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <span>{{ getRelativeTime(newsItem.date) }}</span>
-              </div>
+              <div class="text-xs text-primary-400">📅 {{ getRelativeTime(newsItem.date) }}</div>
             </div>
           </div>
 
@@ -334,12 +463,7 @@
           <div class="mt-8 p-8 bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-primary-500/30 rounded-xl">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-xl font-bold text-white mb-1 flex items-center space-x-2">
-                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                  </svg>
-                  <span>Comece a Estudar</span>
-                </h3>
+                <h3 class="text-xl font-bold text-white mb-1">📖 Comece a Estudar</h3>
                 <p class="text-gray-400 text-sm">Selecione um caderno ao lado para começar seus estudos</p>
               </div>
               <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -387,27 +511,11 @@
               <button
                 v-if="isPro"
                 @click="showAIMenuForChapter($event, selectedChapter)"
-                class="px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-600/30 hover:border-purple-500/50 transition-all font-medium flex items-center space-x-2"
+                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium flex items-center space-x-2"
               >
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
-                </svg>
+                <span>✨</span>
                 <span>Assistente IA</span>
               </button>
-
-              <!-- Botão Exportar PDF -->
-              <button
-                v-if="selectedChapter"
-                @click="exportToPDF"
-                class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
-                title="Exportar capítulo para PDF"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span>Exportar PDF</span>
-              </button>
-
               <button
                 v-if="!autoSaveEnabled"
                 @click="saveChapterContent"
@@ -592,8 +700,7 @@ const { news: concursosNews, loading: loadingNews, fetchNews, getRelativeTime } 
 const loading = ref(false)
 const saving = ref(false)
 const isPro = ref(false)
-// Carregar estado do autosave do localStorage
-const autoSaveEnabled = ref(localStorage.getItem('autosave-enabled') === 'true')
+const autoSaveEnabled = ref(false)
 let autoSaveInterval: NodeJS.Timeout | null = null
 
 // Subjects & Chapters
@@ -759,17 +866,6 @@ onMounted(async () => {
 
   // Carregar notícias
   await fetchNews()
-
-  // Inicializar autosave se estiver ativado
-  if (autoSaveEnabled.value) {
-    autoSaveInterval = setInterval(() => {
-      if (selectedChapter.value && chapterContent.value) {
-        console.log('💾 Autosave executado')
-        saveChapterContent()
-      }
-    }, 30000) // 30 segundos
-    console.log('✅ Autosave INICIADO automaticamente (30s)')
-  }
 
   console.log('🚀 ===== FIM MONTAGEM NOTEBOOK =====')
 })
@@ -952,53 +1048,19 @@ const getChaptersBySubject = (subjectId: string) => {
 
 const chapterTitleInput = ref<HTMLInputElement | null>(null)
 
-const openChapterForm = async (subject: any) => {
+const openChapterForm = (subject: any) => {
   console.log('🔵 openChapterForm chamado para:', subject.name, 'ID:', subject.id)
+  chapterForm.value.subject_id = subject.id
+  chapterForm.value.title = ''
+  selectedSubject.value = subject
+  showChapterFormModal.value = true
+  console.log('✅ Modal deve estar aberto:', showChapterFormModal.value)
+  console.log('✅ Subject ID no form:', chapterForm.value.subject_id)
 
-  try {
-    loading.value = true
-
-    // Criar capítulo com título padrão
-    const { data, error } = await supabase
-      .from('chapters')
-      .insert({
-        subject_id: subject.id,
-        title: 'Novo Capítulo',
-        order_index: getChaptersBySubject(subject.id).length
-      })
-      .select()
-      .single()
-
-    if (error) throw error
-
-    if (data) {
-      console.log('✅ Capítulo criado:', data)
-      chapters.value.push(data)
-
-      // Expandir o subject se não estiver expandido
-      expandedSubjects.value[subject.id] = true
-
-      // Entrar em modo de edição imediatamente
-      editingChapterId.value = data.id
-      editingChapterTitle.value = data.title
-
-      // Focar no input após um pequeno delay
-      nextTick(() => {
-        setTimeout(() => {
-          const input = document.querySelector(`.chapter-edit-input[data-chapter-id="${data.id}"]`) as HTMLInputElement
-          if (input) {
-            input.focus()
-            input.select()
-          }
-        }, 100)
-      })
-    }
-  } catch (err: any) {
-    console.error('❌ Erro ao criar capítulo:', err)
-    alert('Erro ao criar capítulo: ' + (err.message || 'Erro desconhecido'))
-  } finally {
-    loading.value = false
-  }
+  // Focus input after modal opens
+  nextTick(() => {
+    chapterTitleInput.value?.focus()
+  })
 }
 
 const createChapter = async () => {
@@ -1215,88 +1277,6 @@ const saveChapterContentSilently = async (chapterId: string) => {
   }
 }
 
-// Export to PDF function
-const exportToPDF = () => {
-  if (!selectedChapter.value || !chapterContent.value) {
-    alert('Nenhum conteúdo para exportar')
-    return
-  }
-
-  // Create a new window with the content
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) {
-    alert('Permita pop-ups para exportar PDF')
-    return
-  }
-
-  // Build the HTML content for printing
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>${selectedChapter.value.title}</title>
-      <style>
-        @media print {
-          body { margin: 0; padding: 20px; }
-          .page-break { page-break-before: always; }
-        }
-        body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          max-width: 210mm;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        h1, h2, h3, h4, h5, h6 {
-          margin-top: 1em;
-          margin-bottom: 0.5em;
-          color: #000;
-        }
-        p { margin: 0.5em 0; }
-        img { max-width: 100%; height: auto; }
-        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-        table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 8px; text-align: left; }
-        blockquote {
-          margin: 1em 0;
-          padding: 10px 20px;
-          background: #f5f5f5;
-          border-left: 4px solid #666;
-        }
-        code {
-          background: #f4f4f4;
-          padding: 2px 6px;
-          border-radius: 3px;
-          font-family: monospace;
-        }
-        pre {
-          background: #f4f4f4;
-          padding: 10px;
-          border-radius: 5px;
-          overflow-x: auto;
-        }
-      </style>
-    </head>
-    <body>
-      <h1>${selectedChapter.value.title}</h1>
-      <hr>
-      ${chapterContent.value}
-    </body>
-    </html>
-  `
-
-  printWindow.document.write(htmlContent)
-  printWindow.document.close()
-
-  // Wait for content to load, then print
-  printWindow.onload = () => {
-    printWindow.focus()
-    printWindow.print()
-  }
-}
-
 const showAIMenuForChapter = (event: MouseEvent, chapter: any) => {
   if (!isPro.value) {
     handleUpgrade()
@@ -1394,9 +1374,6 @@ const handleUpgrade = () => {
 
 const toggleAutosave = () => {
   autoSaveEnabled.value = !autoSaveEnabled.value
-
-  // Salvar estado no localStorage
-  localStorage.setItem('autosave-enabled', autoSaveEnabled.value.toString())
 
   if (autoSaveEnabled.value) {
     // Salvar imediatamente
@@ -1577,22 +1554,17 @@ const startEditChapter = (chapter: any) => {
   })
 }
 
-const isSavingChapter = ref(false)
-const isEnterPressed = ref(false)
-
 const saveChapterEdit = async (chapterId: string) => {
-  // Evitar múltiplas chamadas simultâneas
-  if (isSavingChapter.value) {
-    console.log('⏸️ Já está salvando, ignorando...')
+  console.log('💾 Salvando edição de capítulo:', chapterId, editingChapterTitle.value)
+
+  if (!editingChapterTitle.value.trim()) {
+    console.log('⚠️ Título vazio, cancelando')
+    cancelChapterEdit()
     return
   }
 
-  isSavingChapter.value = true
-
-  console.log('💾 Salvando edição de capítulo:', chapterId, editingChapterTitle.value)
-
   try {
-    const newTitle = editingChapterTitle.value.trim() || 'Novo Capítulo'
+    const newTitle = editingChapterTitle.value.trim()
     console.log('Atualizando para:', newTitle)
 
     const { error } = await supabase
@@ -1617,44 +1589,12 @@ const saveChapterEdit = async (chapterId: string) => {
     alert('Erro ao renomear capítulo')
   } finally {
     cancelChapterEdit()
-    isSavingChapter.value = false
   }
 }
 
 const cancelChapterEdit = () => {
   editingChapterId.value = null
   editingChapterTitle.value = ''
-}
-
-const handleChapterEnter = async (chapterId: string) => {
-  console.log('🎯 handleChapterEnter CHAMADO!')
-  console.log('🔵 Enter pressionado, salvando:', editingChapterTitle.value)
-  console.log('🔵 Chapter ID:', chapterId)
-
-  // Marcar que Enter foi pressionado para evitar que blur execute novamente
-  isEnterPressed.value = true
-
-  await saveChapterEdit(chapterId)
-
-  // Resetar flag após salvar
-  setTimeout(() => {
-    isEnterPressed.value = false
-  }, 100)
-}
-
-const handleChapterBlur = async (chapterId: string) => {
-  // Só executar blur se não estiver salvando e Enter não foi pressionado
-  if (!isSavingChapter.value && !isEnterPressed.value) {
-    console.log('🔵 Blur executado')
-    await saveChapterEdit(chapterId)
-  } else {
-    console.log('🔵 Blur ignorado (Enter foi pressionado ou já está salvando)')
-  }
-}
-
-const handleChapterEsc = async (chapterId: string) => {
-  console.log('🔵 ESC pressionado, cancelando edição')
-  cancelChapterEdit()
 }
 
 // Delete Functions
@@ -1760,40 +1700,26 @@ const onSubjectDragEnd = async () => {
 }
 
 const updateChapters = (subjectId: string, newChapters: any[]) => {
-  // Atualizar a lista de capítulos localmente com os novos índices
+  // Atualizar a lista de capítulos localmente
   const otherChapters = chapters.value.filter(c => c.subject_id !== subjectId)
-
-  // Atualizar order_index para cada capítulo reordenado
-  const updatedChapters = newChapters.map((chapter, index) => ({
-    ...chapter,
-    order_index: index
-  }))
-
-  chapters.value = [...otherChapters, ...updatedChapters]
+  chapters.value = [...otherChapters, ...newChapters]
 }
 
 const onChapterDragEnd = async () => {
   console.log('📦 Reordenando capítulos...')
 
-  // Agrupar capítulos por caderno e atualizar order_index
-  const chaptersBySubject = chapters.value.reduce((acc, chapter) => {
-    if (!acc[chapter.subject_id]) {
-      acc[chapter.subject_id] = []
-    }
-    acc[chapter.subject_id].push(chapter)
-    return acc
-  }, {} as Record<string, any[]>)
+  // Atualizar order_index de todos os capítulos
+  const updates = chapters.value.map((chapter, index) => ({
+    id: chapter.id,
+    order_index: index
+  }))
 
   try {
-    // Atualizar order_index para cada grupo de capítulos
-    for (const subjectId in chaptersBySubject) {
-      const subjectChapters = chaptersBySubject[subjectId]
-      for (let i = 0; i < subjectChapters.length; i++) {
-        await supabase
-          .from('chapters')
-          .update({ order_index: i })
-          .eq('id', subjectChapters[i].id)
-      }
+    for (const update of updates) {
+      await supabase
+        .from('chapters')
+        .update({ order_index: update.order_index })
+        .eq('id', update.id)
     }
     console.log('✅ Capítulos reordenados com sucesso')
   } catch (err) {

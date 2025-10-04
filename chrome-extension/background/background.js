@@ -1,8 +1,8 @@
 // Background Service Worker - Main Logic
-importScripts('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js')
+importScripts('supabase.js')
 
-const SUPABASE_URL = 'https://qpzgsqjnbvsluwdvmftu.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwemdzcWpuYnZzbHV3ZHZtZnR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA0ODM5NjMsImV4cCI6MjA0NjA1OTk2M30.I8uw3Y-EFVDOZ_oqR8yTH4qf4p3wqD9VTsgjFm1Msco'
+const SUPABASE_URL = 'https://ubeivchkuoptmhkcglny.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViZWl2Y2hrdW9wdG1oa2NnbG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MTU4NDksImV4cCI6MjA3NDk5MTg0OX0.Q8hPuJsdeRKz-edKqVRTTCZo-mMtVNq1eoafJiF1St4'
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
@@ -25,6 +25,60 @@ chrome.runtime.onInstalled.addListener(() => {
     trackingEnabled: true,
     notificationsEnabled: true
   })
+})
+
+// Restore session on startup
+chrome.runtime.onStartup.addListener(async () => {
+  console.log('[Extension] Extension starting up...')
+
+  // Try to restore Supabase session from storage
+  const { supabase_session, currentStudySession: savedSession, isStudyMode: savedStudyMode } = await chrome.storage.local.get(['supabase_session', 'currentStudySession', 'isStudyMode'])
+
+  if (supabase_session) {
+    console.log('[Extension] Restoring Supabase session from storage...')
+    try {
+      await supabaseClient.auth.setSession(supabase_session)
+      console.log('[Extension] ✅ Session restored successfully!')
+    } catch (error) {
+      console.error('[Extension] ❌ Error restoring session:', error)
+    }
+  } else {
+    console.log('[Extension] ℹ️ No stored session found')
+  }
+
+  // Restore study session state
+  if (savedSession && savedStudyMode) {
+    console.log('[Extension] ✅ Restoring study session:', savedSession)
+    currentStudySession = savedSession
+    isStudyMode = savedStudyMode
+    chrome.action.setBadgeText({ text: '📚' })
+    chrome.action.setBadgeBackgroundColor({ color: '#10b981' })
+    loadBlockedSites()
+  }
+})
+
+// Also listen for messages from web app (auth sync)
+chrome.runtime.onMessageExternal.addListener(async (request, sender, sendResponse) => {
+  if (request.type === 'AUTH_SESSION') {
+    console.log('[Extension] 🔐 Session received from web app!')
+
+    // Save session
+    await chrome.storage.local.set({
+      supabase_session: request.session
+    })
+
+    // Authenticate Supabase
+    await supabaseClient.auth.setSession(request.session)
+
+    // Check for active session immediately
+    await checkActiveSession()
+
+    // Setup Realtime
+    await setupRealtimeSubscription()
+
+    sendResponse({ success: true })
+  }
+  return true
 })
 
 // Create Context Menus
@@ -160,17 +214,28 @@ async function handleMarkAsError(info, tab) {
 
 // Site Blocking System
 async function loadBlockedSites() {
+  console.log('[Extension] 🔍 Loading blocked sites...')
   const user = await getUser()
-  if (!user) return []
+  if (!user) {
+    console.log('[Extension] ⚠️ No user, usando sites padrão')
+    blockedSites = getDefaultBlockedSites('moderate')
+    console.log('[Extension] 📋 Sites bloqueados:', blockedSites)
+    return blockedSites
+  }
 
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('user_block_settings')
     .select('blocked_sites, block_mode')
     .eq('user_id', user.id)
     .single()
 
-  if (data) {
+  if (error) {
+    console.log('[Extension] ⚠️ Erro ao buscar configurações, usando padrão:', error)
+    blockedSites = getDefaultBlockedSites('moderate')
+  } else if (data) {
     blockedSites = data.blocked_sites || getDefaultBlockedSites(data.block_mode)
+    console.log('[Extension] 📋 Sites bloqueados carregados:', blockedSites.length, 'sites')
+    console.log('[Extension] 🚫 Lista:', blockedSites)
   }
 
   return blockedSites
@@ -194,61 +259,159 @@ function getDefaultBlockedSites(mode = 'moderate') {
 }
 
 function isBlocked(hostname) {
-  if (!isStudyMode) return false
-  return blockedSites.some(site => hostname.includes(site))
+  if (!isStudyMode) {
+    console.log('[Extension] ℹ️ Not in study mode, not blocking:', hostname)
+    return false
+  }
+  const blocked = blockedSites.some(site => hostname.includes(site))
+  console.log('[Extension] 🔍 Checking', hostname, '→', blocked ? '🚫 BLOCKED' : '✅ ALLOWED')
+  return blocked
 }
 
-// Web Request Blocking
-chrome.webRequest.onBeforeRequest.addListener(
-  (details) => {
-    const url = new URL(details.url)
+// Site Blocking usando chrome.tabs (compatível com Manifest V3)
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // Só verificar quando a URL mudar
+  if (changeInfo.url) {
+    console.log('[Extension] 📍 URL changed:', changeInfo.url, '| Study mode:', isStudyMode, '| Blocked sites:', blockedSites.length)
 
-    if (isBlocked(url.hostname)) {
-      // Inject block overlay
-      if (details.type === 'main_frame') {
-        chrome.tabs.sendMessage(details.tabId, {
-          action: 'showBlockOverlay',
-          site: url.hostname,
-          sessionInfo: currentStudySession
-        })
+    if (isStudyMode) {
+      try {
+        const url = new URL(changeInfo.url)
+
+        if (isBlocked(url.hostname)) {
+          console.log('[Extension] 🚫 BLOQUEANDO SITE:', url.hostname)
+
+          // Redirecionar para página de bloqueio
+          chrome.tabs.update(tabId, {
+            url: chrome.runtime.getURL('assets/block-overlay.html') + '?site=' + encodeURIComponent(url.hostname)
+          })
+        }
+      } catch (error) {
+        // URL inválida, ignorar
+        console.log('[Extension] ⚠️ Invalid URL:', error)
       }
-      return { cancel: true }
     }
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking"]
-)
+  }
+})
 
-// Study Session Monitoring
-async function checkActiveSession() {
+// Study Session Monitoring - Improved with Realtime
+let realtimeChannel = null
+
+async function setupRealtimeSubscription() {
   const user = await getUser()
   if (!user) {
+    console.log('[Extension] Cannot setup realtime - no user')
+    return
+  }
+
+  // Remove existing channel
+  if (realtimeChannel) {
+    await supabaseClient.removeChannel(realtimeChannel)
+  }
+
+  console.log('[Extension] ✅ Setting up Realtime subscription for user:', user.id)
+
+  // Subscribe to study_sessions changes
+  realtimeChannel = supabaseClient
+    .channel('study-sessions-extension')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'study_sessions',
+        filter: `user_id=eq.${user.id}`
+      },
+      (payload) => {
+        console.log('[Extension] 🔥 Realtime event received:', payload.eventType)
+
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const session = payload.new
+
+          if (session.status === 'active') {
+            console.log('[Extension] ✅ Session ACTIVE via Realtime!')
+            handleSessionStarted(session)
+          } else {
+            console.log('[Extension] ⏸️ Session INACTIVE via Realtime')
+            handleSessionEnded()
+          }
+        } else if (payload.eventType === 'DELETE') {
+          console.log('[Extension] 🗑️ Session DELETED via Realtime')
+          handleSessionEnded()
+        }
+      }
+    )
+    .subscribe((status) => {
+      console.log('[Extension] Realtime connection status:', status)
+
+      if (status === 'SUBSCRIBED') {
+        console.log('[Extension] ✅ Realtime successfully connected!')
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('[Extension] ❌ Realtime connection error!')
+      }
+    })
+}
+
+function handleSessionStarted(session) {
+  currentStudySession = session
+  isStudyMode = true
+
+  loadBlockedSites()
+  startTracking()
+
+  // Update badge
+  chrome.action.setBadgeText({ text: '🔥' })
+  chrome.action.setBadgeBackgroundColor({ color: '#22d3ee' })
+
+  // Show notification
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: '../icons/icon128.png',
+    title: 'Sessão de Estudo Iniciada! 🔥',
+    message: 'Modo foco ativado. Sites de distração serão bloqueados.',
+    priority: 2
+  })
+
+  console.log('[Extension] Session started successfully!')
+}
+
+function handleSessionEnded() {
+  console.log('[Extension] ⛔ handleSessionEnded() chamado - DESATIVANDO isStudyMode')
+  console.trace('[Extension] Stack trace:')
+  currentStudySession = null
+  isStudyMode = false
+
+  stopTracking()
+
+  // Clear badge
+  chrome.action.setBadgeText({ text: '' })
+
+  console.log('[Extension] Session ended')
+}
+
+async function checkActiveSession() {
+  console.log('[Extension] 🔍 Checking for active session...')
+
+  const user = await getUser()
+  if (!user) {
+    console.log('[Extension] ❌ No user authenticated - DESATIVANDO isStudyMode (checkActiveSession)')
     isStudyMode = false
     return
   }
 
-  const { data } = await supabaseClient
-    .from('study_sessions')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('status', 'active')
-    .single()
+  console.log('[Extension] ✅ User authenticated:', user.id)
 
-  if (data) {
-    currentStudySession = data
-    isStudyMode = true
-    await loadBlockedSites()
-    startTracking()
-  } else {
-    currentStudySession = null
-    isStudyMode = false
-    stopTracking()
-  }
+  // A sessão ativa será recebida via mensagem do app web
+  // Não precisamos consultar o banco aqui
+  console.log('[Extension] ℹ️ Aguardando informação de sessão do app web')
 }
 
-// Check session every 30 seconds
-setInterval(checkActiveSession, 30000)
-checkActiveSession() // Initial check
+// Check session on authentication (called from handleAuthSessionUpdate)
+
+// Setup Realtime subscription after initial check
+setTimeout(() => {
+  setupRealtimeSubscription()
+}, 2000)
 
 // Time Tracking
 let currentTab = null
@@ -423,8 +586,89 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     isStudyMode = false
     currentStudySession = null
     sendResponse({ success: true })
+  } else if (request.type === 'AUTH_SESSION_UPDATED') {
+    console.log('[Extension] 🔐 Auth session updated')
+    handleAuthSessionUpdate(request.session)
+    sendResponse({ success: true })
+  } else if (request.type === 'STUDY_SESSION_STARTED') {
+    console.log('[Extension] ▶️ Study session STARTED', request.data)
+    currentStudySession = request.data
+    isStudyMode = true
+
+    // Salvar no storage para persistir
+    chrome.storage.local.set({
+      currentStudySession: request.data,
+      isStudyMode: true
+    })
+
+    chrome.action.setBadgeText({ text: '📚' })
+    chrome.action.setBadgeBackgroundColor({ color: '#10b981' })
+
+    // Carregar sites bloqueados
+    loadBlockedSites()
+
+    sendResponse({ success: true })
+  } else if (request.type === 'STUDY_SESSION_PAUSED') {
+    console.log('[Extension] ⏸️ Study session PAUSED')
+    isStudyMode = false
+    chrome.storage.local.set({ isStudyMode: false })
+    chrome.action.setBadgeText({ text: '⏸️' })
+    sendResponse({ success: true })
+  } else if (request.type === 'STUDY_SESSION_RESUMED') {
+    console.log('[Extension] ▶️ Study session RESUMED')
+    isStudyMode = true
+    chrome.storage.local.set({ isStudyMode: true })
+    chrome.action.setBadgeText({ text: '📚' })
+    sendResponse({ success: true })
+  } else if (request.type === 'STUDY_SESSION_STOPPED') {
+    console.log('[Extension] ⏹️ Study session STOPPED', request.data)
+    isStudyMode = false
+    currentStudySession = null
+    chrome.storage.local.set({
+      isStudyMode: false,
+      currentStudySession: null
+    })
+    chrome.action.setBadgeText({ text: '' })
+    sendResponse({ success: true })
+  } else if (request.type === 'AUTH_LOGOUT') {
+    console.log('[Extension] 👋 User logged out')
+    handleAuthLogout()
+    sendResponse({ success: true })
   }
   return true // Required for async sendResponse
 })
+
+async function handleAuthSessionUpdate(session) {
+  console.log('[Extension] 🔐 New session received!')
+
+  // Set session in Supabase client
+  await supabaseClient.auth.setSession({
+    access_token: session.access_token,
+    refresh_token: session.refresh_token
+  })
+
+  // Check for active session immediately
+  await checkActiveSession()
+
+  // Setup Realtime
+  await setupRealtimeSubscription()
+}
+
+function handleAuthLogout() {
+  console.log('[Extension] 👋 User logged out - DESATIVANDO isStudyMode (logout)')
+
+  // Clear session
+  currentStudySession = null
+  isStudyMode = false
+
+  // Clear badge
+  chrome.action.setBadgeText({ text: '' })
+
+  // Remove realtime subscription
+  if (realtimeChannel) {
+    supabaseClient.removeChannel(realtimeChannel)
+    realtimeChannel = null
+  }
+}
 
 console.log('Concurseiro Extension background script loaded!')

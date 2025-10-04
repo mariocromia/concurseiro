@@ -1,13 +1,13 @@
 // Supabase Client for Chrome Extension
 // Import from CDN since extensions can't use npm packages directly
 
-const SUPABASE_URL = 'https://qpzgsqjnbvsluwdvmftu.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwemdzcWpuYnZzbHV3ZHZtZnR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA0ODM5NjMsImV4cCI6MjA0NjA1OTk2M30.I8uw3Y-EFVDOZ_oqR8yTH4qf4p3wqD9VTsgjFm1Msco'
+const SUPABASE_URL = 'https://ubeivchkuoptmhkcglny.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViZWl2Y2hrdW9wdG1oa2NnbG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MTU4NDksImV4cCI6MjA3NDk5MTg0OX0.Q8hPuJsdeRKz-edKqVRTTCZo-mMtVNq1eoafJiF1St4'
 
-// Load Supabase from CDN
+// Load Supabase from local file
 if (typeof window !== 'undefined' && !window.supabase) {
   const script = document.createElement('script')
-  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  script.src = chrome.runtime.getURL('lib/supabase.js')
   script.onload = () => {
     window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   }
@@ -16,7 +16,7 @@ if (typeof window !== 'undefined' && !window.supabase) {
 
 // For background script (service worker)
 if (typeof importScripts === 'function') {
-  importScripts('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
+  importScripts('lib/supabase.js')
 }
 
 // Export client creation function

@@ -1,13 +1,51 @@
 // Content Script - Runs on all pages
-console.log('Concurseiro Extension content script loaded!')
+console.log('🎯 Concurseiro Extension content script loaded!')
+console.log('🌐 URL:', window.location.href)
 
-// Listen for messages from background script
+// Listen for postMessage from web app (authentication and study events)
+window.addEventListener('message', (event) => {
+  // Verificar se a mensagem vem do app Concurseiro
+  if (event.data?.source === 'concurseiro-app') {
+    console.log('📬 [Content Script] Mensagem recebida:', event.data.type)
+
+    // Tratar AUTH_SESSION especialmente (compatibilidade)
+    if (event.data.type === 'AUTH_SESSION') {
+      chrome.runtime.sendMessage({
+        type: 'AUTH_SESSION_UPDATED',
+        session: event.data.session
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('❌ [Content Script] Erro:', chrome.runtime.lastError)
+        } else {
+          console.log('✅ [Content Script] AUTH enviado')
+        }
+      })
+    }
+    // Enviar outras mensagens (STUDY_SESSION_STARTED, PAUSED, RESUMED, STOPPED)
+    else {
+      chrome.runtime.sendMessage(event.data, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('❌ [Content Script] Erro:', chrome.runtime.lastError)
+        } else {
+          console.log('✅ [Content Script]', event.data.type, 'enviado')
+        }
+      })
+    }
+  }
+})
+
+// Listen for messages from background script AND extension popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'analyzeSelection') {
     const result = analyzeCurrentSelection()
     sendResponse(result)
   } else if (request.action === 'showBlockOverlay') {
     showBlockOverlay(request.site, request.sessionInfo)
+    sendResponse({ success: true })
+  } else if (request.source === 'concurseiro-extension' && request.type === 'AUTH_SESSION_FROM_EXTENSION') {
+    // Recebeu login da extensão, enviar para o app via postMessage
+    console.log('📨 Login da extensão, enviando para app...')
+    window.postMessage(request, '*')
     sendResponse({ success: true })
   }
   return true

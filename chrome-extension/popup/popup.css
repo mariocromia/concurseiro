@@ -216,3 +216,146 @@ body {
 .recent-list::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Login Screen */
+.hidden {
+  display: none !important;
+}
+
+.login-container {
+  padding: 20px 0;
+}
+
+.login-container h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #22d3ee;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.form-group input::placeholder {
+  color: #64748b;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #fca5a5;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.loader {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #0f172a;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #334155;
+}
+
+.divider span {
+  position: relative;
+  display: inline-block;
+  padding: 0 12px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  font-size: 12px;
+  color: #64748b;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+
+.logout-btn svg {
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+}
+
+.logout-btn:hover svg {
+  color: #ef4444;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

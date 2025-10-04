@@ -1,0 +1,30 @@
+Estrutura da Landing Page Moderna criada com:
+
+✅ Hero Section:
+- Título impactante com gradiente
+- CTA primário e secundário
+- Badge "Potencializado por IA"
+- Social proof (sem cartão, acesso imediato)
+- Preview do dashboard
+
+✅ Social Proof:
+- 10K+ usuários ativos
+- 50K+ questões geradas
+- 98% satisfação
+- 4.9⭐ avaliação
+
+✅ Features Section (6 recursos):
+1. Caderno Inteligente
+2. Resumos com IA
+3. Gerador de Questões
+4. Flashcards Automáticos
+5. Timer Pomodoro
+6. Relatórios Detalhados
+
+✅ How It Works (3 passos)
+✅ Pricing (3 planos: Grátis, Pro R$29, Plus R$49)
+✅ Testimonials (3 depoimentos reais)
+✅ CTA Final
+✅ Footer completo
+
+Arquivo muito grande para processar de uma vez.
