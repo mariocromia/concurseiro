@@ -243,7 +243,9 @@
             @end="onSubjectDragEnd"
             item-key="id"
             handle=".drag-handle"
-            ghost-class="opacity-50"
+            ghost-class="opacity-50 bg-primary-500/20"
+            chosen-class="shadow-lg shadow-primary-500/50 scale-105"
+            drag-class="opacity-0"
             class="space-y-1"
           >
             <template #item="{ element: subject }">
@@ -318,37 +320,43 @@
                 </div>
 
                 <!-- Chapters -->
-                <div v-if="expandedSubjects[subject.id]" class="ml-6 mt-1 space-y-1">
+                <div v-if="expandedSubjects[subject.id]" class="ml-6 mt-1 space-y-1 relative">
+                  <!-- Vertical Line -->
+                  <div class="absolute left-4 top-0 bottom-0 w-px bg-primary-500/30"></div>
+
                   <draggable
                     :model-value="getChaptersBySubject(subject.id)"
                     @update:model-value="(newChapters) => updateChapters(subject.id, newChapters)"
                     @end="onChapterDragEnd"
                     item-key="id"
                     handle=".chapter-drag-handle"
-                    ghost-class="opacity-50"
+                    ghost-class="opacity-50 bg-primary-500/20"
+                    chosen-class="shadow-lg shadow-primary-500/50 scale-105"
+                    drag-class="opacity-0"
+                    class="space-y-1"
                   >
                     <template #item="{ element: chapter }">
                       <div
-                        class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group"
+                        class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group relative"
                         :class="{ 'bg-primary-500/20 border border-primary-500/50': selectedChapter?.id === chapter.id }"
                       >
-                        <div class="flex items-center space-x-2 flex-1">
-                          <svg
-                            class="w-3 h-3 text-gray-600 hover:text-gray-400 cursor-move chapter-drag-handle"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            title="Arrastar para reordenar"
-                          >
-                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                        <!-- Connection Dot / Drag Icon -->
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                          <!-- Bolinha (visível por padrão) -->
+                          <div class="w-2 h-2 rounded-full bg-primary-400 border-2 border-dark-800 group-hover:hidden"></div>
+                          <!-- Ícone de arrastar (visível no hover) -->
+                          <svg class="hidden group-hover:block chapter-drag-handle cursor-move w-4 h-4 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"></path>
                           </svg>
-
+                        </div>
+                        <div class="flex items-center space-x-2 flex-1 pl-8">
                           <!-- Título ou Input de Edição -->
                           <input
                             v-if="editingChapterId === chapter.id"
                             v-model="editingChapterTitle"
-                            @blur="saveChapterEdit(chapter.id)"
-                            @keyup.enter="saveChapterEdit(chapter.id)"
-                            @keyup.esc="cancelChapterEdit"
+                            @blur="handleChapterBlur(chapter.id)"
+                            @keydown.enter="(e) => { e.preventDefault(); handleChapterEnter(chapter.id); }"
+                            @keydown.esc="handleChapterEsc(chapter.id)"
                             :data-chapter-id="chapter.id"
                             class="chapter-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-primary-500 text-white rounded focus:outline-none"
                             @click.stop
@@ -368,16 +376,20 @@
                           <button
                             v-if="isPro"
                             @click.stop="showAIMenuForChapter($event, chapter)"
-                            class="opacity-0 group-hover:opacity-100 p-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded hover:shadow-md transition-all"
+                            class="opacity-0 group-hover:opacity-100 px-2 py-1 hover:bg-purple-500/20 rounded transition-all flex items-center space-x-1"
+                            title="Assistente IA"
                           >
-                            <span class="text-xs">✨</span>
+                            <svg class="w-3.5 h-3.5 text-purple-400 hover:text-purple-300" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-xs text-purple-400">IA</span>
                           </button>
                           <button
                             @click.stop="confirmDeleteChapter(chapter)"
                             class="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
                             title="Excluir capítulo"
                           >
-                            <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                               <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
                           </button>
@@ -389,7 +401,7 @@
                   <!-- Add Chapter Button -->
                   <button
                     @click.stop="openChapterForm(subject)"
-                    class="w-full text-left p-2 text-xs text-primary-400 hover:bg-dark-700/50 rounded-lg transition-colors flex items-center space-x-1"
+                    class="w-full text-left p-2 pl-8 text-xs text-primary-400 hover:bg-dark-700/50 rounded-lg transition-colors flex items-center space-x-1"
                   >
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -418,7 +430,12 @@
         <div v-if="!selectedChapter" class="p-8 max-w-5xl mx-auto">
           <div class="mb-6 flex items-start justify-between">
             <div>
-              <div class="text-sm text-primary-400 font-medium mb-1">📰 Central de Estudos</div>
+              <div class="text-sm text-primary-400 font-medium mb-1 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                </svg>
+                <span>Central de Estudos</span>
+              </div>
               <h2 class="text-3xl font-bold text-white mb-2">Notícias</h2>
               <p class="text-sm text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
             </div>
@@ -449,10 +466,19 @@
               :key="newsItem.id"
               class="bg-dark-800/50 border border-dark-600 rounded-xl p-6 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10 cursor-pointer"
             >
-              <div class="text-4xl mb-4">{{ newsItem.icon }}</div>
+              <div class="mb-4">
+                <svg class="w-12 h-12 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
               <h3 class="text-xl font-bold text-white mb-2">{{ newsItem.title }}</h3>
               <p class="text-gray-400 text-sm mb-4">{{ newsItem.description }}</p>
-              <div class="text-xs text-primary-400">📅 {{ getRelativeTime(newsItem.date) }}</div>
+              <div class="text-xs text-primary-400 flex items-center space-x-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span>{{ getRelativeTime(newsItem.date) }}</span>
+              </div>
             </div>
           </div>
 
@@ -460,7 +486,12 @@
           <div class="mt-8 p-8 bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-primary-500/30 rounded-xl">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-xl font-bold text-white mb-1">📖 Comece a Estudar</h3>
+                <h3 class="text-xl font-bold text-white mb-1 flex items-center space-x-2">
+                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                  <span>Comece a Estudar</span>
+                </h3>
                 <p class="text-gray-400 text-sm">Selecione um caderno ao lado para começar seus estudos</p>
               </div>
               <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -508,11 +539,27 @@
               <button
                 v-if="isPro"
                 @click="showAIMenuForChapter($event, selectedChapter)"
-                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium flex items-center space-x-2"
+                class="px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-600/30 hover:border-purple-500/50 transition-all font-medium flex items-center space-x-2"
               >
-                <span>✨</span>
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                </svg>
                 <span>Assistente IA</span>
               </button>
+
+              <!-- Botão Exportar PDF -->
+              <button
+                v-if="selectedChapter"
+                @click="exportToPDF"
+                class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
+                title="Exportar capítulo para PDF"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <span>Exportar PDF</span>
+              </button>
+
               <button
                 v-if="!autoSaveEnabled"
                 @click="saveChapterContent"
@@ -1057,19 +1104,53 @@ const getChaptersBySubject = (subjectId: string) => {
 
 const chapterTitleInput = ref<HTMLInputElement | null>(null)
 
-const openChapterForm = (subject: any) => {
+const openChapterForm = async (subject: any) => {
   console.log('🔵 openChapterForm chamado para:', subject.name, 'ID:', subject.id)
-  chapterForm.value.subject_id = subject.id
-  chapterForm.value.title = ''
-  selectedSubject.value = subject
-  showChapterFormModal.value = true
-  console.log('✅ Modal deve estar aberto:', showChapterFormModal.value)
-  console.log('✅ Subject ID no form:', chapterForm.value.subject_id)
 
-  // Focus input after modal opens
-  nextTick(() => {
-    chapterTitleInput.value?.focus()
-  })
+  try {
+    loading.value = true
+
+    // Criar capítulo com título padrão
+    const { data, error } = await supabase
+      .from('chapters')
+      .insert({
+        subject_id: subject.id,
+        title: 'Novo Capítulo',
+        order_index: getChaptersBySubject(subject.id).length
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    if (data) {
+      console.log('✅ Capítulo criado:', data)
+      chapters.value.push(data)
+
+      // Expandir o subject se não estiver expandido
+      expandedSubjects.value[subject.id] = true
+
+      // Entrar em modo de edição imediatamente
+      editingChapterId.value = data.id
+      editingChapterTitle.value = data.title
+
+      // Focar no input após um pequeno delay
+      nextTick(() => {
+        setTimeout(() => {
+          const input = document.querySelector(`.chapter-edit-input[data-chapter-id="${data.id}"]`) as HTMLInputElement
+          if (input) {
+            input.focus()
+            input.select()
+          }
+        }, 100)
+      })
+    }
+  } catch (err: any) {
+    console.error('❌ Erro ao criar capítulo:', err)
+    alert('Erro ao criar capítulo: ' + (err.message || 'Erro desconhecido'))
+  } finally {
+    loading.value = false
+  }
 }
 
 const createChapter = async () => {
@@ -1283,6 +1364,88 @@ const saveChapterContentSilently = async (chapterId: string) => {
     console.log('✅ Salvamento silencioso concluído')
   } catch (err) {
     console.error('❌ Erro no salvamento silencioso:', err)
+  }
+}
+
+// Export to PDF function
+const exportToPDF = () => {
+  if (!selectedChapter.value || !chapterContent.value) {
+    alert('Nenhum conteúdo para exportar')
+    return
+  }
+
+  // Create a new window with the content
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) {
+    alert('Permita pop-ups para exportar PDF')
+    return
+  }
+
+  // Build the HTML content for printing
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${selectedChapter.value.title}</title>
+      <style>
+        @media print {
+          body { margin: 0; padding: 20px; }
+          .page-break { page-break-before: always; }
+        }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 210mm;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 {
+          margin-top: 1em;
+          margin-bottom: 0.5em;
+          color: #000;
+        }
+        p { margin: 0.5em 0; }
+        img { max-width: 100%; height: auto; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        table, th, td { border: 1px solid #ddd; }
+        th, td { padding: 8px; text-align: left; }
+        blockquote {
+          margin: 1em 0;
+          padding: 10px 20px;
+          background: #f5f5f5;
+          border-left: 4px solid #666;
+        }
+        code {
+          background: #f4f4f4;
+          padding: 2px 6px;
+          border-radius: 3px;
+          font-family: monospace;
+        }
+        pre {
+          background: #f4f4f4;
+          padding: 10px;
+          border-radius: 5px;
+          overflow-x: auto;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>${selectedChapter.value.title}</h1>
+      <hr>
+      ${chapterContent.value}
+    </body>
+    </html>
+  `
+
+  printWindow.document.write(htmlContent)
+  printWindow.document.close()
+
+  // Wait for content to load, then print
+  printWindow.onload = () => {
+    printWindow.focus()
+    printWindow.print()
   }
 }
 
@@ -1566,17 +1729,22 @@ const startEditChapter = (chapter: any) => {
   })
 }
 
-const saveChapterEdit = async (chapterId: string) => {
-  console.log('💾 Salvando edição de capítulo:', chapterId, editingChapterTitle.value)
+const isSavingChapter = ref(false)
+const isEnterPressed = ref(false)
 
-  if (!editingChapterTitle.value.trim()) {
-    console.log('⚠️ Título vazio, cancelando')
-    cancelChapterEdit()
+const saveChapterEdit = async (chapterId: string) => {
+  // Evitar múltiplas chamadas simultâneas
+  if (isSavingChapter.value) {
+    console.log('⏸️ Já está salvando, ignorando...')
     return
   }
 
+  isSavingChapter.value = true
+
+  console.log('💾 Salvando edição de capítulo:', chapterId, editingChapterTitle.value)
+
   try {
-    const newTitle = editingChapterTitle.value.trim()
+    const newTitle = editingChapterTitle.value.trim() || 'Novo Capítulo'
     console.log('Atualizando para:', newTitle)
 
     const { error } = await supabase
@@ -1601,12 +1769,44 @@ const saveChapterEdit = async (chapterId: string) => {
     alert('Erro ao renomear capítulo')
   } finally {
     cancelChapterEdit()
+    isSavingChapter.value = false
   }
 }
 
 const cancelChapterEdit = () => {
   editingChapterId.value = null
   editingChapterTitle.value = ''
+}
+
+const handleChapterEnter = async (chapterId: string) => {
+  console.log('🎯 handleChapterEnter CHAMADO!')
+  console.log('🔵 Enter pressionado, salvando:', editingChapterTitle.value)
+  console.log('🔵 Chapter ID:', chapterId)
+
+  // Marcar que Enter foi pressionado para evitar que blur execute novamente
+  isEnterPressed.value = true
+
+  await saveChapterEdit(chapterId)
+
+  // Resetar flag após salvar
+  setTimeout(() => {
+    isEnterPressed.value = false
+  }, 100)
+}
+
+const handleChapterBlur = async (chapterId: string) => {
+  // Só executar blur se não estiver salvando e Enter não foi pressionado
+  if (!isSavingChapter.value && !isEnterPressed.value) {
+    console.log('🔵 Blur executado')
+    await saveChapterEdit(chapterId)
+  } else {
+    console.log('🔵 Blur ignorado (Enter foi pressionado ou já está salvando)')
+  }
+}
+
+const handleChapterEsc = async (chapterId: string) => {
+  console.log('🔵 ESC pressionado, cancelando edição')
+  cancelChapterEdit()
 }
 
 // Delete Functions
@@ -1712,26 +1912,40 @@ const onSubjectDragEnd = async () => {
 }
 
 const updateChapters = (subjectId: string, newChapters: any[]) => {
-  // Atualizar a lista de capítulos localmente
+  // Atualizar a lista de capítulos localmente com os novos índices
   const otherChapters = chapters.value.filter(c => c.subject_id !== subjectId)
-  chapters.value = [...otherChapters, ...newChapters]
+
+  // Atualizar order_index para cada capítulo reordenado
+  const updatedChapters = newChapters.map((chapter, index) => ({
+    ...chapter,
+    order_index: index
+  }))
+
+  chapters.value = [...otherChapters, ...updatedChapters]
 }
 
 const onChapterDragEnd = async () => {
   console.log('📦 Reordenando capítulos...')
 
-  // Atualizar order_index de todos os capítulos
-  const updates = chapters.value.map((chapter, index) => ({
-    id: chapter.id,
-    order_index: index
-  }))
+  // Agrupar capítulos por caderno e atualizar order_index
+  const chaptersBySubject = chapters.value.reduce((acc, chapter) => {
+    if (!acc[chapter.subject_id]) {
+      acc[chapter.subject_id] = []
+    }
+    acc[chapter.subject_id].push(chapter)
+    return acc
+  }, {} as Record<string, any[]>)
 
   try {
-    for (const update of updates) {
-      await supabase
-        .from('chapters')
-        .update({ order_index: update.order_index })
-        .eq('id', update.id)
+    // Atualizar order_index para cada grupo de capítulos
+    for (const subjectId in chaptersBySubject) {
+      const subjectChapters = chaptersBySubject[subjectId]
+      for (let i = 0; i < subjectChapters.length; i++) {
+        await supabase
+          .from('chapters')
+          .update({ order_index: i })
+          .eq('id', subjectChapters[i].id)
+      }
     }
     console.log('✅ Capítulos reordenados com sucesso')
   } catch (err) {

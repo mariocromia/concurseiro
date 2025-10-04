@@ -57,7 +57,7 @@
 
         <!-- Insert Link -->
         <button
-          @click="insertLink"
+          @click="showLinkModal = true"
           title="Inserir link"
           class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
           type="button"
@@ -67,30 +67,13 @@
           </svg>
         </button>
 
-        <!-- Clear Formatting -->
-        <button
-          @click="clearFormatting"
-          title="Remover formatação"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
-          type="button"
-        >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 5v.18L8.82 8h2.4l-.72 1.68 2.1 2.1L14.21 8H20V5H6zm14 14l-1.41-1.41-2.85-2.85L3.27 2.27 2 3.55l6.09 6.09L6.27 16h3.24L12 13.27l6.18 6.18L19.73 21 20 20.73z"/>
-          </svg>
-        </button>
-
         <div class="w-px h-6 bg-gray-300 mx-1"></div>
 
         <!-- Add Comment -->
         <button
-          @click="toggleCommentMode"
-          title="Inserir comentário - Clique no editor onde deseja adicionar"
-          :class="[
-            'p-2 rounded transition-colors',
-            commentMode
-              ? 'bg-red-100 text-red-700 hover:bg-red-200'
-              : 'text-gray-700 hover:bg-gray-100'
-          ]"
+          @click="showCommentModal = true"
+          title="Inserir comentário"
+          class="p-2 rounded transition-colors text-gray-700 hover:bg-gray-100"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -137,6 +120,18 @@
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+          </svg>
+        </button>
+
+        <!-- Page Break -->
+        <button
+          @click="insertPageBreak"
+          title="Inserir quebra de página"
+          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V5a2 2 0 012-2h8a2 2 0 012 2v4M6 9h12M6 9l-2 10h16l-2-10"/>
           </svg>
         </button>
 
@@ -604,10 +599,114 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Link Modal -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="showLinkModal"
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          @click.self="closeLinkModal"
+        >
+          <Transition
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+          >
+            <div
+              v-if="showLinkModal"
+              class="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+              @click.stop
+            >
+              <!-- Header -->
+              <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                      </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Inserir Link</h3>
+                  </div>
+                  <button
+                    @click="closeLinkModal"
+                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Body -->
+              <div class="p-6 space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    URL
+                  </label>
+                  <input
+                    v-model="linkUrl"
+                    type="url"
+                    placeholder="https://exemplo.com"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    @keydown.enter="confirmLinkInsert"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Texto do Link (opcional)
+                  </label>
+                  <input
+                    v-model="linkText"
+                    type="text"
+                    placeholder="Clique aqui"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    @keydown.enter="confirmLinkInsert"
+                  />
+                  <p class="mt-1 text-xs text-gray-500">Se vazio, a URL será usada como texto</p>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="p-6 border-t border-gray-200 flex gap-3">
+                <button
+                  @click="closeLinkModal"
+                  class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  @click="confirmLinkInsert"
+                  :disabled="!linkUrl.trim()"
+                  class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                >
+                  Inserir
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
+import Calculator from './Calculator.vue'
+import RemindersManager from './RemindersManager.vue'
+
 interface Props {
   modelValue: string
   isPro: boolean
@@ -659,6 +758,11 @@ const showYouTubeModal = ref(false)
 const youtubeUrl = ref('')
 const youtubeStartTime = ref('')
 const youtubeEndTime = ref('')
+
+// Link modal
+const showLinkModal = ref(false)
+const linkUrl = ref('')
+const linkText = ref('')
 
 const formatTools = [
   {
@@ -743,7 +847,13 @@ const updateActiveFormats = () => {
 
 const changeFontSize = (size: string) => {
   if (size) {
-    execCommand('fontSize', size)
+    const selection = window.getSelection()
+    if (!selection || !selection.toString()) {
+      alert('Selecione o texto para alterar o tamanho')
+      return
+    }
+    document.execCommand('fontSize', false, size)
+    editorRef.value?.focus()
   }
 }
 
@@ -783,18 +893,46 @@ const clearFormatting = () => {
 }
 
 const insertLink = () => {
-  const url = prompt('Digite a URL:')
-  if (url) {
-    execCommand('createLink', url)
+  const selection = window.getSelection()
+  if (selection && selection.toString()) {
+    linkText.value = selection.toString()
   }
+  showLinkModal.value = true
+}
+
+const confirmLinkInsert = () => {
+  if (!linkUrl.value) return
+
+  if (linkText.value) {
+    // Se houver texto, cria um link com o texto
+    const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer">${linkText.value}</a>`
+    document.execCommand('insertHTML', false, link)
+  } else {
+    // Se não houver texto, usa a URL como texto
+    const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer">${linkUrl.value}</a>`
+    document.execCommand('insertHTML', false, link)
+  }
+
+  closeLinkModal()
+  editorRef.value?.focus()
+}
+
+const closeLinkModal = () => {
+  showLinkModal.value = false
+  linkUrl.value = ''
+  linkText.value = ''
 }
 
 const toggleCommentMode = () => {
-  commentMode.value = !commentMode.value
-  textBoxMode.value = false
-  if (!commentMode.value) {
-    commentCursorPosition.value = null
+  // Salvar a posição do cursor
+  const selection = window.getSelection()
+  if (selection && selection.rangeCount > 0) {
+    commentInsertRange.value = selection.getRangeAt(0).cloneRange()
   }
+
+  // Abrir modal diretamente
+  showCommentModal.value = true
+  commentText.value = ''
 }
 
 const toggleTextBoxMode = () => {
@@ -846,15 +984,34 @@ const confirmYouTubeInsert = () => {
   if (startSeconds) embedUrl += `start=${startSeconds}&`
   if (endSeconds) embedUrl += `end=${endSeconds}&`
 
-  // Create iframe
-  const iframe = document.createElement('div')
-  iframe.className = 'youtube-embed'
-  iframe.innerHTML = `<iframe width="560" height="315" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+  // Create iframe wrapper
+  const wrapper = document.createElement('div')
+  wrapper.className = 'youtube-embed-wrapper'
+  wrapper.style.cssText = `
+    position: relative;
+    width: 560px;
+    height: 315px;
+    margin: 10px 0;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    overflow: hidden;
+    resize: both;
+    display: inline-block;
+  `
+
+  const iframe = document.createElement('iframe')
+  iframe.src = embedUrl
+  iframe.frameBorder = '0'
+  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+  iframe.allowFullscreen = true
+  iframe.style.cssText = 'width: 100%; height: 100%; display: block;'
+
+  wrapper.appendChild(iframe)
 
   const selection = window.getSelection()
   if (selection && selection.rangeCount > 0) {
     const range = selection.getRangeAt(0)
-    range.insertNode(iframe)
+    range.insertNode(wrapper)
     range.collapse(false)
   }
 
@@ -869,6 +1026,26 @@ const closeYouTubeModal = () => {
   youtubeUrl.value = ''
   youtubeStartTime.value = ''
   youtubeEndTime.value = ''
+}
+
+// Insert page break
+const insertPageBreak = () => {
+  const pageBreak = document.createElement('div')
+  pageBreak.className = 'page-break'
+  pageBreak.innerHTML = '<hr style="border: 2px dashed #ccc; margin: 20px 0;"><div style="text-align: center; color: #999; font-size: 12px; margin: -10px 0 10px 0;">--- Quebra de Página ---</div>'
+  pageBreak.contentEditable = 'false'
+
+  const selection = window.getSelection()
+  if (selection && selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0)
+    range.insertNode(pageBreak)
+    range.collapse(false)
+  } else if (editorRef.value) {
+    editorRef.value.appendChild(pageBreak)
+  }
+
+  handleInput()
+  editorRef.value?.focus()
 }
 
 // Screenshot/Capture functions
@@ -1046,6 +1223,8 @@ const handleEditorClick = (event: MouseEvent) => {
       position: absolute;
       left: ${event.offsetX}px;
       top: ${event.offsetY}px;
+      width: 200px;
+      height: 100px;
       min-width: 150px;
       min-height: 50px;
       padding: 8px;
@@ -1054,6 +1233,8 @@ const handleEditorClick = (event: MouseEvent) => {
       background: #eff6ff;
       border-radius: 4px;
       z-index: 10;
+      resize: both;
+      overflow: auto;
     `
 
     // Create drag handle
@@ -1737,6 +1918,8 @@ onUnmounted(() => {
   position: relative;
   display: inline-block;
   cursor: text;
+  resize: both;
+  overflow: auto;
 }
 
 .rich-content-editor .text-box-element:hover {
@@ -1766,6 +1949,33 @@ onUnmounted(() => {
 .rich-content-editor .text-box-delete-btn:hover {
   transform: scale(1.1);
   background-color: #b91c1c;
+}
+
+/* YouTube embed styling */
+.rich-content-editor .youtube-embed-wrapper {
+  cursor: move;
+  resize: both;
+  overflow: hidden;
+}
+
+.rich-content-editor .youtube-embed-wrapper:hover {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Page break styling */
+.rich-content-editor .page-break {
+  page-break-before: always;
+  margin: 20px 0;
+}
+
+@media print {
+  .rich-content-editor .page-break hr {
+    display: none;
+  }
+  .rich-content-editor .page-break div {
+    display: none;
+  }
 }
 
 /* YouTube embed styling */
