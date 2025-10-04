@@ -2,11 +2,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export const useGemini = () => {
   const config = useRuntimeConfig()
-  const genAI = new GoogleGenerativeAI(config.public.geminiApiKey || 'AIzaSyCVcAEYOXDRa9P1E0sqK52PiVOPnmU0CdE')
+  const genAI = new GoogleGenerativeAI(config.public.googleAiApiKey || 'AIzaSyCVcAEYOXDRa9P1E0sqK52PiVOPnmU0CdE')
 
   const generateSummary = async (content: string, chapterTitle?: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
       const prompt = `Você é um assistente educacional especializado em criar resumos de estudo.
 
@@ -37,7 +37,7 @@ Formate o resumo de forma clara e organizada.`
     chapterTitle?: string
   ) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
       const difficultyMap = {
         easy: 'fácil (conceitos básicos)',
@@ -103,7 +103,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
     chapterTitle?: string
   ) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
       const prompt = `Você é um especialista em criar flashcards para estudo efetivo.
 
@@ -151,7 +151,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
   const chat = async (messages: Array<{ role: string; content: string }>, context?: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
       // Construir histórico de chat
       let prompt = ''
@@ -180,7 +180,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
   const explainSelection = async (selectedText: string, fullContext: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
       const prompt = `Você é um professor especializado em explicar conceitos de forma didática.
 
