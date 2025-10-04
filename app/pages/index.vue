@@ -71,6 +71,75 @@
         </div>
       </div>
     </section>
+
+    <!-- How It Works Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <h2 class="text-4xl font-bold text-center mb-4">
+        <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          Como Funciona
+        </span>
+      </h2>
+      <p class="text-center text-gray-400 mb-16 max-w-2xl mx-auto">
+        3 passos simples para transformar seus estudos
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-12">
+        <div class="text-center">
+          <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/50">
+            <span class="text-3xl font-bold text-white">1</span>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Organize seu Conteúdo</h3>
+          <p class="text-gray-400">Crie matérias, adicione capítulos e organize todo o conteúdo do seu edital no caderno virtual</p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/50">
+            <span class="text-3xl font-bold text-white">2</span>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Estude com IA</h3>
+          <p class="text-gray-400">Use a inteligência artificial para gerar resumos, questões personalizadas e flashcards automaticamente</p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary-500/50">
+            <span class="text-3xl font-bold text-white">3</span>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-3">Revise e Aprove</h3>
+          <p class="text-gray-400">Acompanhe seu progresso, faça revisões programadas e veja seus resultados melhorarem dia após dia</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-12 text-center shadow-2xl shadow-primary-500/30">
+        <h2 class="text-4xl font-bold text-white mb-4">
+          Pronto para mudar sua forma de estudar?
+        </h2>
+        <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          Comece gratuitamente e descubra como a IA pode acelerar sua aprovação
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <NuxtLink
+            to="/register"
+            class="px-8 py-4 bg-white text-primary-600 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg"
+          >
+            Criar Conta Grátis
+          </NuxtLink>
+          <NuxtLink
+            to="/login"
+            class="px-8 py-4 bg-primary-800 text-white rounded-lg font-semibold hover:bg-primary-900 transition-all border border-primary-400"
+          >
+            Já tenho conta
+          </NuxtLink>
+        </div>
+        <p class="text-primary-200 text-sm mt-6">
+          Sem cartão de crédito necessário • Cancele quando quiser
+        </p>
+      </div>
+    </section>
+
+
     <!-- Footer -->
     <footer class="border-t border-dark-700 mt-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
