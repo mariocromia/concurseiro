@@ -1,7 +1,5 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
-
-
     <!-- Hero Section -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div class="text-center mb-16">
@@ -73,11 +71,43 @@
         </div>
       </div>
     </section>
-
     <!-- Footer -->
     <footer class="border-t border-dark-700 mt-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-gray-500">
-        <p>&copy; 2025 Concurseiro. Desenvolvido para aprovação.</p>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+          <div>
+            <h3 class="text-white font-bold text-lg mb-4">Concurseiro</h3>
+            <p class="text-gray-400 text-sm">
+              Plataforma completa de estudos com inteligência artificial para concursos e vestibulares.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-white font-semibold mb-4">Produto</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Funcionalidades</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Planos e Preços</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Perguntas Frequentes</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-white font-semibold mb-4">Empresa</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Sobre</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Blog</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Contato</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-white font-semibold mb-4">Legal</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Termos de Uso</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-primary-500 transition text-sm">Política de Privacidade</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-dark-700 pt-8 text-center">
+          <p class="text-gray-500 text-sm">&copy; 2025 Concurseiro. Desenvolvido para aprovação.</p>
+        </div>
       </div>
     </footer>
   </div>
