@@ -65,7 +65,7 @@
               leave-from-class="transform scale-100 opacity-100"
               leave-to-class="transform scale-95 opacity-0"
             >
-              <div v-if="userMenuOpen" v-click-outside="() => userMenuOpen = false" class="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-lg shadow-xl overflow-hidden">
+              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-lg shadow-xl overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-800">
                   <p class="text-sm font-medium text-slate-200">{{ userName }}</p>
                   <p class="text-xs text-slate-500 truncate mt-0.5">{{ userEmail }}</p>
@@ -118,6 +118,7 @@
 
 <script setup lang="ts">
 import { h } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
@@ -126,21 +127,12 @@ const user = useSupabaseUser()
 
 const mobileMenuOpen = ref(false)
 const userMenuOpen = ref(false)
+const dropdownRef = ref(null)
 
-// Diretiva para fechar ao clicar fora
-const vClickOutside = {
-  mounted(el: any, binding: any) {
-    el.clickOutsideEvent = (event: Event) => {
-      if (!(el === event.target || el.contains(event.target))) {
-        binding.value()
-      }
-    }
-    document.addEventListener('click', el.clickOutsideEvent)
-  },
-  unmounted(el: any) {
-    document.removeEventListener('click', el.clickOutsideEvent)
-  }
-}
+// Fechar dropdown ao clicar fora
+onClickOutside(dropdownRef, () => {
+  userMenuOpen.value = false
+})
 
 // Menu items na ordem solicitada
 const menuItems = [
