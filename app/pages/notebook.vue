@@ -34,7 +34,7 @@
               <div class="flex-1">
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
@@ -404,22 +404,26 @@
 
         <!-- News Feed (quando nenhum capítulo está selecionado) -->
         <div v-if="!selectedChapter" class="p-8 max-w-7xl ml-0 mr-auto">
-          <div class="mb-6 flex items-start justify-between">
-            <div>
-              <div class="text-sm text-primary-400 font-medium mb-1 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                </svg>
-                <span>Central de Estudos</span>
+          <div class="mb-6">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-sm text-primary-400 font-medium mb-1 flex items-center space-x-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                  </svg>
+                  <span>Central de Estudos</span>
+                </div>
+                <h2 class="text-3xl font-bold text-white mb-2">Notícias</h2>
+                <p class="text-sm text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
               </div>
-              <h2 class="text-3xl font-bold text-white mb-2">Notícias</h2>
-              <p class="text-sm text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
             </div>
-            <div class="flex items-center space-x-2">
-              <!-- Search Button -->
+
+            <!-- Search Button -->
+            <div class="mt-4 flex items-center justify-end">
               <button
                 @click="showInlineSearch = true"
-                class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium flex items-center space-x-2"
+                class="px-3 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
+                title="Buscar nos cadernos"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -485,47 +489,26 @@
               <h2 class="text-3xl font-bold text-white mb-2">{{ selectedChapter.title }}</h2>
               <p class="text-sm text-gray-500">Última atualização: {{ formatDate(selectedChapter.updated_at || selectedChapter.created_at) }}</p>
             </div>
-            <div class="flex items-center space-x-2">
-              <button
-                v-if="!autoSaveEnabled"
-                @click="saveChapterContent"
-                :disabled="saving"
-                class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium disabled:opacity-50"
-              >
-                {{ saving ? 'Salvando...' : 'Salvar' }}
-              </button>
-            </div>
           </div>
 
-          <!-- Rich Content Editor -->
-          <RichContentEditor
-            v-model="chapterContent"
-            :is-pro="isPro"
-            :subject-id="selectedSubject?.id"
-            :subject-name="selectedSubject?.name"
-            @ai-action="handleAIAction"
-            @upgrade="handleUpgrade"
-          />
-
-          <!-- Action Buttons Below Editor -->
-          <div class="mt-6 flex items-center justify-end space-x-3 pb-8">
+          <!-- Action Buttons (Buscar, Autosave, Salvar, Exportar PDF) -->
+          <div class="mb-4 flex items-center justify-end space-x-2">
             <!-- Search Button -->
             <button
               @click="showInlineSearch = true"
-              class="px-4 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
+              class="px-3 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
               title="Buscar nos cadernos"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span>Buscar</span>
             </button>
 
             <!-- Autosave Toggle -->
             <button
               @click="toggleAutosave"
               :class="[
-                'px-4 py-2 rounded-lg transition-all font-medium flex items-center space-x-2',
+                'px-3 py-2 rounded-lg transition-all font-medium flex items-center space-x-2 text-sm',
                 autoSaveEnabled
                   ? 'bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30'
                   : 'bg-dark-800 border border-dark-600 text-gray-400 hover:bg-dark-700'
@@ -534,6 +517,19 @@
             >
               <span>{{ autoSaveEnabled ? '✓' : '○' }}</span>
               <span>{{ autoSaveEnabled ? 'Autosave ON' : 'Autosave OFF' }}</span>
+            </button>
+
+            <!-- Save Button (só aparece quando autosave está OFF) -->
+            <button
+              v-if="!autoSaveEnabled"
+              @click="saveChapterContent"
+              :disabled="saving"
+              class="px-4 py-2 bg-primary-500/20 border border-primary-500/30 text-primary-300 rounded-lg hover:bg-primary-500/30 hover:border-primary-500/50 transition-all font-medium disabled:opacity-50 flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+              </svg>
+              <span>{{ saving ? 'Salvando...' : 'Salvar' }}</span>
             </button>
 
             <!-- Exportar PDF Button -->
@@ -549,6 +545,16 @@
               <span>Exportar PDF</span>
             </button>
           </div>
+
+          <!-- Rich Content Editor -->
+          <RichContentEditor
+            v-model="chapterContent"
+            :is-pro="isPro"
+            :subject-id="selectedSubject?.id"
+            :subject-name="selectedSubject?.name"
+            @ai-action="handleAIAction"
+            @upgrade="handleUpgrade"
+          />
         </div>
       </main>
     </div>
@@ -780,11 +786,11 @@ const inlineResults = ref<any[]>([])
 const activeInlineFilters = ref(['all'])
 const searchInput = ref<HTMLInputElement | null>(null)
 const searchFilters = [
-  { value: 'all', label: 'Todos', icon: '📚' },
-  { value: 'subjects', label: 'Cadernos', icon: '📖' },
-  { value: 'chapters', label: 'Capítulos', icon: '📄' },
-  { value: 'content', label: 'Conteúdo', icon: '📝' },
-  { value: 'reminders', label: 'Lembretes', icon: '📌' }
+  { value: 'all', label: 'Todos', icon: '' },
+  { value: 'subjects', label: 'Cadernos', icon: '' },
+  { value: 'chapters', label: 'Capítulos', icon: '' },
+  { value: 'content', label: 'Conteúdo', icon: '' },
+  { value: 'reminders', label: 'Lembretes', icon: '' }
 ]
 
 // Watch for search modal opening to focus input
