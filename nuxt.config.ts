@@ -5,6 +5,8 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/supabase'],
 
+  css: ['~/app/assets/css/theme.css'],
+
   supabase: {
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
@@ -12,11 +14,14 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
-      exclude: ['/', '/register', '/login', '/forgot-password'],
+      exclude: ['/', '/register', '/login', '/forgot-password', '/precos', '/checkout'],
     }
   },
 
   runtimeConfig: {
+    asaasApiKey: process.env.ASAAS_API_KEY,
+    asaasBaseUrl: process.env.ASAAS_BASE_URL || 'https://api.asaas.com/v3',
+    asaasWebhookSecret: process.env.ASAAS_WEBHOOK_SECRET,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
