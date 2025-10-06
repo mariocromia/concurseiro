@@ -125,9 +125,14 @@
 
         <!-- Page Break -->
         <button
-          @click="insertPageBreak"
-          title="Inserir quebra de página"
-          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
+          @click="togglePageBreakMode"
+          title="Inserir quebra de página - Clique no editor para posicionar"
+          :class="[
+            'p-2 rounded transition-colors',
+            pageBreakMode
+              ? 'bg-primary-500/20 text-primary-400 hover:bg-primary-500/30'
+              : 'text-gray-400 hover:bg-dark-700/50'
+          ]"
           type="button"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,27 +246,20 @@
           </svg>
         </button>
 
-        <button
-          v-if="isPro"
-          @click="showAIMenu"
-          class="px-3 py-1.5 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-lg hover:shadow-lg hover:from-gray-600 hover:to-gray-700 transition-all text-sm font-medium flex items-center gap-1 border border-gray-600"
-          type="button"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span>IA</span>
-        </button>
-        <span v-else class="text-xs text-gray-400">Seleção + IA = PRO</span>
       </div>
     </div>
 
     <!-- Geometry Tools Bar -->
-    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-2 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3">
-      <div class="text-sm font-medium text-indigo-900 mr-2">Ferramentas de Geometria:</div>
+    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-lg px-4 py-3">
+      <div class="text-sm font-medium text-gray-300 mr-2">Ferramentas de Geometria:</div>
       <button
         @click="activateGeometryTool('line')"
-        :class="['p-2 rounded transition-colors', geometryTool === 'line' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        :class="[
+          'p-2 rounded transition-colors',
+          geometryTool === 'line'
+            ? 'bg-primary-500/20 text-primary-400'
+            : 'text-gray-400 hover:bg-dark-700/50'
+        ]"
         title="Desenhar linha"
         type="button"
       >
@@ -271,7 +269,12 @@
       </button>
       <button
         @click="activateGeometryTool('circle')"
-        :class="['p-2 rounded transition-colors', geometryTool === 'circle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        :class="[
+          'p-2 rounded transition-colors',
+          geometryTool === 'circle'
+            ? 'bg-primary-500/20 text-primary-400'
+            : 'text-gray-400 hover:bg-dark-700/50'
+        ]"
         title="Desenhar círculo"
         type="button"
       >
@@ -281,7 +284,12 @@
       </button>
       <button
         @click="activateGeometryTool('rectangle')"
-        :class="['p-2 rounded transition-colors', geometryTool === 'rectangle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        :class="[
+          'p-2 rounded transition-colors',
+          geometryTool === 'rectangle'
+            ? 'bg-primary-500/20 text-primary-400'
+            : 'text-gray-400 hover:bg-dark-700/50'
+        ]"
         title="Desenhar retângulo"
         type="button"
       >
@@ -291,7 +299,12 @@
       </button>
       <button
         @click="activateGeometryTool('triangle')"
-        :class="['p-2 rounded transition-colors', geometryTool === 'triangle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        :class="[
+          'p-2 rounded transition-colors',
+          geometryTool === 'triangle'
+            ? 'bg-primary-500/20 text-primary-400'
+            : 'text-gray-400 hover:bg-dark-700/50'
+        ]"
         title="Desenhar triângulo"
         type="button"
       >
@@ -301,7 +314,12 @@
       </button>
       <button
         @click="activateGeometryTool('angle')"
-        :class="['p-2 rounded transition-colors', geometryTool === 'angle' ? 'bg-indigo-200 text-indigo-900' : 'text-indigo-700 hover:bg-indigo-100']"
+        :class="[
+          'p-2 rounded transition-colors',
+          geometryTool === 'angle'
+            ? 'bg-primary-500/20 text-primary-400'
+            : 'text-gray-400 hover:bg-dark-700/50'
+        ]"
         title="Desenhar ângulo"
         type="button"
       >
@@ -310,6 +328,42 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20a6 6 0 006-6"/>
         </svg>
       </button>
+
+      <div class="w-px h-6 bg-dark-700 mx-1"></div>
+
+      <!-- Polygon Tool with Sides Configuration -->
+      <button
+        @click="showPolygonConfig = !showPolygonConfig"
+        :class="[
+          'p-2 rounded transition-colors',
+          geometryTool === 'polygon'
+            ? 'bg-primary-500/20 text-primary-400'
+            : 'text-gray-400 hover:bg-dark-700/50'
+        ]"
+        title="Desenhar polígono"
+        type="button"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </button>
+
+      <div v-if="showPolygonConfig" class="flex items-center gap-2 bg-dark-700/50 rounded px-3 py-1">
+        <label class="text-xs text-gray-400">Lados:</label>
+        <input
+          v-model.number="polygonSides"
+          type="number"
+          min="3"
+          max="12"
+          class="w-16 px-2 py-1 bg-dark-700 border border-dark-600 text-gray-300 rounded text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+        />
+        <button
+          @click="activateGeometryTool('polygon')"
+          class="px-2 py-1 bg-primary-500 text-white rounded text-xs hover:bg-primary-600"
+        >
+          OK
+        </button>
+      </div>
     </div>
 
     <!-- Editor Area -->
@@ -326,8 +380,9 @@
       @focus="updateActiveFormats"
       class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
-        'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode,
+        'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode && !pageBreakMode,
         'cursor-crosshair': commentMode || geometryTool || screenshotMode,
+        'page-break-cursor': pageBreakMode,
         'notebook-lines': showNotebookLines
       }"
       @paste="handlePaste"
@@ -792,11 +847,16 @@ const isDrawingSelection = ref(false)
 const capturedImage = ref<string | null>(null)
 const showScreenshotAIMenu = ref(false)
 
+// Page Break Mode
+const pageBreakMode = ref(false)
+
 // New tools
 const showCalculator = ref(false)
 const showReminders = ref(false)
 const showGeometryTools = ref(false)
-const geometryTool = ref<'line' | 'circle' | 'rectangle' | 'triangle' | 'angle' | null>(null)
+const geometryTool = ref<'line' | 'circle' | 'rectangle' | 'triangle' | 'angle' | 'polygon' | null>(null)
+const showPolygonConfig = ref(false)
+const polygonSides = ref(5)
 
 // Notebook lines
 const showNotebookLines = ref(true)
@@ -831,6 +891,11 @@ const formatTools = [
     command: 'underline',
     label: 'Sublinhado (Ctrl+U)',
     icon: '<path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"/>'
+  },
+  {
+    command: 'strikeThrough',
+    label: 'Tachado',
+    icon: '<path d="M10 19h4v-3h-4v3zM5 4v3h5v3h4V7h5V4H5zM3 14h18v-2H3v2z"/>'
   },
   {
     command: 'insertUnorderedList',
@@ -1081,19 +1146,127 @@ const closeYouTubeModal = () => {
 }
 
 // Insert page break
-const insertPageBreak = () => {
+const togglePageBreakMode = () => {
+  pageBreakMode.value = !pageBreakMode.value
+  if (pageBreakMode.value) {
+    // Desativa outros modos
+    commentMode.value = false
+    textBoxMode.value = false
+    screenshotMode.value = false
+  }
+}
+
+const insertPageBreak = (event?: MouseEvent) => {
+  // Criar elemento de quebra de página
   const pageBreak = document.createElement('div')
-  pageBreak.className = 'page-break'
-  pageBreak.innerHTML = '<hr style="border: 2px dashed #ccc; margin: 20px 0;"><div style="text-align: center; color: #999; font-size: 12px; margin: -10px 0 10px 0;">--- Quebra de Página ---</div>'
+  pageBreak.className = 'page-break-wrapper'
   pageBreak.contentEditable = 'false'
 
-  const selection = window.getSelection()
-  if (selection && selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0)
-    range.insertNode(pageBreak)
-    range.collapse(false)
-  } else if (editorRef.value) {
-    editorRef.value.appendChild(pageBreak)
+  const breakId = `page-break-${Date.now()}`
+  pageBreak.setAttribute('data-break-id', breakId)
+
+  // HTML da quebra de página com linha e botão excluir
+  pageBreak.innerHTML = `
+    <div style="position: relative; width: 100%; height: 30px; display: flex; align-items: center; justify-content: center;">
+      <div style="width: 100%; height: 2px; background: repeating-linear-gradient(to right, #ef4444 0, #ef4444 8px, transparent 8px, transparent 16px);"></div>
+      <button class="page-break-delete" style="position: absolute; right: 0; width: 24px; height: 24px; background: #ef4444; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; z-index: 10;">
+        <svg style="width: 14px; height: 14px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <span style="position: absolute; left: 50%; transform: translateX(-50%); background: #1f2937; color: #9ca3af; padding: 2px 8px; border-radius: 4px; font-size: 11px; opacity: 0; transition: opacity 0.2s; pointer-events: none;">Quebra de Página</span>
+    </div>
+  `
+
+  // Adicionar event listeners
+  setTimeout(() => {
+    const deleteBtn = pageBreak.querySelector('.page-break-delete')
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        pageBreak.remove()
+        handleInput()
+        updatePageCount()
+      })
+    }
+
+    // Mostrar botão e label ao passar o mouse
+    pageBreak.addEventListener('mouseenter', () => {
+      const btn = pageBreak.querySelector('.page-break-delete') as HTMLElement
+      const label = pageBreak.querySelector('span') as HTMLElement
+      if (btn) btn.style.opacity = '1'
+      if (label) label.style.opacity = '1'
+    })
+
+    pageBreak.addEventListener('mouseleave', () => {
+      const btn = pageBreak.querySelector('.page-break-delete') as HTMLElement
+      const label = pageBreak.querySelector('span') as HTMLElement
+      if (btn) btn.style.opacity = '0'
+      if (label) label.style.opacity = '0'
+    })
+  }, 0)
+
+  if (event && pageBreakMode.value) {
+    // Inserir na posição do clique, ajustando para ficar entre linhas
+    const editorRect = editorRef.value?.getBoundingClientRect()
+    if (editorRect) {
+      // Calcular qual linha está mais próxima (cada linha tem 30px)
+      const relativeY = event.clientY - editorRect.top
+      const lineHeight = 30
+      const nearestLine = Math.round(relativeY / lineHeight) * lineHeight
+
+      // Criar um parágrafo vazio se necessário para manter o espaçamento
+      const wrapper = document.createElement('div')
+      wrapper.appendChild(pageBreak)
+
+      // Inserir no final do editor
+      if (editorRef.value) {
+        const selection = window.getSelection()
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0)
+          range.deleteContents()
+          range.insertNode(pageBreak)
+
+          // Adicionar um parágrafo vazio depois para continuar escrevendo
+          const p = document.createElement('p')
+          p.innerHTML = '<br>'
+          pageBreak.after(p)
+
+          // Posicionar cursor no novo parágrafo
+          const newRange = document.createRange()
+          newRange.setStart(p, 0)
+          newRange.collapse(true)
+          selection.removeAllRanges()
+          selection.addRange(newRange)
+        } else {
+          editorRef.value.appendChild(pageBreak)
+          const p = document.createElement('p')
+          p.innerHTML = '<br>'
+          editorRef.value.appendChild(p)
+        }
+      }
+    }
+    pageBreakMode.value = false
+  } else {
+    // Inserir na posição do cursor
+    const selection = window.getSelection()
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0)
+      range.deleteContents()
+      range.insertNode(pageBreak)
+
+      // Adicionar parágrafo vazio depois
+      const p = document.createElement('p')
+      p.innerHTML = '<br>'
+      pageBreak.after(p)
+
+      range.collapse(false)
+    } else if (editorRef.value) {
+      editorRef.value.appendChild(pageBreak)
+      const p = document.createElement('p')
+      p.innerHTML = '<br>'
+      editorRef.value.appendChild(p)
+    }
   }
 
   handleInput()
@@ -1278,6 +1451,12 @@ const handleEditorClick = (event: MouseEvent) => {
     currentCommentId.value = target.getAttribute('data-comment-id') || ''
     currentCommentText.value = target.getAttribute('data-comment-text') || ''
     showCommentView.value = true
+    return
+  }
+
+  // If in page break mode, insert page break at click position
+  if (pageBreakMode.value) {
+    insertPageBreak(event)
     return
   }
 
@@ -1693,10 +1872,13 @@ const handlePaste = (event: ClipboardEvent) => {
 }
 
 // Geometry tools functions
-const activateGeometryTool = (tool: 'line' | 'circle' | 'rectangle' | 'triangle' | 'angle') => {
+const activateGeometryTool = (tool: 'line' | 'circle' | 'rectangle' | 'triangle' | 'angle' | 'polygon') => {
   geometryTool.value = geometryTool.value === tool ? null : tool
   commentMode.value = false
   textBoxMode.value = false
+  if (tool === 'polygon') {
+    showPolygonConfig.value = false
+  }
 }
 
 const drawGeometryShape = (event: MouseEvent) => {
@@ -1784,6 +1966,25 @@ const drawGeometryShape = (event: MouseEvent) => {
       g.appendChild(arc)
       g.appendChild(text)
       shape = g
+      break
+    case 'polygon':
+      shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+      // Calcular pontos do polígono regular
+      const sides = polygonSides.value
+      const centerX = 100
+      const centerY = 100
+      const radius = 80
+      const points: string[] = []
+      for (let i = 0; i < sides; i++) {
+        const angle = (i * 2 * Math.PI) / sides - Math.PI / 2
+        const x = centerX + radius * Math.cos(angle)
+        const y = centerY + radius * Math.sin(angle)
+        points.push(`${x},${y}`)
+      }
+      shape.setAttribute('points', points.join(' '))
+      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke-width', '3')
+      shape.setAttribute('fill', 'none')
       break
     default:
       return
@@ -2106,5 +2307,35 @@ onUnmounted(() => {
   color: rgba(59, 130, 246, 0.5);
   font-size: 0.75rem;
   margin-top: 0.5rem;
+}
+
+/* Page Break Mode Cursor */
+.page-break-cursor {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cline x1='0' y1='12' x2='24' y2='12' stroke='%23ef4444' stroke-width='2' stroke-dasharray='4,4'/%3E%3C/svg%3E") 12 12, crosshair !important;
+}
+
+/* Page Break Wrapper Styles */
+.rich-content-editor .page-break-wrapper {
+  position: relative;
+  width: 100%;
+  user-select: none;
+  page-break-after: always;
+  break-after: page;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ocultar a linha pontilhada na impressão, manter apenas a quebra */
+@media print {
+  .rich-content-editor .page-break-wrapper > div {
+    display: none;
+  }
+
+  .rich-content-editor .page-break-wrapper {
+    height: 0;
+    margin: 0;
+    padding: 0;
+  }
 }
 </style>

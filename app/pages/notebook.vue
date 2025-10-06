@@ -403,7 +403,7 @@
         </div>
 
         <!-- News Feed (quando nenhum capítulo está selecionado) -->
-        <div v-if="!selectedChapter" class="p-8 max-w-5xl mx-auto">
+        <div v-if="!selectedChapter" class="p-8 max-w-7xl ml-0 mr-auto">
           <div class="mb-6 flex items-start justify-between">
             <div>
               <div class="text-sm text-primary-400 font-medium mb-1 flex items-center space-x-2">
@@ -478,7 +478,7 @@
         </div>
 
         <!-- Chapter Content -->
-        <div v-else-if="selectedChapter" class="p-8 max-w-5xl mx-auto">
+        <div v-else-if="selectedChapter" class="p-8 max-w-7xl ml-0 mr-auto">
           <div class="mb-6 flex items-start justify-between">
             <div>
               <div class="text-sm text-primary-400 font-medium mb-1">{{ selectedSubject?.name }}</div>
@@ -486,56 +486,6 @@
               <p class="text-sm text-gray-500">Última atualização: {{ formatDate(selectedChapter.updated_at || selectedChapter.created_at) }}</p>
             </div>
             <div class="flex items-center space-x-2">
-              <!-- Search Button -->
-              <button
-                @click="showInlineSearch = true"
-                class="px-3 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
-                title="Buscar nos cadernos"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-
-              <!-- Autosave Toggle -->
-              <button
-                @click="toggleAutosave"
-                :class="[
-                  'px-3 py-2 rounded-lg transition-all font-medium flex items-center space-x-2 text-sm',
-                  autoSaveEnabled
-                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]"
-                :title="autoSaveEnabled ? 'Autosave ativado' : 'Autosave desativado'"
-              >
-                <span>{{ autoSaveEnabled ? '✓' : '○' }}</span>
-                <span>{{ autoSaveEnabled ? 'Autosave ON' : 'Autosave OFF' }}</span>
-              </button>
-
-              <button
-                v-if="isPro"
-                @click="showAIMenuForChapter($event, selectedChapter)"
-                class="px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-600/30 hover:border-purple-500/50 transition-all font-medium flex items-center space-x-2"
-              >
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
-                </svg>
-                <span>Assistente IA</span>
-              </button>
-
-              <!-- Botão Exportar PDF -->
-              <button
-                v-if="selectedChapter"
-                @click="exportToPDF"
-                class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
-                title="Exportar capítulo para PDF"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span>Exportar PDF</span>
-              </button>
-
               <button
                 v-if="!autoSaveEnabled"
                 @click="saveChapterContent"
@@ -556,6 +506,49 @@
             @ai-action="handleAIAction"
             @upgrade="handleUpgrade"
           />
+
+          <!-- Action Buttons Below Editor -->
+          <div class="mt-6 flex items-center justify-end space-x-3 pb-8">
+            <!-- Search Button -->
+            <button
+              @click="showInlineSearch = true"
+              class="px-4 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
+              title="Buscar nos cadernos"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span>Buscar</span>
+            </button>
+
+            <!-- Autosave Toggle -->
+            <button
+              @click="toggleAutosave"
+              :class="[
+                'px-4 py-2 rounded-lg transition-all font-medium flex items-center space-x-2',
+                autoSaveEnabled
+                  ? 'bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30'
+                  : 'bg-dark-800 border border-dark-600 text-gray-400 hover:bg-dark-700'
+              ]"
+              :title="autoSaveEnabled ? 'Autosave ativado' : 'Autosave desativado'"
+            >
+              <span>{{ autoSaveEnabled ? '✓' : '○' }}</span>
+              <span>{{ autoSaveEnabled ? 'Autosave ON' : 'Autosave OFF' }}</span>
+            </button>
+
+            <!-- Exportar PDF Button -->
+            <button
+              v-if="selectedChapter"
+              @click="exportToPDF"
+              class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
+              title="Exportar capítulo para PDF"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+              <span>Exportar PDF</span>
+            </button>
+          </div>
         </div>
       </main>
     </div>
