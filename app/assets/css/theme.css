@@ -1,6 +1,31 @@
 /* Theme Variables and Styles */
 
-/* Dark Theme (Default) */
+/* Root defaults (Light Theme) */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+
+  --gradient-from: #ffffff;
+  --gradient-via: #f8fafc;
+  --gradient-to: #f1f5f9;
+
+  --nav-from: #ffffff;
+  --nav-via: #f8fafc;
+  --nav-to: #f1f5f9;
+  --nav-border: rgba(229, 231, 235, 0.5);
+
+  --hover-bg: rgba(241, 245, 249, 0.5);
+}
+
+/* Dark Theme */
 .dark {
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
@@ -12,29 +37,17 @@
 
   --border-primary: #334155;
   --border-secondary: #475569;
-}
 
-/* Light Theme */
-.light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
+  --gradient-from: #0f172a;
+  --gradient-via: #1e293b;
+  --gradient-to: #0f172a;
 
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-tertiary: #64748b;
+  --nav-from: #1e1b4b;
+  --nav-via: #020617;
+  --nav-to: #1e1b4b;
+  --nav-border: rgba(148, 163, 184, 0.5);
 
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-}
-
-/* Apply theme-aware backgrounds */
-.dark body {
-  background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a);
-}
-
-.light body {
-  background: linear-gradient(to bottom right, #ffffff, #f8fafc, #f1f5f9);
+  --hover-bg: rgba(30, 41, 59, 0.5);
 }
 
 /* Theme-aware component styles - Base classes that adapt */
@@ -68,6 +81,23 @@
 
 .theme-border-secondary {
   border-color: var(--border-secondary);
+}
+
+/* Gradient backgrounds */
+.theme-gradient {
+  background: linear-gradient(to bottom right, var(--gradient-from), var(--gradient-via), var(--gradient-to));
+}
+
+.theme-nav-gradient {
+  background: linear-gradient(to right, var(--nav-from), var(--nav-via), var(--nav-to));
+}
+
+.theme-nav-border {
+  border-color: var(--nav-border);
+}
+
+.theme-hover:hover {
+  background-color: var(--hover-bg);
 }
 
 /* Smooth transition for theme changes */

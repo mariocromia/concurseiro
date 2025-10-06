@@ -1,16 +1,16 @@
 <template>
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-950 via-slate-950 to-indigo-950 dark:from-indigo-950 dark:via-slate-950 dark:to-indigo-950 light:from-white light:via-gray-50 light:to-white border-b border-slate-800/50 dark:border-slate-800/50 light:border-gray-200">
+  <nav class="fixed top-0 left-0 right-0 z-50 theme-nav-gradient border-b theme-nav-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
 
         <!-- Logo -->
         <NuxtLink to="/dashboard" class="flex items-center gap-3 group">
-          <div class="w-9 h-9 bg-gradient-to-br from-slate-700 to-slate-800 dark:from-slate-700 dark:to-slate-800 light:from-gray-200 light:to-gray-300 rounded-lg flex items-center justify-center group-hover:from-slate-600 group-hover:to-slate-700 dark:group-hover:from-slate-600 dark:group-hover:to-slate-700 light:group-hover:from-gray-300 light:group-hover:to-gray-400 transition-all duration-300">
-            <svg class="w-5 h-5 text-slate-300 dark:text-slate-300 light:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-9 h-9 bg-gradient-to-br from-slate-700 to-slate-800 dark:from-slate-700 dark:to-slate-800 rounded-lg flex items-center justify-center group-hover:from-slate-600 group-hover:to-slate-700 transition-all duration-300">
+            <svg class="w-5 h-5 text-slate-300 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
-          <span class="text-slate-100 dark:text-slate-100 light:text-gray-900 font-semibold tracking-tight hidden sm:block">Concurseiro</span>
+          <span class="theme-text-primary font-semibold tracking-tight hidden sm:block">Concurseiro</span>
         </NuxtLink>
 
         <!-- Menu Items -->
@@ -65,10 +65,10 @@
               leave-from-class="transform scale-100 opacity-100"
               leave-to-class="transform scale-95 opacity-0"
             >
-              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 bg-slate-900 dark:bg-slate-900 light:bg-white border border-slate-800 dark:border-slate-800 light:border-gray-200 rounded-lg shadow-xl overflow-hidden">
-                <div class="px-4 py-3 border-b border-slate-800 dark:border-slate-800 light:border-gray-200">
-                  <p class="text-sm font-medium text-slate-200 dark:text-slate-200 light:text-gray-900">{{ userName }}</p>
-                  <p class="text-xs text-slate-500 dark:text-slate-500 light:text-gray-600 truncate mt-0.5">{{ userEmail }}</p>
+              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 theme-bg-secondary border theme-border-primary rounded-lg shadow-xl overflow-hidden">
+                <div class="px-4 py-3 border-b theme-border-primary">
+                  <p class="text-sm font-medium theme-text-primary">{{ userName }}</p>
+                  <p class="text-xs theme-text-tertiary truncate mt-0.5">{{ userEmail }}</p>
                 </div>
                 <div class="py-1">
                   <!-- Link de Afiliados -->
@@ -112,7 +112,7 @@
                   <!-- Theme Toggle -->
                   <button
                     @click="toggleTheme"
-                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 dark:text-slate-400 light:text-gray-600 hover:text-yellow-400 dark:hover:text-yellow-400 light:hover:text-yellow-600 hover:bg-slate-800/50 dark:hover:bg-slate-800/50 light:hover:bg-gray-100 transition-colors border-t border-slate-800 dark:border-slate-800 light:border-gray-200"
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm theme-text-secondary hover:text-yellow-400 theme-hover transition-colors border-t theme-border-primary"
                   >
                     <svg v-if="isDark" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -126,7 +126,7 @@
                   <!-- Logout -->
                   <button
                     @click="handleLogout"
-                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-red-400 hover:bg-slate-800/50 transition-colors border-t border-slate-800"
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm theme-text-secondary hover:text-red-400 theme-hover transition-colors border-t theme-border-primary"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -150,7 +150,7 @@
       leave-from-class="transform translate-y-0 opacity-100"
       leave-to-class="transform -translate-y-2 opacity-0"
     >
-      <div v-if="mobileMenuOpen" class="lg:hidden border-t border-slate-800/50 bg-gradient-to-r from-indigo-950 via-slate-950 to-indigo-950">
+      <div v-if="mobileMenuOpen" class="lg:hidden border-t theme-nav-border theme-nav-gradient">
         <div class="px-2 py-3 space-y-1">
           <NuxtLink
             v-for="item in menuItems"
@@ -184,12 +184,7 @@ const dropdownRef = ref(null)
 const isAffiliate = ref(false)
 
 // Theme management
-const { isDark, toggleTheme, initTheme } = useTheme()
-
-// Inicializar tema
-onMounted(() => {
-  initTheme()
-})
+const { isDark, toggleTheme } = useTheme()
 
 // Fechar dropdown ao clicar fora
 onClickOutside(dropdownRef, () => {

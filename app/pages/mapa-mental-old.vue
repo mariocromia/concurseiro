@@ -277,8 +277,8 @@ const loadMindmaps = async () => {
   try {
     loading.value = true
     error.value = null
-    const response = await $fetch('/api/mindmaps')
-    mindmaps.value = response.data || []
+    const { data } = await $fetch('/api/mindmaps')
+    mindmaps.value = data || []
     showSetupWarning.value = false
   } catch (err: any) {
     console.error('Erro ao carregar mapas mentais:', err)
@@ -291,7 +291,7 @@ const loadMindmaps = async () => {
 // Criar novo mapa mental
 const createNewMindmap = async () => {
   try {
-    const response = await $fetch('/api/mindmaps', {
+    const { data } = await $fetch('/api/mindmaps', {
       method: 'POST',
       body: {
         title: 'Novo Mapa Mental',
@@ -299,8 +299,8 @@ const createNewMindmap = async () => {
       }
     })
 
-    if (response.data) {
-      await openMindmap(response.data.id)
+    if (data) {
+      await openMindmap(data.id)
       await loadMindmaps()
     }
   } catch (err: any) {
@@ -314,11 +314,11 @@ const openMindmap = async (id: string) => {
   try {
     loading.value = true
     error.value = null
-    const response = await $fetch(`/api/mindmaps/${id}`)
+    const { data } = await $fetch(`/api/mindmaps/${id}`)
 
     selectedMindmap.value = id
-    currentMindmapData.value = response.data
-    nodes.value = response.data.nodes || []
+    currentMindmapData.value = data
+    nodes.value = data.nodes || []
   } catch (err: any) {
     console.error('Erro ao abrir mapa mental:', err)
     error.value = err.message || 'Erro ao abrir mapa mental'
