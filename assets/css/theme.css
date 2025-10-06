@@ -1,0 +1,81 @@
+/* Theme Variables and Styles */
+
+/* Dark Theme (Default) */
+.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+
+  --border-primary: #334155;
+  --border-secondary: #475569;
+}
+
+/* Light Theme */
+.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+}
+
+/* Apply theme-aware backgrounds */
+.dark body {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a);
+}
+
+.light body {
+  background: linear-gradient(to bottom right, #ffffff, #f8fafc, #f1f5f9);
+}
+
+/* Theme-aware component styles - Base classes that adapt */
+.theme-bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.theme-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.theme-bg-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.theme-border-primary {
+  border-color: var(--border-primary);
+}
+
+.theme-border-secondary {
+  border-color: var(--border-secondary);
+}
+
+/* Smooth transition for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable transitions on page load */
+.no-transition * {
+  transition: none !important;
+}

@@ -1,0 +1,178 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Torne-se um Afiliado</h1>
+      <p class="text-gray-600 mb-6">Ganhe 20% de comissão recorrente sobre cada venda!</p>
+
+      <div v-if="success" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <p class="font-bold">Cadastro realizado com sucesso!</p>
+        <p class="text-sm mt-2">Seu cupom: <strong>{{ affiliate.coupon_code }}</strong></p>
+        <p class="text-sm">Link: <a :href="affiliate.tracking_link" class="text-blue-600 underline" target="_blank">{{ affiliate.tracking_link }}</a></p>
+        <button @click="$router.push('/afiliado')" class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+          Ir para o Painel
+        </button>
+      </div>
+
+      <form v-else @submit.prevent="register" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Nome do Cupom
+          </label>
+          <input
+            v-model="form.coupon_code"
+            @blur="checkCouponAvailability"
+            type="text"
+            placeholder="Ex: MEUCUPOM"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent uppercase"
+            required
+            :class="{ 'border-red-500': couponError, 'border-green-500': couponAvailable && form.coupon_code }"
+          />
+          <p v-if="couponError" class="text-red-500 text-sm mt-1">{{ couponError }}</p>
+          <p v-else-if="couponAvailable && form.coupon_code" class="text-green-500 text-sm mt-1">✓ Cupom disponível</p>
+          <p class="text-gray-500 text-xs mt-1">Será usado como código de desconto para seus clientes</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            CPF
+          </label>
+          <input
+            v-model="form.cpf"
+            type="text"
+            placeholder="000.000.000-00"
+            maxlength="14"
+            @input="formatCPF"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            required
+          />
+          <p class="text-gray-500 text-xs mt-1">Necessário para receber pagamentos via PIX</p>
+        </div>
+
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <h3 class="font-semibold text-purple-800 mb-2">Como funciona:</h3>
+          <ul class="text-sm text-purple-700 space-y-1">
+            <li>✓ Seu cupom dá 20% de desconto para clientes</li>
+            <li>✓ Você recebe 20% sobre o valor pago</li>
+            <li>✓ Comissão recorrente a cada renovação</li>
+            <li>✓ Saque mínimo de R$ 50,00</li>
+            <li>✓ Pagamento via PIX</li>
+          </ul>
+        </div>
+
+        <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {{ error }}
+        </div>
+
+        <button
+          type="submit"
+          :disabled="loading || !couponAvailable || !form.coupon_code || !form.cpf"
+          class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+        >
+          {{ loading ? 'Cadastrando...' : 'Cadastrar como Afiliado' }}
+        </button>
+
+        <p class="text-center text-sm text-gray-600">
+          Já é afiliado? <NuxtLink to="/afiliado" class="text-purple-600 hover:underline">Acessar painel</NuxtLink>
+        </p>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script setup>
+definePageMeta({
+  middleware: 'auth'
+})
+
+const form = ref({
+  coupon_code: '',
+  cpf: ''
+})
+
+const loading = ref(false)
+const error = ref('')
+const success = ref(false)
+const affiliate = ref(null)
+const couponError = ref('')
+const couponAvailable = ref(false)
+const checkingCoupon = ref(false)
+
+const formatCPF = (e) => {
+  let value = e.target.value.replace(/\D/g, '')
+  if (value.length <= 11) {
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+    form.value.cpf = value
+  }
+}
+
+const checkCouponAvailability = async () => {
+  if (!form.value.coupon_code) {
+    couponError.value = ''
+    couponAvailable.value = false
+    return
+  }
+
+  checkingCoupon.value = true
+  couponError.value = ''
+
+  try {
+    const response = await $fetch('/api/affiliates/check-coupon', {
+      method: 'POST',
+      body: {
+        coupon_code: form.value.coupon_code
+      }
+    })
+
+    if (response.available) {
+      couponAvailable.value = true
+      couponError.value = ''
+    } else {
+      couponAvailable.value = false
+      couponError.value = response.message || "Este cupom ja esta em uso"
+    }
+  } catch (err) {
+    let errorMessage = "Erro ao verificar cupom"
+    if (err.data && err.data.message) {
+      errorMessage = err.data.message
+    } else if (err.message) {
+      errorMessage = err.message
+    }
+    couponError.value = errorMessage
+    couponAvailable.value = false
+  } finally {
+    checkingCoupon.value = false
+  }
+}
+
+const register = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const response = await $fetch('/api/affiliates/register', {
+      method: 'POST',
+      body: {
+        coupon_code: form.value.coupon_code.toUpperCase(),
+        cpf: form.value.cpf.replace(/\D/g, '')
+      }
+    })
+
+    if (response.success) {
+      success.value = true
+      affiliate.value = response.affiliate
+    }
+  } catch (err) {
+    let errorMessage = "Erro ao cadastrar afiliado"
+    if (err.data && err.data.message) {
+      errorMessage = err.data.message
+    } else if (err.message) {
+      errorMessage = err.message
+    }
+    error.value = errorMessage
+  } finally {
+    loading.value = false
+  }
+}
+</script>

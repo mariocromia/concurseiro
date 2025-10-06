@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste API Mapas Mentais</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        #result {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .success {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste API Mapas Mentais</h1>
+
+    <div>
+        <h3>Selecione o teste:</h3>
+        <button onclick="testGenerateAI()">1. Gerar com IA</button>
+        <button onclick="testCreateBlank()">2. Criar em Branco</button>
+        <button onclick="testListMindmaps()">3. Listar Mapas</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+
+        function log(message, type = 'info') {
+            const className = type === 'error' ? 'error' : (type === 'success' ? 'success' : '');
+            resultDiv.innerHTML += `<div class="${className}">${message}</div>\n`;
+        }
+
+        function clearLog() {
+            resultDiv.innerHTML = '';
+        }
+
+        async function testGenerateAI() {
+            clearLog();
+            log('🧪 Testando geração com IA...', 'info');
+
+            const text = `Lojas Virtuais (E-commerce): Para garantir a segurança dos dados dos clientes e a estabilidade durante picos de venda, como na Black Friday.
+
+Desenvolvedores e Agências: Para hospedar múltiplos sites de clientes em um ambiente controlado, criar ambientes de teste ou rodar aplicações específicas.`;
+
+            try {
+                // Passo 1: Gerar estrutura com IA
+                log('\n📝 Passo 1: Chamando /api/mindmaps/generate-from-text...', 'info');
+
+                const genResponse = await fetch('/api/mindmaps/generate-from-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                log(`   Status: ${genResponse.status}`, genResponse.ok ? 'success' : 'error');
+
+                if (!genResponse.ok) {
+                    const errorText = await genResponse.text();
+                    log(`   Erro: ${errorText}`, 'error');
+                    return;
+                }
+
+                const genData = await genResponse.json();
+                log(`   ✅ Estrutura gerada: ${genData.data.title}`, 'success');
+                log(`   Nós: ${genData.data.nodes.length}`, 'info');
+                log(`   Dados: ${JSON.stringify(genData.data, null, 2)}`, 'info');
+
+                // Passo 2: Criar mapa com nós gerados
+                log('\n📝 Passo 2: Chamando /api/mindmaps...', 'info');
+
+                const createResponse = await fetch('/api/mindmaps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: genData.data.title,
+                        description: '',
+                        nodes: genData.data.nodes
+                    })
+                });
+
+                log(`   Status: ${createResponse.status}`, createResponse.ok ? 'success' : 'error');
+
+                if (!createResponse.ok) {
+                    const errorText = await createResponse.text();
+                    log(`   Erro: ${errorText}`, 'error');
+                    return;
+                }
+
+                const createData = await createResponse.json();
+                log(`   ✅ Mapa criado: ${createData.data.id}`, 'success');
+                log(`   URL: /mapas-mentais/editor/${createData.data.id}`, 'success');
+
+            } catch (error) {
+                log(`❌ Erro: ${error.message}`, 'error');
+                log(error.stack, 'error');
+            }
+        }
+
+        async function testCreateBlank() {
+            clearLog();
+            log('🧪 Testando criação em branco...', 'info');
+
+            try {
+                const response = await fetch('/api/mindmaps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: `Novo Mapa ${new Date().toLocaleDateString('pt-BR')}`,
+                        description: '',
+                        nodes: [{
+                            text: 'Ideia Central',
+                            parent_id: null,
+                            position_x: 400,
+                            position_y: 300,
+                            color: '#3b82f6'
+                        }]
+                    })
+                });
+
+                log(`Status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`Erro: ${errorText}`, 'error');
+                    return;
+                }
+
+                const data = await response.json();
+                log(`✅ Mapa criado: ${data.data.id}`, 'success');
+                log(`URL: /mapas-mentais/editor/${data.data.id}`, 'success');
+
+            } catch (error) {
+                log(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+
+        async function testListMindmaps() {
+            clearLog();
+            log('🧪 Listando mapas mentais...', 'info');
+
+            try {
+                const response = await fetch('/api/mindmaps');
+                log(`Status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                const data = await response.json();
+                log(`Total de mapas: ${data.data?.length || 0}`, 'success');
+                log(JSON.stringify(data, null, 2), 'info');
+
+            } catch (error) {
+                log(`❌ Erro: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
