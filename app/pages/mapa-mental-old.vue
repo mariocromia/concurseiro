@@ -8,7 +8,7 @@
       </div>
 
       <!-- Aviso de Setup -->
-      <div v-if="showSetupWarning" class="mb-6 theme-bg-secondary border border-yellow-500/50 rounded-xl p-6">
+      <div v-if="showSetupWarning" class="mb-6 theme-bg-secondary border border-yellow-500/50 rounded-claude-lg p-6">
         <div class="flex items-start gap-4">
           <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -18,12 +18,12 @@
             <p class="theme-text-secondary text-sm mb-4">
               As tabelas do banco de dados precisam ser criadas. Execute o script SQL no Supabase:
             </p>
-            <div class="bg-dark-900/50 rounded-lg p-4 mb-4 overflow-x-auto">
-              <code class="text-xs text-gray-300 whitespace-pre">scripts/create-mindmaps-tables.sql</code>
+            <div class="bg-dark-900/50 rounded-claude-md p-4 mb-4 overflow-x-auto">
+              <code class="text-xs text-claude-text-secondary dark:text-gray-300 whitespace-pre">scripts/create-mindmaps-tables.sql</code>
             </div>
             <button
               @click="showSetupWarning = false"
-              class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-dark-900 rounded-lg transition-colors text-sm font-medium"
+              class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-dark-900 rounded-claude-md transition-colors text-sm font-medium"
             >
               Já executei o script
             </button>
@@ -33,11 +33,11 @@
 
       <!-- Loading -->
       <div v-if="loading" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-claude-primary dark:border-primary-500"></div>
       </div>
 
       <!-- Error -->
-      <div v-else-if="error" class="theme-bg-secondary border border-red-500/50 rounded-xl p-8 text-center">
+      <div v-else-if="error" class="theme-bg-secondary border border-red-500/50 rounded-claude-lg p-8 text-center">
         <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -47,7 +47,7 @@
         <p class="theme-text-secondary mb-4">{{ error }}</p>
         <button
           @click="loadMindmaps"
-          class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors inline-flex items-center gap-2"
+          class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors inline-flex items-center gap-2"
         >
           Tentar Novamente
         </button>
@@ -58,7 +58,7 @@
         <div class="mb-6 flex justify-end">
           <button
             @click="createNewMindmap"
-            class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors flex items-center gap-2"
+            class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors flex items-center gap-2"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -72,7 +72,7 @@
             v-for="mindmap in mindmaps"
             :key="mindmap.id"
             @click="openMindmap(mindmap.id)"
-            class="theme-bg-secondary border theme-border-primary rounded-xl p-6 cursor-pointer hover:border-primary-500 transition-all group"
+            class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6 cursor-pointer hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="flex-1">
@@ -85,7 +85,7 @@
               </div>
               <button
                 @click.stop="deleteMindmap(mindmap.id)"
-                class="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                class="p-2 hover:bg-red-500/20 rounded-claude-md transition-colors"
               >
                 <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -99,9 +99,9 @@
 
           <!-- Empty State -->
           <div v-if="mindmaps.length === 0" class="col-span-full">
-            <div class="theme-bg-secondary border theme-border-primary rounded-xl p-12 text-center">
-              <div class="w-20 h-20 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-10 h-10 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-12 text-center">
+              <div class="w-20 h-20 bg-claude-primary/20 dark:bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
               </div>
@@ -109,7 +109,7 @@
               <p class="theme-text-secondary mb-4">Crie seu primeiro mapa mental para começar a organizar suas ideias</p>
               <button
                 @click="createNewMindmap"
-                class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors inline-flex items-center gap-2"
+                class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors inline-flex items-center gap-2"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -124,11 +124,11 @@
       <!-- Editor do Mapa Mental (versão simplificada) -->
       <div v-else class="space-y-4">
         <!-- Toolbar -->
-        <div class="theme-bg-secondary border theme-border-primary rounded-xl p-4 flex items-center justify-between">
+        <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-4 flex items-center justify-between">
           <div class="flex items-center gap-4">
             <button
               @click="closeMindmap"
-              class="p-2 hover:bg-primary-500/20 rounded-lg transition-colors"
+              class="p-2 hover:bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md transition-colors"
             >
               <svg class="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -153,12 +153,12 @@
         </div>
 
         <!-- Lista de Nós -->
-        <div class="theme-bg-secondary border theme-border-primary rounded-xl p-6">
+        <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold theme-text-primary">Nós do Mapa Mental</h3>
             <button
               @click="addNode"
-              class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors flex items-center gap-2 text-sm"
+              class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors flex items-center gap-2 text-sm"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -171,7 +171,7 @@
             <div
               v-for="node in nodes"
               :key="node.id"
-              class="flex items-center gap-3 p-4 rounded-lg border theme-border-primary hover:border-primary-500 transition-colors"
+              class="flex items-center gap-3 p-4 rounded-claude-md border theme-border-primary hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500 transition-colors"
             >
               <div
                 class="w-4 h-4 rounded-full flex-shrink-0"
@@ -182,15 +182,15 @@
               </div>
               <button
                 @click="editNode(node)"
-                class="p-2 hover:bg-primary-500/20 rounded-lg transition-colors"
+                class="p-2 hover:bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md transition-colors"
               >
-                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
               <button
                 @click="deleteNodeConfirm(node.id)"
-                class="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                class="p-2 hover:bg-red-500/20 rounded-claude-md transition-colors"
               >
                 <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -208,7 +208,7 @@
 
     <!-- Modal para Adicionar/Editar Nó -->
     <div v-if="showNodeEditor" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" @click="showNodeEditor = false">
-      <div @click.stop class="theme-bg-secondary border theme-border-primary rounded-xl p-6 w-full max-w-md">
+      <div @click.stop class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6 w-full max-w-md">
         <h3 class="text-xl font-bold theme-text-primary mb-4">
           {{ editingNode.id ? 'Editar Nó' : 'Novo Nó' }}
         </h3>
@@ -217,7 +217,7 @@
             <label class="block text-sm font-medium theme-text-secondary mb-2">Texto</label>
             <input
               v-model="editingNode.text"
-              class="w-full px-4 py-2 theme-bg-tertiary theme-text-primary border theme-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              class="w-full px-4 py-2 theme-bg-tertiary theme-text-primary border theme-border-primary rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Digite o texto do nó"
             />
           </div>
@@ -228,7 +228,7 @@
                 v-for="color in colors"
                 :key="color"
                 @click="editingNode.color = color"
-                class="w-10 h-10 rounded-lg border-2 transition-all"
+                class="w-10 h-10 rounded-claude-md border-2 transition-all"
                 :class="editingNode.color === color ? 'border-white scale-110' : 'border-transparent'"
                 :style="{ backgroundColor: color }"
               />
@@ -237,13 +237,13 @@
           <div class="flex gap-2 pt-4">
             <button
               @click="saveNode"
-              class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors"
+              class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors"
             >
               Salvar
             </button>
             <button
               @click="showNodeEditor = false"
-              class="px-4 py-2 theme-bg-tertiary theme-text-secondary hover:bg-dark-700 rounded-lg transition-colors"
+              class="px-4 py-2 theme-bg-tertiary theme-text-secondary hover:bg-dark-700 rounded-claude-md transition-colors"
             >
               Cancelar
             </button>
@@ -270,7 +270,7 @@ const showNodeEditor = ref(false)
 const editingNode = ref<any>({})
 const showSetupWarning = ref(true)
 
-const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+const colors = ['#ca643f', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
 
 // Carregar mapas mentais
 const loadMindmaps = async () => {

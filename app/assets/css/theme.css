@@ -1,28 +1,80 @@
-/* Theme Variables and Styles */
+/* Theme Variables and Styles - Claude.ai Complete Palette */
 
-/* Root defaults (Light Theme) */
+/* Root defaults (Light Theme - Claude.ai Style) */
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
+  /* === BACKGROUNDS === */
+  --bg-primary: #FFFFFF;              /* Fundo principal - branco puro */
+  --bg-secondary: #F5F5F5;            /* Cards e áreas destacadas */
+  --bg-tertiary: #FAFAFA;             /* Áreas sutilmente destacadas */
+  --bg-hover: #F8F8F8;                /* Hover em elementos */
+  --bg-chat: #FFFFFF;                 /* Fundo de chat */
+  --bg-sidebar: #FAFAFA;              /* Sidebar/menu lateral */
+  --bg-input: #FFFFFF;                /* Inputs e textareas */
+  --bg-input-focus: #FFFFFF;          /* Input em foco */
+  --bg-disabled: #F5F5F5;             /* Elementos desabilitados */
 
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-tertiary: #64748b;
+  /* === TEXT COLORS === */
+  --text-primary: #2C2C2C;            /* Texto principal - escuro */
+  --text-secondary: #6B6B6B;          /* Texto secundário */
+  --text-tertiary: #999999;           /* Texto terciário/menos importante */
+  --text-placeholder: #B0B0B0;        /* Placeholders */
+  --text-disabled: #CCCCCC;           /* Texto desabilitado */
+  --text-link: #CC785C;               /* Links */
+  --text-link-hover: #B86849;         /* Links hover */
 
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
+  /* === BRAND/PRIMARY COLORS === */
+  --primary: #CC785C;                 /* Cor primária Claude */
+  --primary-hover: #B86849;           /* Hover primário */
+  --primary-active: #A65738;          /* Active/pressed */
+  --primary-focus: #E8B4A0;           /* Estado de foco */
+  --primary-light: #F5E6E0;           /* Versão clara */
+  --primary-subtle: rgba(204, 120, 92, 0.08);  /* Fundo sutil */
 
-  --gradient-from: #ffffff;
-  --gradient-via: #f8fafc;
-  --gradient-to: #f1f5f9;
+  /* === BORDERS === */
+  --border-primary: #E5E5E5;          /* Bordas principais */
+  --border-secondary: #D4D4D4;        /* Bordas de divisão */
+  --border-input: #CCCCCC;            /* Bordas de inputs */
+  --border-input-focus: #CC785C;      /* Input em foco */
+  --border-input-error: #DC2626;      /* Input com erro */
+  --border-hover: #999999;            /* Borda hover */
 
-  --nav-from: #ffffff;
-  --nav-via: #f8fafc;
-  --nav-to: #f1f5f9;
-  --nav-border: rgba(229, 231, 235, 0.5);
+  /* === SHADOWS === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.16);
 
-  --hover-bg: rgba(241, 245, 249, 0.5);
+  /* === MESSAGES/CHAT === */
+  --bg-message-user: #F5F5F5;         /* Mensagem do usuário */
+  --bg-message-assistant: #FFFFFF;    /* Mensagem do assistente */
+  --border-message: #E5E5E5;          /* Borda de mensagens */
+
+  /* === GRADIENTS === */
+  --gradient-from: #FFFFFF;
+  --gradient-via: #FAFAFA;
+  --gradient-to: #F5F5F5;
+
+  /* === NAVIGATION === */
+  --nav-bg: #f5f5ed;
+  --nav-border: #E5E5E5;
+  --nav-hover: #ececdf;
+  --nav-active: #e3e3d1;
+
+  /* === STATES === */
+  --success: #10B981;
+  --success-bg: #D1FAE5;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+  --error: #DC2626;
+  --error-bg: #FEE2E2;
+  --info: #ca643f;
+  --info-bg: #f0e8e1;
+
+  /* === MISC === */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 /* Dark Theme */

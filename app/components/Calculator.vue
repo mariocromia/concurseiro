@@ -5,7 +5,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
       @click.self="$emit('close')"
     >
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+      <div class="bg-white rounded-claude-lg shadow-2xl w-full max-w-md">
         <div class="p-4">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -13,7 +13,7 @@
             <div class="flex items-center gap-2">
               <button
                 @click="mode = mode === 'normal' ? 'scientific' : 'normal'"
-                class="px-3 py-1 text-sm bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 font-medium"
+                class="px-3 py-1 text-sm bg-primary-100 text-primary-700 rounded-claude-md hover:bg-primary-200 font-medium"
               >
                 {{ mode === 'normal' ? '🔬 Científica' : '🔢 Normal' }}
               </button>
@@ -29,7 +29,7 @@
           </div>
 
           <!-- Display -->
-          <div class="mb-4 p-4 bg-gray-900 rounded-lg">
+          <div class="mb-4 p-4 bg-gray-900 rounded-claude-md">
             <div class="text-right text-gray-400 text-sm min-h-[20px]">{{ expression || '0' }}</div>
             <div class="text-right text-white text-3xl font-mono">{{ display }}</div>
           </div>

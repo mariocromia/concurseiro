@@ -20,7 +20,7 @@
             </div>
             <button
               @click="close"
-              class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors"
+              class="text-white hover:bg-white hover:bg-opacity-20 rounded-claude-md p-2 transition-colors"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -39,7 +39,7 @@
                   min="5"
                   max="30"
                   step="5"
-                  class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  class="flex-1 h-2 bg-gray-200 rounded-claude-md appearance-none cursor-pointer"
                 />
                 <span class="text-2xl font-bold text-purple-600 w-12 text-center">{{ config.quantity }}</span>
               </div>
@@ -48,7 +48,7 @@
             <button
               @click="generateFlashcards"
               :disabled="loading"
-              class="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg flex items-center justify-center space-x-2"
+              class="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-claude-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg flex items-center justify-center space-x-2"
             >
               <svg v-if="!loading" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -60,7 +60,7 @@
               <span>{{ loading ? 'Gerando flashcards...' : 'Gerar Flashcards' }}</span>
             </button>
 
-            <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
+            <div v-if="error" class="bg-red-50 border border-red-200 rounded-claude-md p-4 flex items-start space-x-3">
               <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
               </svg>
@@ -109,21 +109,21 @@
                 <div v-if="flipped" class="mt-8 grid grid-cols-3 gap-4">
                   <button
                     @click.stop="rateCard('easy')"
-                    class="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all hover:shadow-lg font-semibold"
+                    class="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-claude-lg transition-all hover:shadow-lg font-semibold"
                   >
                     <div class="text-2xl mb-1">😊</div>
                     <div class="text-sm">Fácil</div>
                   </button>
                   <button
                     @click.stop="rateCard('medium')"
-                    class="px-6 py-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-all hover:shadow-lg font-semibold"
+                    class="px-6 py-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-claude-lg transition-all hover:shadow-lg font-semibold"
                   >
                     <div class="text-2xl mb-1">🤔</div>
                     <div class="text-sm">Médio</div>
                   </button>
                   <button
                     @click.stop="rateCard('hard')"
-                    class="px-6 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all hover:shadow-lg font-semibold"
+                    class="px-6 py-4 bg-red-500 hover:bg-red-600 text-white rounded-claude-lg transition-all hover:shadow-lg font-semibold"
                   >
                     <div class="text-2xl mb-1">😓</div>
                     <div class="text-sm">Difícil</div>
@@ -139,7 +139,7 @@
               <button
                 @click="previousCard"
                 :disabled="currentIndex === 0"
-                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                class="px-4 py-2 border border-gray-300 rounded-claude-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 ← Anterior
               </button>
@@ -157,14 +157,14 @@
               <button
                 v-if="currentIndex < flashcards.length - 1"
                 @click="nextCard"
-                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                class="px-4 py-2 bg-purple-600 text-white rounded-claude-md hover:bg-purple-700 transition-colors font-medium"
               >
                 Próximo →
               </button>
               <button
                 v-else
                 @click="close"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                class="px-4 py-2 bg-[var(--info)] dark:bg-blue-600 text-white rounded-claude-md hover:bg-[var(--primary-hover)] dark:hover:bg-blue-700 transition-colors font-medium"
               >
                 Finalizar
               </button>

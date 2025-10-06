@@ -4,34 +4,34 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Calendar Navigation -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6 mb-6">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 mb-6">
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-4">
             <button
               @click="previousMonth"
-              class="p-2 hover:bg-dark-700 rounded-lg transition"
+              class="p-2 hover:bg-dark-700 rounded-claude-md transition"
             >
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-claude-text-secondary dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
               </svg>
             </button>
 
-            <h2 class="text-2xl font-bold text-white min-w-[200px] text-center">
+            <h2 class="text-2xl font-bold text-claude-text dark:text-white min-w-[200px] text-center">
               {{ monthName }} {{ currentYear }}
             </h2>
 
             <button
               @click="nextMonth"
-              class="p-2 hover:bg-dark-700 rounded-lg transition"
+              class="p-2 hover:bg-dark-700 rounded-claude-md transition"
             >
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-claude-text-secondary dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
             </button>
 
             <button
               @click="goToToday"
-              class="ml-4 px-3 py-1 bg-primary-500/20 text-primary-400 rounded-lg hover:bg-primary-500/30 transition text-sm"
+              class="ml-4 px-3 py-1 bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors rounded-claude-md hover:bg-primary-500/30 transition text-sm"
             >
               Hoje
             </button>
@@ -39,12 +39,12 @@
 
           <div class="flex items-center gap-4">
             <!-- Toggle Modo -->
-            <div class="flex bg-dark-700 rounded-lg p-1">
+            <div class="flex bg-dark-700 rounded-claude-md p-1">
               <button
                 @click="viewMode = 'schedule'"
                 :class="[
                   'px-4 py-2 rounded-md text-sm font-medium transition',
-                  viewMode === 'schedule' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                  viewMode === 'schedule' ? 'bg-primary-500 text-white' : 'text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white'
                 ]"
               >
                 📅 Lançamento
@@ -53,7 +53,7 @@
                 @click="viewMode = 'report'"
                 :class="[
                   'px-4 py-2 rounded-md text-sm font-medium transition',
-                  viewMode === 'report' ? 'bg-primary-500 text-white' : 'text-gray-400 hover:text-white'
+                  viewMode === 'report' ? 'bg-primary-500 text-white' : 'text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white'
                 ]"
               >
                 📊 Relatório
@@ -63,7 +63,7 @@
             <button
               v-if="viewMode === 'schedule'"
               @click="openRecurringModal"
-              class="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition flex items-center gap-2"
+              class="px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-claude-text dark:text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 transition flex items-center gap-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -76,7 +76,7 @@
         <!-- Calendar Grid -->
         <div class="grid grid-cols-7 gap-2">
           <!-- Day headers -->
-          <div v-for="day in weekDays" :key="day" class="text-center text-sm font-medium text-gray-400 py-2">
+          <div v-for="day in weekDays" :key="day" class="text-center text-sm font-medium text-claude-text-secondary dark:text-gray-400 py-2">
             {{ day }}
           </div>
 
@@ -86,14 +86,14 @@
             :key="index"
             @click="day.date ? handleDayClick(day.date) : null"
             :class="[
-              'min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer',
-              day.date ? 'border-dark-700 bg-dark-900/50 hover:border-primary-500/50' : 'border-transparent bg-dark-800/20',
+              'min-h-[100px] p-2 rounded-claude-md border transition-all cursor-pointer',
+              day.date ? 'border-dark-700 bg-dark-900/50 hover:border-claude-primary dark:hover:border-primary-500/50' : 'border-transparent bg-dark-800/20',
               day.isToday ? 'ring-2 ring-primary-500' : '',
-              day.date && isSelected(day.date) ? 'bg-primary-500/20 border-primary-500' : ''
+              day.date && isSelected(day.date) ? 'bg-claude-primary/20 dark:bg-primary-500/20 border-claude-primary dark:border-primary-500' : ''
             ]"
           >
             <div v-if="day.date" class="h-full flex flex-col">
-              <div :class="['text-sm font-medium mb-1', day.isToday ? 'text-primary-400' : day.isCurrentMonth ? 'text-white' : 'text-gray-600']">
+              <div :class="['text-sm font-medium mb-1', day.isToday ? 'text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors' : day.isCurrentMonth ? 'text-claude-text dark:text-white' : 'text-gray-600']">
                 {{ day.dayNumber }}
               </div>
 
@@ -107,7 +107,7 @@
                     'text-xs px-2 py-1 rounded truncate',
                     schedule.status === 'completed' ? 'bg-green-500/20 text-green-400' :
                     schedule.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
-                    'bg-primary-500/20 text-primary-400'
+                    'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
                   ]"
                 >
                   {{ schedule.subjects?.name }} - {{ schedule.planned_duration }}min
@@ -119,19 +119,19 @@
       </div>
 
       <!-- Legend -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-4">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-4">
         <div class="flex items-center gap-6 text-sm">
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded bg-primary-500/20 border border-primary-500"></div>
-            <span class="text-gray-400">Pendente</span>
+            <div class="w-3 h-3 rounded bg-claude-primary/20 dark:bg-primary-500/20 border border-claude-primary dark:border-primary-500"></div>
+            <span class="text-claude-text-secondary dark:text-gray-400">Pendente</span>
           </div>
           <div class="flex items-center gap-2">
             <div class="w-3 h-3 rounded bg-green-500/20 border border-green-500"></div>
-            <span class="text-gray-400">Concluído</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Concluído</span>
           </div>
           <div class="flex items-center gap-2">
             <div class="w-3 h-3 rounded bg-red-500/20 border border-red-500"></div>
-            <span class="text-gray-400">Cancelado</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Cancelado</span>
           </div>
         </div>
       </div>
@@ -143,19 +143,19 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       @click.self="closeDayModal"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
-        <h3 class="text-xl font-bold text-white mb-4">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-md w-full p-6 shadow-2xl">
+        <h3 class="text-xl font-bold text-claude-text dark:text-white mb-4">
           Agendar Estudo - {{ formatDate(selectedDate) }}
         </h3>
 
         <form @submit.prevent="saveSchedule">
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Matéria</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Matéria</label>
               <select
                 v-model="scheduleForm.subject_id"
                 required
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
               >
                 <option value="">Selecione uma matéria</option>
                 <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
@@ -165,11 +165,11 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Tipo de Estudo</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Tipo de Estudo</label>
               <select
                 v-model="scheduleForm.study_type"
                 required
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
               >
                 <option value="conteudo">📖 Conteúdo</option>
                 <option value="questoes">📝 Questões</option>
@@ -179,34 +179,34 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Horário</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Horário</label>
                 <input
                   v-model="scheduleForm.scheduled_time"
                   type="time"
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                 >
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Duração (min)</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Duração (min)</label>
                 <input
                   v-model.number="scheduleForm.planned_duration"
                   type="number"
                   min="1"
                   required
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                   placeholder="60"
                 >
               </div>
             </div>
 
             <div v-if="scheduleForm.study_type === 'questoes'">
-              <label class="block text-sm font-medium text-gray-300 mb-2">Quantidade de Questões</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Quantidade de Questões</label>
               <input
                 v-model.number="scheduleForm.planned_questions"
                 type="number"
                 min="1"
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                 placeholder="50"
               >
             </div>
@@ -216,14 +216,14 @@
             <button
               type="button"
               @click="closeDayModal"
-              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition"
+              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
               :disabled="loading"
-              class="flex-1 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 transition"
+              class="flex-1 px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-claude-text dark:text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 disabled:opacity-50 transition"
             >
               {{ loading ? 'Salvando...' : 'Salvar' }}
             </button>
@@ -238,17 +238,17 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
       @click.self="closeRecurringModal"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-lg w-full p-6 shadow-2xl my-8">
-        <h3 class="text-xl font-bold text-white mb-4">Agendar Estudo Recorrente</h3>
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-lg w-full p-6 shadow-2xl my-8">
+        <h3 class="text-xl font-bold text-claude-text dark:text-white mb-4">Agendar Estudo Recorrente</h3>
 
         <form @submit.prevent="saveRecurringSchedule">
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Matéria</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Matéria</label>
               <select
                 v-model="recurringForm.subject_id"
                 required
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
               >
                 <option value="">Selecione uma matéria</option>
                 <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
@@ -258,11 +258,11 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Tipo de Estudo</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Tipo de Estudo</label>
               <select
                 v-model="recurringForm.study_type"
                 required
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
               >
                 <option value="conteudo">📖 Conteúdo</option>
                 <option value="questoes">📝 Questões</option>
@@ -271,11 +271,11 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Recorrência</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Recorrência</label>
               <select
                 v-model="recurringForm.recurrence_type"
                 required
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
               >
                 <option value="daily">Todos os dias</option>
                 <option value="weekly">Semanal (escolher dias)</option>
@@ -283,7 +283,7 @@
             </div>
 
             <div v-if="recurringForm.recurrence_type === 'weekly'" class="space-y-2">
-              <label class="block text-sm font-medium text-gray-300">Dias da Semana</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300">Dias da Semana</label>
               <div class="grid grid-cols-7 gap-2">
                 <button
                   v-for="(day, index) in ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']"
@@ -291,10 +291,10 @@
                   type="button"
                   @click="toggleWeekDay(index)"
                   :class="[
-                    'p-2 rounded-lg text-sm font-medium transition',
+                    'p-2 rounded-claude-md text-sm font-medium transition',
                     recurringForm.recurrence_days.includes(index)
-                      ? 'bg-primary-500 text-white'
-                      : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                      ? 'bg-primary-500 text-claude-text dark:text-white'
+                      : 'bg-dark-700 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-600'
                   ]"
                 >
                   {{ day }}
@@ -304,56 +304,56 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Data Início</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Data Início</label>
                 <input
                   v-model="recurringForm.start_date"
                   type="date"
                   required
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                 >
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Data Fim</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Data Fim</label>
                 <input
                   v-model="recurringForm.end_date"
                   type="date"
                   required
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                 >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Horário</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Horário</label>
                 <input
                   v-model="recurringForm.scheduled_time"
                   type="time"
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                 >
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Duração (min)</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Duração (min)</label>
                 <input
                   v-model.number="recurringForm.planned_duration"
                   type="number"
                   min="1"
                   required
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                   placeholder="60"
                 >
               </div>
             </div>
 
             <div v-if="recurringForm.study_type === 'questoes'">
-              <label class="block text-sm font-medium text-gray-300 mb-2">Quantidade de Questões (por dia)</label>
+              <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Quantidade de Questões (por dia)</label>
               <input
                 v-model.number="recurringForm.planned_questions"
                 type="number"
                 min="1"
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                 placeholder="50"
               >
             </div>
@@ -363,14 +363,14 @@
             <button
               type="button"
               @click="closeRecurringModal"
-              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition"
+              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
               :disabled="loading"
-              class="flex-1 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 transition"
+              class="flex-1 px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-claude-text dark:text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 disabled:opacity-50 transition"
             >
               {{ loading ? 'Criando...' : 'Criar Agendamentos' }}
             </button>
@@ -385,15 +385,15 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       @click.self="closeViewModal"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-md w-full p-6 shadow-2xl">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-bold text-white">Detalhes do Agendamento</h3>
+          <h3 class="text-xl font-bold text-claude-text dark:text-white">Detalhes do Agendamento</h3>
           <span
             :class="[
               'px-3 py-1 rounded-full text-xs font-medium',
               viewingSchedule.status === 'completed' ? 'bg-green-500/20 text-green-400' :
               viewingSchedule.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
-              'bg-primary-500/20 text-primary-400'
+              'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             ]"
           >
             {{ viewingSchedule.status === 'completed' ? 'Concluído' : viewingSchedule.status === 'cancelled' ? 'Cancelado' : 'Pendente' }}
@@ -402,85 +402,85 @@
 
         <div class="space-y-3 mb-6">
           <div class="flex justify-between">
-            <span class="text-gray-400">Matéria:</span>
-            <span class="text-white font-medium">{{ viewingSchedule.subjects?.name }}</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Matéria:</span>
+            <span class="text-claude-text dark:text-white font-medium">{{ viewingSchedule.subjects?.name }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Tipo:</span>
-            <span class="text-white">
+            <span class="text-claude-text-secondary dark:text-gray-400">Tipo:</span>
+            <span class="text-claude-text dark:text-white">
               {{ viewingSchedule.study_type === 'conteudo' ? '📖 Conteúdo' :
                  viewingSchedule.study_type === 'questoes' ? '📝 Questões' : '🔄 Revisão' }}
             </span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Data:</span>
-            <span class="text-white">{{ formatDate(viewingSchedule.scheduled_date) }}</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Data:</span>
+            <span class="text-claude-text dark:text-white">{{ formatDate(viewingSchedule.scheduled_date) }}</span>
           </div>
           <div v-if="viewingSchedule.scheduled_time" class="flex justify-between">
-            <span class="text-gray-400">Horário:</span>
-            <span class="text-white">{{ viewingSchedule.scheduled_time }}</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Horário:</span>
+            <span class="text-claude-text dark:text-white">{{ viewingSchedule.scheduled_time }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-400">Duração Planejada:</span>
-            <span class="text-white">{{ viewingSchedule.planned_duration }} min</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Duração Planejada:</span>
+            <span class="text-claude-text dark:text-white">{{ viewingSchedule.planned_duration }} min</span>
           </div>
           <div v-if="viewingSchedule.planned_questions" class="flex justify-between">
-            <span class="text-gray-400">Questões Planejadas:</span>
-            <span class="text-white">{{ viewingSchedule.planned_questions }}</span>
+            <span class="text-claude-text-secondary dark:text-gray-400">Questões Planejadas:</span>
+            <span class="text-claude-text dark:text-white">{{ viewingSchedule.planned_questions }}</span>
           </div>
         </div>
 
         <div v-if="viewingSchedule.status === 'pending'" class="space-y-4">
           <div class="border-t border-dark-700 pt-4">
-            <h4 class="text-sm font-medium text-white mb-3">Marcar como Concluído</h4>
+            <h4 class="text-sm font-medium text-claude-text dark:text-white mb-3">Marcar como Concluído</h4>
 
             <div class="space-y-3">
               <div>
-                <label class="block text-sm text-gray-400 mb-1">Tempo Real (min)</label>
+                <label class="block text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Tempo Real (min)</label>
                 <input
                   v-model.number="completionForm.actual_duration"
                   type="number"
                   min="1"
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                   :placeholder="String(viewingSchedule.planned_duration)"
                 >
               </div>
 
               <div v-if="viewingSchedule.study_type === 'questoes'">
-                <label class="block text-sm text-gray-400 mb-1">Questões Feitas</label>
+                <label class="block text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Questões Feitas</label>
                 <input
                   v-model.number="completionForm.completed_questions"
                   type="number"
                   min="0"
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                   :placeholder="String(viewingSchedule.planned_questions || 0)"
                 >
               </div>
 
               <div v-if="viewingSchedule.study_type === 'questoes' && completionForm.completed_questions > 0">
-                <label class="block text-sm text-gray-400 mb-1">Questões Corretas</label>
+                <label class="block text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Questões Corretas</label>
                 <input
                   v-model.number="completionForm.correct_questions"
                   type="number"
                   min="0"
                   :max="completionForm.completed_questions"
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                   placeholder="0"
                 >
                 <div v-if="completionForm.correct_questions !== null && completionForm.completed_questions > 0" class="mt-1 text-sm">
-                  <span class="text-gray-400">Taxa de acerto: </span>
-                  <span class="text-primary-400 font-semibold">
+                  <span class="text-claude-text-secondary dark:text-gray-400">Taxa de acerto: </span>
+                  <span class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-semibold">
                     {{ Math.round((completionForm.correct_questions / completionForm.completed_questions) * 100) }}%
                   </span>
                 </div>
               </div>
 
               <div>
-                <label class="block text-sm text-gray-400 mb-1">Observações</label>
+                <label class="block text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Observações</label>
                 <textarea
                   v-model="completionForm.notes"
                   rows="2"
-                  class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
+                  class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500"
                   placeholder="Como foi o estudo?"
                 ></textarea>
               </div>
@@ -489,31 +489,31 @@
         </div>
 
         <div v-else-if="viewingSchedule.status === 'completed'" class="border-t border-dark-700 pt-4">
-          <h4 class="text-sm font-medium text-white mb-3">Resultado</h4>
+          <h4 class="text-sm font-medium text-claude-text dark:text-white mb-3">Resultado</h4>
           <div class="space-y-2">
             <div class="flex justify-between">
-              <span class="text-gray-400">Tempo Real:</span>
-              <span class="text-white">{{ viewingSchedule.actual_duration }} min</span>
+              <span class="text-claude-text-secondary dark:text-gray-400">Tempo Real:</span>
+              <span class="text-claude-text dark:text-white">{{ viewingSchedule.actual_duration }} min</span>
             </div>
             <div v-if="viewingSchedule.completed_questions" class="flex justify-between">
-              <span class="text-gray-400">Questões Feitas:</span>
-              <span class="text-white">{{ viewingSchedule.completed_questions }}</span>
+              <span class="text-claude-text-secondary dark:text-gray-400">Questões Feitas:</span>
+              <span class="text-claude-text dark:text-white">{{ viewingSchedule.completed_questions }}</span>
             </div>
             <div v-if="viewingSchedule.correct_questions !== null && viewingSchedule.correct_questions !== undefined">
               <div class="flex justify-between mb-1">
-                <span class="text-gray-400">Questões Corretas:</span>
-                <span class="text-white">{{ viewingSchedule.correct_questions }}</span>
+                <span class="text-claude-text-secondary dark:text-gray-400">Questões Corretas:</span>
+                <span class="text-claude-text dark:text-white">{{ viewingSchedule.correct_questions }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-400">Taxa de Acerto:</span>
-                <span class="text-primary-400 font-semibold">
+                <span class="text-claude-text-secondary dark:text-gray-400">Taxa de Acerto:</span>
+                <span class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-semibold">
                   {{ Math.round((viewingSchedule.correct_questions / viewingSchedule.completed_questions) * 100) }}%
                 </span>
               </div>
             </div>
             <div v-if="viewingSchedule.notes">
-              <span class="text-gray-400 block mb-1">Observações:</span>
-              <p class="text-white text-sm">{{ viewingSchedule.notes }}</p>
+              <span class="text-claude-text-secondary dark:text-gray-400 block mb-1">Observações:</span>
+              <p class="text-claude-text dark:text-white text-sm">{{ viewingSchedule.notes }}</p>
             </div>
           </div>
         </div>
@@ -523,14 +523,14 @@
             v-if="viewingSchedule.status === 'pending'"
             @click="cancelSchedule"
             :disabled="loading"
-            class="flex-1 px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg transition disabled:opacity-50"
+            class="flex-1 px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-claude-md transition disabled:opacity-50"
           >
             Cancelar Agendamento
           </button>
           <button
             type="button"
             @click="closeViewModal"
-            class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition"
+            class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition"
           >
             Fechar
           </button>
@@ -538,7 +538,7 @@
             v-if="viewingSchedule.status === 'pending'"
             @click="completeSchedule"
             :disabled="loading"
-            class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition disabled:opacity-50"
+            class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-claude-text dark:text-white rounded-claude-md transition disabled:opacity-50"
           >
             {{ loading ? 'Salvando...' : 'Concluir' }}
           </button>
@@ -552,45 +552,45 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
       @click.self="closeDayReportModal"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-2xl w-full p-6 shadow-2xl my-8">
-        <h3 class="text-2xl font-bold text-white mb-2">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-2xl w-full p-6 shadow-2xl my-8">
+        <h3 class="text-2xl font-bold text-claude-text dark:text-white mb-2">
           Relatório do Dia - {{ formatDate(selectedDate) }}
         </h3>
-        <p class="text-gray-400 text-sm mb-6">Resumo completo das atividades</p>
+        <p class="text-claude-text-secondary dark:text-gray-400 text-sm mb-6">Resumo completo das atividades</p>
 
         <div v-if="dayReport.sessions.length === 0" class="text-center py-12">
           <div class="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-8 h-8 text-gray-600 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
           </div>
-          <p class="text-gray-400">Nenhuma atividade registrada neste dia</p>
+          <p class="text-claude-text-secondary dark:text-gray-400">Nenhuma atividade registrada neste dia</p>
         </div>
 
         <div v-else class="space-y-6">
           <!-- Resumo Geral -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
-              <div class="text-xs text-gray-400 mb-1">Tempo Total</div>
-              <div class="text-2xl font-bold text-primary-400">{{ formatMinutes(dayReport.totalMinutes) }}</div>
+            <div class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4">
+              <div class="text-xs text-claude-text-secondary dark:text-gray-400 mb-1">Tempo Total</div>
+              <div class="text-2xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">{{ formatMinutes(dayReport.totalMinutes) }}</div>
             </div>
-            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
-              <div class="text-xs text-gray-400 mb-1">Sessões</div>
-              <div class="text-2xl font-bold text-white">{{ dayReport.sessions.length }}</div>
+            <div class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4">
+              <div class="text-xs text-claude-text-secondary dark:text-gray-400 mb-1">Sessões</div>
+              <div class="text-2xl font-bold text-claude-text dark:text-white">{{ dayReport.sessions.length }}</div>
             </div>
-            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
-              <div class="text-xs text-gray-400 mb-1">Questões</div>
-              <div class="text-2xl font-bold text-white">{{ dayReport.totalQuestions }}</div>
+            <div class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4">
+              <div class="text-xs text-claude-text-secondary dark:text-gray-400 mb-1">Questões</div>
+              <div class="text-2xl font-bold text-claude-text dark:text-white">{{ dayReport.totalQuestions }}</div>
             </div>
-            <div class="bg-dark-900 border border-dark-700 rounded-lg p-4">
-              <div class="text-xs text-gray-400 mb-1">Taxa Acerto</div>
+            <div class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4">
+              <div class="text-xs text-claude-text-secondary dark:text-gray-400 mb-1">Taxa Acerto</div>
               <div class="text-2xl font-bold text-green-400">{{ dayReport.successRate }}%</div>
             </div>
           </div>
 
           <!-- Sessões Detalhadas -->
           <div>
-            <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <h4 class="text-sm font-semibold text-claude-text dark:text-white mb-3 flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
               </svg>
@@ -600,7 +600,7 @@
               <div
                 v-for="session in dayReport.sessions"
                 :key="session.id"
-                class="bg-dark-900 border border-dark-700 rounded-lg p-4 hover:border-primary-500/50 transition"
+                class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition"
               >
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex items-center gap-3">
@@ -609,13 +609,13 @@
                       :style="{ backgroundColor: session.subjects?.color || '#22C55E' }"
                     ></div>
                     <div>
-                      <div class="font-medium text-white">{{ session.subjects?.name }}</div>
-                      <div class="text-xs text-gray-400">
+                      <div class="font-medium text-claude-text dark:text-white">{{ session.subjects?.name }}</div>
+                      <div class="text-xs text-claude-text-secondary dark:text-gray-400">
                         {{ session.scheduled_time || 'Sem horário' }} • {{ formatMinutes(session.actual_duration || session.planned_duration) }}
                       </div>
                     </div>
                   </div>
-                  <span class="text-xs px-2 py-1 rounded-full bg-primary-500/20 text-primary-400">
+                  <span class="text-xs px-2 py-1 rounded-full bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">
                     {{ session.study_type === 'conteudo' ? '📖 Conteúdo' :
                        session.study_type === 'questoes' ? '📝 Questões' : '🔄 Revisão' }}
                   </span>
@@ -623,22 +623,22 @@
 
                 <div v-if="session.study_type === 'questoes' && session.completed_questions" class="grid grid-cols-3 gap-2 text-sm">
                   <div class="bg-dark-800 rounded p-2">
-                    <div class="text-xs text-gray-400">Questões</div>
-                    <div class="font-semibold text-white">{{ session.completed_questions }}</div>
+                    <div class="text-xs text-claude-text-secondary dark:text-gray-400">Questões</div>
+                    <div class="font-semibold text-claude-text dark:text-white">{{ session.completed_questions }}</div>
                   </div>
                   <div class="bg-dark-800 rounded p-2">
-                    <div class="text-xs text-gray-400">Acertos</div>
+                    <div class="text-xs text-claude-text-secondary dark:text-gray-400">Acertos</div>
                     <div class="font-semibold text-green-400">{{ session.correct_questions || 0 }}</div>
                   </div>
                   <div class="bg-dark-800 rounded p-2">
-                    <div class="text-xs text-gray-400">Taxa</div>
+                    <div class="text-xs text-claude-text-secondary dark:text-gray-400">Taxa</div>
                     <div class="font-semibold text-green-400">
                       {{ session.correct_questions ? Math.round((session.correct_questions / session.completed_questions) * 100) : 0 }}%
                     </div>
                   </div>
                 </div>
 
-                <div v-if="session.notes" class="mt-3 text-sm text-gray-400 italic border-t border-dark-700 pt-3">
+                <div v-if="session.notes" class="mt-3 text-sm text-claude-text-secondary dark:text-gray-400 italic border-t border-dark-700 pt-3">
                   "{{ session.notes }}"
                 </div>
               </div>
@@ -647,7 +647,7 @@
 
           <!-- Por Matéria -->
           <div v-if="dayReport.bySubject.length > 0">
-            <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <h4 class="text-sm font-semibold text-claude-text dark:text-white mb-3 flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
               </svg>
@@ -657,10 +657,10 @@
               <div
                 v-for="item in dayReport.bySubject"
                 :key="item.subject"
-                class="flex items-center justify-between bg-dark-900 border border-dark-700 rounded-lg p-3"
+                class="flex items-center justify-between bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-3"
               >
-                <span class="text-white font-medium">{{ item.subject }}</span>
-                <span class="text-primary-400 font-mono">{{ formatMinutes(item.minutes) }}</span>
+                <span class="text-claude-text dark:text-white font-medium">{{ item.subject }}</span>
+                <span class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-mono">{{ formatMinutes(item.minutes) }}</span>
               </div>
             </div>
           </div>
@@ -669,7 +669,7 @@
         <div class="flex justify-end mt-6">
           <button
             @click="closeDayReportModal"
-            class="px-6 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition"
+            class="px-6 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition"
           >
             Fechar
           </button>
@@ -684,8 +684,8 @@
           v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm border flex items-center gap-3 min-w-[300px]',
-            toast.type === 'success' ? 'bg-primary-500/20 border-primary-500/50 text-primary-100' : 'bg-red-500/20 border-red-500/50 text-red-100'
+            'px-4 py-3 rounded-claude-md shadow-lg backdrop-blur-sm border flex items-center gap-3 min-w-[300px]',
+            toast.type === 'success' ? 'bg-claude-primary/20 dark:bg-primary-500/20 border-claude-primary dark:border-primary-500/50 text-primary-100' : 'bg-red-500/20 border-red-500/50 text-red-100'
           ]"
         >
           <span class="flex-1 font-medium">{{ toast.message }}</span>

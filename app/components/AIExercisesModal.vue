@@ -10,8 +10,8 @@
           <!-- Header -->
           <div class="bg-dark-800 border-b border-dark-700 px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-10 h-10 bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md flex items-center justify-center">
+                <svg class="w-6 h-6 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
@@ -24,7 +24,7 @@
             </div>
             <button
               @click="close"
-              class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors"
+              class="text-white hover:bg-white hover:bg-opacity-20 rounded-claude-md p-2 transition-colors"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -42,9 +42,9 @@
                   type="range"
                   min="1"
                   max="20"
-                  class="flex-1 h-2 bg-dark-600 rounded-lg appearance-none cursor-pointer"
+                  class="flex-1 h-2 bg-dark-600 rounded-claude-md appearance-none cursor-pointer"
                 />
-                <span class="text-2xl font-bold text-primary-400 w-12 text-center">{{ config.quantity }}</span>
+                <span class="text-2xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors w-12 text-center">{{ config.quantity }}</span>
               </div>
             </div>
 
@@ -55,10 +55,10 @@
                   v-for="level in difficultyLevels"
                   :key="level.value"
                   @click="config.difficulty = level.value"
-                  class="px-4 py-3 rounded-xl border-2 transition-all"
+                  class="px-4 py-3 rounded-claude-lg border-2 transition-all"
                   :class="config.difficulty === level.value
-                    ? 'border-primary-500 bg-dark-700/30 shadow-md'
-                    : 'border-dark-600 hover:border-primary-500/50'"
+                    ? 'border-claude-primary bg-dark-700/30 shadow-md'
+                    : 'border-dark-600 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50'"
                 >
                   <div class="text-sm font-semibold text-white">{{ level.label }}</div>
                 </button>
@@ -68,7 +68,7 @@
             <button
               @click="generateExercises"
               :disabled="loading"
-              class="w-full px-6 py-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg flex items-center justify-center space-x-2"
+              class="w-full px-6 py-4 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 text-white rounded-claude-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg flex items-center justify-center space-x-2"
             >
               <svg v-if="!loading" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -80,7 +80,7 @@
               <span>{{ loading ? 'Gerando exercícios...' : 'Gerar Exercícios' }}</span>
             </button>
 
-            <div v-if="error" class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-start space-x-3">
+            <div v-if="error" class="bg-red-500/10 border border-red-500/30 rounded-claude-md p-4 flex items-start space-x-3">
               <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
               </svg>
@@ -105,7 +105,7 @@
                       fill="none"
                       :stroke-dasharray="circumference"
                       :stroke-dashoffset="circumference - (percentage / 100) * circumference"
-                      class="text-primary-400 transition-all duration-1000"
+                      class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors transition-all duration-1000"
                     />
                   </svg>
                   <div class="absolute inset-0 flex items-center justify-center">
@@ -120,24 +120,24 @@
 
               <!-- Stats Cards -->
               <div class="grid grid-cols-3 gap-4 mb-6">
-                <div class="bg-dark-700/30 border border-dark-600 rounded-xl p-4 text-center">
-                  <div class="text-2xl font-bold text-primary-400 mb-1">{{ correctCount }}</div>
+                <div class="bg-dark-700/30 border border-dark-600 rounded-claude-lg p-4 text-center">
+                  <div class="text-2xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors mb-1">{{ correctCount }}</div>
                   <div class="text-xs text-gray-400">Acertos</div>
                 </div>
-                <div class="bg-dark-700/30 border border-dark-600 rounded-xl p-4 text-center">
+                <div class="bg-dark-700/30 border border-dark-600 rounded-claude-lg p-4 text-center">
                   <div class="text-2xl font-bold text-red-400 mb-1">{{ exercises.length - correctCount }}</div>
                   <div class="text-xs text-gray-400">Erros</div>
                 </div>
-                <div class="bg-dark-700/30 border border-dark-600 rounded-xl p-4 text-center">
+                <div class="bg-dark-700/30 border border-dark-600 rounded-claude-lg p-4 text-center">
                   <div class="text-2xl font-bold text-yellow-400 mb-1">{{ percentage.toFixed(1) }}</div>
                   <div class="text-xs text-gray-400">Nota</div>
                 </div>
               </div>
 
               <!-- Questions Review -->
-              <div class="bg-dark-700/30 border border-dark-600 rounded-xl p-6">
+              <div class="bg-dark-700/30 border border-dark-600 rounded-claude-lg p-6">
                 <h4 class="font-semibold text-white mb-4 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   Revisão das Questões
@@ -147,13 +147,13 @@
                     v-for="(exercise, index) in exercises"
                     :key="index"
                     @click="reviewQuestion(index)"
-                    class="w-full flex items-center justify-between p-3 rounded-lg border transition-colors"
+                    class="w-full flex items-center justify-between p-3 rounded-claude-md border transition-colors"
                     :class="answers[index]?.correct
-                      ? 'border-primary-500/30 bg-primary-500/5 hover:bg-primary-500/10'
+                      ? 'border-claude-primary dark:border-primary-500/30 bg-primary-500/5 hover:bg-primary-500/10'
                       : 'border-red-500/30 bg-red-500/5 hover:bg-red-500/10'"
                   >
                     <span class="text-sm text-gray-300">Questão {{ index + 1 }}</span>
-                    <svg v-if="answers[index]?.correct" class="w-5 h-5 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg v-if="answers[index]?.correct" class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                     <svg v-else class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -164,9 +164,9 @@
               </div>
 
               <!-- Save to Reports -->
-              <div class="bg-dark-700/30 border border-dark-600 rounded-xl p-6">
+              <div class="bg-dark-700/30 border border-dark-600 rounded-claude-lg p-6">
                 <h4 class="font-semibold text-white mb-3 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Salvar nos Relatórios
@@ -175,7 +175,7 @@
                 <button
                   @click="saveToReports"
                   :disabled="savingToReports"
-                  class="w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
+                  class="w-full px-4 py-3 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 text-white rounded-claude-md transition-colors font-medium disabled:opacity-50"
                 >
                   {{ savingToReports ? 'Salvando...' : savedToReports ? '✓ Salvo nos Relatórios' : 'Salvar nos Relatórios' }}
                 </button>
@@ -185,13 +185,13 @@
               <div class="flex gap-3">
                 <button
                   @click="resetQuiz"
-                  class="flex-1 px-4 py-3 border border-dark-600 hover:bg-dark-700 text-white rounded-lg transition-colors font-medium"
+                  class="flex-1 px-4 py-3 border border-dark-600 hover:bg-dark-700 text-white rounded-claude-md transition-colors font-medium"
                 >
                   Fazer Novamente
                 </button>
                 <button
                   @click="close"
-                  class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg transition-colors font-medium"
+                  class="flex-1 px-4 py-3 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 text-white rounded-claude-md transition-colors font-medium"
                 >
                   Fechar
                 </button>
@@ -203,10 +203,10 @@
           <div v-else class="flex-1 overflow-y-auto p-6 bg-dark-900">
             <div v-if="currentExercise" class="space-y-6">
               <!-- Question -->
-              <div class="bg-dark-700/30 border border-dark-600 rounded-xl p-6">
+              <div class="bg-dark-700/30 border border-dark-600 rounded-claude-lg p-6">
                 <div class="flex items-start justify-between mb-4">
                   <h3 class="text-lg font-semibold text-white">Questão {{ currentIndex + 1 }}</h3>
-                  <span class="px-3 py-1 bg-primary-500/20 text-primary-400 text-xs font-semibold rounded-full">
+                  <span class="px-3 py-1 bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors text-xs font-semibold rounded-full">
                     {{ config.difficulty }}
                   </span>
                 </div>
@@ -220,7 +220,7 @@
                   :key="key"
                   @click="selectAnswer(key)"
                   :disabled="answered"
-                  class="w-full text-left px-5 py-4 rounded-xl border-2 transition-all"
+                  class="w-full text-left px-5 py-4 rounded-claude-lg border-2 transition-all"
                   :class="getOptionClass(key)"
                 >
                   <div class="flex items-center space-x-3">
@@ -229,7 +229,7 @@
                       {{ key }}
                     </span>
                     <span class="flex-1 text-gray-300">{{ option }}</span>
-                    <svg v-if="answered && key === currentExercise.correct_answer" class="w-6 h-6 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg v-if="answered && key === currentExercise.correct_answer" class="w-6 h-6 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                     <svg v-else-if="answered && key === selectedAnswer && key !== currentExercise.correct_answer" class="w-6 h-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -241,9 +241,9 @@
 
               <!-- Explanation -->
               <Transition name="slide-down">
-                <div v-if="answered && currentExercise.explanation" class="bg-gray-700/50 border border-gray-600 rounded-xl p-5">
+                <div v-if="answered && currentExercise.explanation" class="bg-gray-700/50 border border-gray-600 rounded-claude-lg p-5">
                   <div class="flex items-start space-x-3">
-                    <svg class="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-6 h-6 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                     </svg>
                     <div>
@@ -262,26 +262,26 @@
               <button
                 @click="previousExercise"
                 :disabled="currentIndex === 0"
-                class="px-4 py-2 border border-dark-600 rounded-lg hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-gray-300"
+                class="px-4 py-2 border border-dark-600 rounded-claude-md hover:bg-dark-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-gray-300"
               >
                 ← Anterior
               </button>
 
               <div class="text-sm text-gray-400">
-                Acertos: <span class="font-bold text-primary-400">{{ correctCount }}</span> / {{ answeredCount }}
+                Acertos: <span class="font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">{{ correctCount }}</span> / {{ answeredCount }}
               </div>
 
               <button
                 v-if="currentIndex < exercises.length - 1"
                 @click="nextExercise"
-                class="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-colors font-medium"
+                class="px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 transition-colors font-medium"
               >
                 Próxima →
               </button>
               <button
                 v-else
                 @click="finishQuiz"
-                class="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 transition-colors font-medium"
+                class="px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 transition-colors font-medium"
               >
                 Ver Resultados
               </button>
@@ -376,11 +376,11 @@ const selectAnswer = (key: string) => {
 
 const getOptionClass = (key: string) => {
   if (!answered.value) {
-    return 'border-dark-600 hover:border-primary-500 hover:bg-dark-700/50'
+    return 'border-dark-600 hover:border-claude-primary hover:bg-dark-700/50'
   }
 
   if (key === currentExercise.value.correct_answer) {
-    return 'border-primary-500 bg-primary-500/10'
+    return 'border-claude-primary bg-primary-500/10'
   }
 
   if (key === selectedAnswer.value && key !== currentExercise.value.correct_answer) {

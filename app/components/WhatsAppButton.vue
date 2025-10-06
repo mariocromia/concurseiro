@@ -42,7 +42,7 @@
         >
           <div
             v-if="showTooltip"
-            class="absolute right-20 top-1/2 -translate-y-1/2 bg-dark-800 text-white px-4 py-2 rounded-lg shadow-xl whitespace-nowrap border border-dark-600"
+            class="absolute right-20 top-1/2 -translate-y-1/2 bg-dark-800 text-white px-4 py-2 rounded-claude-md shadow-xl whitespace-nowrap border border-dark-600"
           >
             <div class="text-sm font-medium">Fale conosco no WhatsApp!</div>
             <div class="text-xs text-gray-400 mt-0.5">Estamos online</div>

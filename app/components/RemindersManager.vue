@@ -5,7 +5,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
       @click.self="$emit('close')"
     >
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+      <div class="bg-white rounded-claude-lg shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         <!-- Header -->
         <div class="p-6 border-b border-gray-200">
           <div class="flex items-center justify-between">
@@ -27,14 +27,14 @@
         <!-- Content -->
         <div class="flex-1 overflow-y-auto p-6">
           <!-- Add New Reminder -->
-          <div class="mb-6 bg-primary-50 rounded-lg p-4">
+          <div class="mb-6 bg-primary-50 rounded-claude-md p-4">
             <h4 class="text-sm font-bold text-primary-900 mb-3">Adicionar Novo Lembrete</h4>
             <div class="grid grid-cols-1 gap-3">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
                 <select
                   v-model="newReminder.category"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
                 >
                   <option value="formula">Fórmula</option>
                   <option value="definition">Definição</option>
@@ -50,13 +50,13 @@
                   v-model="newReminder.content"
                   rows="4"
                   placeholder="Ex: x = (-b ± √(b² - 4ac)) / 2a"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 resize-none"
                 ></textarea>
               </div>
               <button
                 @click="addReminder"
                 :disabled="!newReminder.content"
-                class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 bg-primary-500 text-white rounded-claude-md hover:bg-primary-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ➕ Adicionar Lembrete
               </button>
@@ -96,7 +96,7 @@
             <div
               v-for="reminder in filteredReminders"
               :key="reminder.id"
-              class="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              class="bg-white border-2 border-gray-200 rounded-claude-md p-4 hover:shadow-md transition-shadow"
             >
               <div class="flex items-start justify-between mb-2">
                 <div class="flex items-center gap-2">
@@ -112,7 +112,7 @@
                   Excluir
                 </button>
               </div>
-              <div class="bg-gray-50 rounded-lg p-3 font-mono text-sm text-gray-800 whitespace-pre-wrap">
+              <div class="bg-gray-50 rounded-claude-md p-3 font-mono text-sm text-gray-800 whitespace-pre-wrap">
                 {{ reminder.content }}
               </div>
               <div class="mt-2 text-xs text-gray-500">

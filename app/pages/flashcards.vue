@@ -1,21 +1,21 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 py-8 px-4">
+  <div class="min-h-screen bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 py-8 px-4">
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-white mb-2">🎮 Flashcards Interativos</h1>
-        <p class="text-gray-400">Aprenda de forma divertida e interativa!</p>
+        <h1 class="text-4xl font-bold text-claude-text dark:text-white mb-2">🎮 Flashcards Interativos</h1>
+        <p class="text-claude-text-secondary dark:text-gray-400">Aprenda de forma divertida e interativa!</p>
       </div>
 
       <!-- Subject Selection (if not playing) -->
       <div v-if="!isPlaying && !showResults" class="max-w-2xl mx-auto">
         <div class="bg-dark-800 border border-dark-600 rounded-2xl p-8 shadow-2xl">
-          <h2 class="text-2xl font-bold text-white mb-6">Selecione um Caderno</h2>
+          <h2 class="text-2xl font-bold text-claude-text dark:text-white mb-6">Selecione um Caderno</h2>
 
           <!-- Loading -->
           <div v-if="loadingSubjects" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-            <p class="text-gray-400 mt-4">Carregando cadernos...</p>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-claude-primary dark:border-primary-500"></div>
+            <p class="text-claude-text-secondary dark:text-gray-400 mt-4">Carregando cadernos...</p>
           </div>
 
           <!-- Subjects List -->
@@ -24,21 +24,21 @@
               v-for="subject in subjects"
               :key="subject.id"
               @click="selectSubject(subject)"
-              class="flex items-center justify-between p-4 bg-dark-700 hover:bg-dark-600 border border-dark-500 rounded-xl cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:border-primary-500/50 group"
+              class="flex items-center justify-between p-4 bg-dark-700 hover:bg-dark-600 border border-dark-500 rounded-claude-lg cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 group"
             >
               <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <div class="w-12 h-12 bg-gradient-to-br from-claude-primary to-claude-hover dark:from-primary-500 dark:to-primary-600 rounded-claude-lg flex items-center justify-center shadow-lg">
+                  <svg class="w-6 h-6 text-claude-text dark:text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="font-semibold text-white group-hover:text-primary-400 transition-colors">{{ subject.name }}</h3>
-                  <p class="text-sm text-gray-400">{{ subject.chapter_count || 0 }} capítulos</p>
+                  <h3 class="font-semibold text-claude-text dark:text-white group-hover:text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors transition-colors">{{ subject.name }}</h3>
+                  <p class="text-sm text-claude-text-secondary dark:text-gray-400">{{ subject.chapter_count || 0 }} capítulos</p>
                 </div>
               </div>
-              <svg class="w-6 h-6 text-gray-400 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6 text-claude-text-secondary dark:text-gray-400 group-hover:text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
             </div>
@@ -49,8 +49,8 @@
             <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
-            <p class="text-gray-400">Nenhum caderno encontrado</p>
-            <NuxtLink to="/notebook" class="inline-block mt-4 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+            <p class="text-claude-text-secondary dark:text-gray-400">Nenhum caderno encontrado</p>
+            <NuxtLink to="/notebook" class="inline-block mt-4 px-6 py-2 bg-primary-500 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-600 transition-colors">
               Criar Caderno
             </NuxtLink>
           </div>
@@ -62,12 +62,12 @@
         <!-- Progress Bar -->
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-400">Progresso</span>
-            <span class="text-sm font-medium text-white">{{ currentCardIndex + 1 }} / {{ flashcards.length }}</span>
+            <span class="text-sm font-medium text-claude-text-secondary dark:text-gray-400">Progresso</span>
+            <span class="text-sm font-medium text-claude-text dark:text-white">{{ currentCardIndex + 1 }} / {{ flashcards.length }}</span>
           </div>
           <div class="w-full bg-dark-700 rounded-full h-3 overflow-hidden">
             <div
-              class="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
+              class="h-full bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md transition-all duration-500"
               :style="{ width: `${((currentCardIndex + 1) / flashcards.length) * 100}%` }"
             ></div>
           </div>
@@ -101,29 +101,29 @@
             @click="flipCard"
           >
             <!-- Front -->
-            <div class="flashcard flashcard-front bg-gradient-to-br from-primary-500 to-primary-600 border-4 border-primary-400">
+            <div class="flashcard flashcard-front bg-gradient-to-br from-claude-primary to-claude-hover dark:from-primary-500 dark:to-primary-600 border-4 border-primary-400">
               <div class="absolute top-4 right-4">
-                <div class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white backdrop-blur-sm">
+                <div class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-claude-text dark:text-white backdrop-blur-sm">
                   Pergunta
                 </div>
               </div>
               <div class="flex items-center justify-center h-full p-8">
-                <p class="text-2xl font-bold text-white text-center">{{ currentCard.question }}</p>
+                <p class="text-2xl font-bold text-claude-text dark:text-white text-center">{{ currentCard.question }}</p>
               </div>
               <div class="absolute bottom-4 left-0 right-0 text-center">
-                <p class="text-sm text-white/70">Clique para ver a resposta</p>
+                <p class="text-sm text-claude-text dark:text-white/70">Clique para ver a resposta</p>
               </div>
             </div>
 
             <!-- Back -->
             <div class="flashcard flashcard-back bg-gradient-to-br from-green-500 to-green-600 border-4 border-green-400">
               <div class="absolute top-4 right-4">
-                <div class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white backdrop-blur-sm">
+                <div class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-claude-text dark:text-white backdrop-blur-sm">
                   Resposta
                 </div>
               </div>
               <div class="flex items-center justify-center h-full p-8">
-                <p class="text-2xl font-bold text-white text-center">{{ currentCard.answer }}</p>
+                <p class="text-2xl font-bold text-claude-text dark:text-white text-center">{{ currentCard.answer }}</p>
               </div>
             </div>
           </div>
@@ -133,7 +133,7 @@
         <div v-if="isFlipped" class="flex items-center justify-center space-x-4 mt-8">
           <button
             @click.stop="answerCard(false)"
-            class="flex items-center space-x-2 px-8 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all hover:scale-105 shadow-lg hover:shadow-red-500/50"
+            class="flex items-center space-x-2 px-8 py-4 bg-red-500 hover:bg-red-600 text-claude-text dark:text-white rounded-claude-lg font-bold transition-all hover:scale-105 shadow-lg hover:shadow-red-500/50"
           >
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -142,7 +142,7 @@
           </button>
           <button
             @click.stop="answerCard(true)"
-            class="flex items-center space-x-2 px-8 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition-all hover:scale-105 shadow-lg hover:shadow-green-500/50"
+            class="flex items-center space-x-2 px-8 py-4 bg-green-500 hover:bg-green-600 text-claude-text dark:text-white rounded-claude-lg font-bold transition-all hover:scale-105 shadow-lg hover:shadow-green-500/50"
           >
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -155,7 +155,7 @@
         <div class="text-center mt-8">
           <button
             @click="quitGame"
-            class="text-gray-400 hover:text-white transition-colors"
+            class="text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white transition-colors"
           >
             Sair do jogo
           </button>
@@ -168,22 +168,22 @@
           <!-- Trophy Icon -->
           <div class="mb-6">
             <div class="w-24 h-24 mx-auto bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-2xl">
-              <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-12 h-12 text-claude-text dark:text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
               </svg>
             </div>
           </div>
 
-          <h2 class="text-3xl font-bold text-white mb-4">Parabéns!</h2>
-          <p class="text-gray-400 mb-8">Você completou todos os flashcards!</p>
+          <h2 class="text-3xl font-bold text-claude-text dark:text-white mb-4">Parabéns!</h2>
+          <p class="text-claude-text-secondary dark:text-gray-400 mb-8">Você completou todos os flashcards!</p>
 
           <!-- Score Summary -->
           <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="bg-green-500/20 border border-green-500/30 rounded-xl p-4">
+            <div class="bg-green-500/20 border border-green-500/30 rounded-claude-lg p-4">
               <div class="text-4xl font-bold text-green-400 mb-1">{{ correctCount }}</div>
               <div class="text-sm text-green-300">Acertos</div>
             </div>
-            <div class="bg-red-500/20 border border-red-500/30 rounded-xl p-4">
+            <div class="bg-red-500/20 border border-red-500/30 rounded-claude-lg p-4">
               <div class="text-4xl font-bold text-red-400 mb-1">{{ incorrectCount }}</div>
               <div class="text-sm text-red-300">Erros</div>
             </div>
@@ -191,21 +191,21 @@
 
           <!-- Score Percentage -->
           <div class="mb-8">
-            <div class="text-5xl font-bold text-white mb-2">{{ scorePercentage }}%</div>
-            <div class="text-gray-400">Taxa de acerto</div>
+            <div class="text-5xl font-bold text-claude-text dark:text-white mb-2">{{ scorePercentage }}%</div>
+            <div class="text-claude-text-secondary dark:text-gray-400">Taxa de acerto</div>
           </div>
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-4">
             <button
               @click="restartGame"
-              class="flex-1 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold transition-all"
+              class="flex-1 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-lg font-bold transition-all"
             >
               Jogar Novamente
             </button>
             <button
               @click="backToSelection"
-              class="flex-1 px-6 py-3 bg-dark-700 hover:bg-dark-600 text-white rounded-xl font-bold transition-all"
+              class="flex-1 px-6 py-3 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-lg font-bold transition-all"
             >
               Escolher Outro Caderno
             </button>

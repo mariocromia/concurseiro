@@ -10,7 +10,7 @@
           <!-- Header -->
           <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-6 py-4 flex items-center justify-between border-b border-dark-600">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <div class="w-10 h-10 bg-white/20 rounded-claude-md flex items-center justify-center">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -22,7 +22,7 @@
             </div>
             <button
               @click="close"
-              class="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+              class="text-white hover:bg-white/20 rounded-claude-md p-2 transition-colors"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -33,10 +33,10 @@
           <!-- Content Area -->
           <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-dark-900">
             <!-- Initial Content / Summary -->
-            <div v-if="initialContent" class="bg-dark-700 rounded-xl p-6 shadow-sm border border-dark-600">
+            <div v-if="initialContent" class="bg-dark-700 rounded-claude-lg p-6 shadow-sm border border-dark-600">
               <div class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
@@ -56,11 +56,11 @@
             >
               <div
                 v-if="message.role === 'assistant'"
-                class="bg-dark-700 rounded-xl p-4 shadow-sm border border-dark-600 max-w-[80%]"
+                class="bg-dark-700 rounded-claude-lg p-4 shadow-sm border border-dark-600 max-w-[80%]"
               >
                 <div class="flex items-start space-x-3">
-                  <div class="w-7 h-7 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="w-7 h-7 bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
@@ -71,7 +71,7 @@
               </div>
               <div
                 v-else
-                class="bg-gradient-to-r from-primary-600 to-purple-600 rounded-xl p-4 shadow-sm max-w-[80%]"
+                class="bg-gradient-to-r from-primary-600 to-purple-600 rounded-claude-lg p-4 shadow-sm max-w-[80%]"
               >
                 <p class="text-white whitespace-pre-wrap">{{ message.content }}</p>
               </div>
@@ -98,7 +98,7 @@
                   v-model="inputMessage"
                   :placeholder="placeholder"
                   rows="2"
-                  class="w-full px-4 py-3 bg-dark-900 border border-dark-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                  class="w-full px-4 py-3 bg-dark-900 border border-dark-600 text-white placeholder-gray-500 rounded-claude-lg focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 resize-none"
                   @keydown.enter.exact.prevent="sendMessage"
                   @keydown.enter.shift.exact="inputMessage += '\n'"
                   :disabled="loading"
@@ -108,7 +108,7 @@
               <button
                 type="submit"
                 :disabled="!inputMessage.trim() || loading"
-                class="px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-primary-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                class="px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-claude-lg hover:shadow-lg hover:shadow-primary-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 <svg v-if="!loading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

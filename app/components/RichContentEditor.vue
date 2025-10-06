@@ -1,7 +1,7 @@
 <template>
   <div class="rich-content-editor">
     <!-- Toolbar -->
-    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-lg px-4 py-3 sticky top-0 z-10 shadow-sm">
+    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-0 z-10 shadow-sm">
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
@@ -12,7 +12,7 @@
           :class="[
             'p-2 rounded transition-colors',
             isFormatActive(tool.command)
-              ? 'bg-primary-500/20 text-primary-400'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
               : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
@@ -25,7 +25,7 @@
         <!-- Font Size -->
         <select
           @change="changeFontSize(($event.target as HTMLSelectElement).value)"
-          class="px-2 py-1 bg-dark-700 border border-dark-700 text-gray-400 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="px-2 py-1 bg-dark-700 border border-dark-700 text-gray-400 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
           title="Tamanho da fonte"
         >
           <option value="">Tamanho</option>
@@ -88,7 +88,7 @@
           :class="[
             'p-2 rounded transition-colors',
             textBoxMode
-              ? 'bg-primary-500/20 text-primary-400'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
               : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
@@ -130,7 +130,7 @@
           :class="[
             'p-2 rounded transition-colors',
             pageBreakMode
-              ? 'bg-primary-500/20 text-primary-400 hover:bg-primary-500/30'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:bg-primary-500/30'
               : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
@@ -147,7 +147,7 @@
           :class="[
             'p-2 rounded transition-colors',
             showNotebookLines
-              ? 'bg-primary-500/20 text-primary-400'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
               : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
@@ -193,7 +193,7 @@
           :class="[
             'p-2 rounded transition-colors',
             screenshotMode
-              ? 'bg-primary-500/20 text-primary-400'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
               : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
@@ -235,7 +235,7 @@
           :class="[
             'p-2 rounded transition-colors',
             showGeometryTools
-              ? 'bg-primary-500/20 text-primary-400'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
               : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           title="Ferramentas de Geometria"
@@ -250,14 +250,14 @@
     </div>
 
     <!-- Geometry Tools Bar -->
-    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-lg px-4 py-3">
+    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3">
       <div class="text-sm font-medium text-gray-300 mr-2">Ferramentas de Geometria:</div>
       <button
         @click="activateGeometryTool('line')"
         :class="[
           'p-2 rounded transition-colors',
           geometryTool === 'line'
-            ? 'bg-primary-500/20 text-primary-400'
+            ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             : 'text-gray-400 hover:bg-dark-700/50'
         ]"
         title="Desenhar linha"
@@ -272,7 +272,7 @@
         :class="[
           'p-2 rounded transition-colors',
           geometryTool === 'circle'
-            ? 'bg-primary-500/20 text-primary-400'
+            ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             : 'text-gray-400 hover:bg-dark-700/50'
         ]"
         title="Desenhar círculo"
@@ -287,7 +287,7 @@
         :class="[
           'p-2 rounded transition-colors',
           geometryTool === 'rectangle'
-            ? 'bg-primary-500/20 text-primary-400'
+            ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             : 'text-gray-400 hover:bg-dark-700/50'
         ]"
         title="Desenhar retângulo"
@@ -302,7 +302,7 @@
         :class="[
           'p-2 rounded transition-colors',
           geometryTool === 'triangle'
-            ? 'bg-primary-500/20 text-primary-400'
+            ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             : 'text-gray-400 hover:bg-dark-700/50'
         ]"
         title="Desenhar triângulo"
@@ -317,7 +317,7 @@
         :class="[
           'p-2 rounded transition-colors',
           geometryTool === 'angle'
-            ? 'bg-primary-500/20 text-primary-400'
+            ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             : 'text-gray-400 hover:bg-dark-700/50'
         ]"
         title="Desenhar ângulo"
@@ -337,7 +337,7 @@
         :class="[
           'p-2 rounded transition-colors',
           geometryTool === 'polygon'
-            ? 'bg-primary-500/20 text-primary-400'
+            ? 'bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors'
             : 'text-gray-400 hover:bg-dark-700/50'
         ]"
         title="Desenhar polígono"
@@ -355,7 +355,7 @@
           type="number"
           min="3"
           max="12"
-          class="w-16 px-2 py-1 bg-dark-700 border border-dark-600 text-gray-300 rounded text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="w-16 px-2 py-1 bg-dark-700 border border-dark-600 text-gray-300 rounded text-sm focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
         />
         <button
           @click="activateGeometryTool('polygon')"
@@ -378,7 +378,7 @@
       @click="handleEditorClick"
       @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
       @focus="updateActiveFormats"
-      class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
+      class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
         'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode && !pageBreakMode,
         'cursor-crosshair': commentMode || geometryTool || screenshotMode,
@@ -391,7 +391,7 @@
       <!-- Screenshot Selection Overlay -->
       <div
         v-if="screenshotSelection && isDrawingSelection"
-        class="absolute border-2 border-primary-500 bg-primary-500/20 pointer-events-none z-50"
+        class="absolute border-2 border-claude-primary dark:border-primary-500 bg-claude-primary/20 dark:bg-primary-500/20 pointer-events-none z-50"
         :style="{
           left: Math.min(screenshotSelection.startX, screenshotSelection.endX) + 'px',
           top: Math.min(screenshotSelection.startY, screenshotSelection.endY) + 'px',
@@ -434,7 +434,7 @@
         v-if="screenshotMode"
         class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none"
       >
-        <div class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+        <div class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-claude-lg shadow-2xl flex items-center space-x-3">
           <svg class="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
             <path d="M21 6h-3.17L16 4h-6v2h5.12l1.83 2H21v12H3V8h3v2H5v8h14V8h-2V6h4v14H3V6h3.17L8 4h8l1.83 2zM12 9c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
           </svg>
@@ -492,12 +492,12 @@
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
         @click.self="showCommentModal = false"
       >
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <div class="bg-white rounded-claude-lg shadow-2xl w-full max-w-md">
           <div class="p-6">
             <h3 class="text-lg font-bold text-gray-900 mb-4">Adicionar Comentário</h3>
             <textarea
               v-model="commentText"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 resize-none"
+              class="w-full px-4 py-3 border border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 text-gray-900 resize-none"
               rows="4"
               placeholder="Digite seu comentário aqui..."
               @keydown.esc="showCommentModal = false"
@@ -505,13 +505,13 @@
             <div class="flex gap-3 mt-4">
               <button
                 @click="saveComment"
-                class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium"
+                class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-claude-md hover:bg-primary-600 font-medium"
               >
                 Salvar
               </button>
               <button
                 @click="showCommentModal = false"
-                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-claude-md hover:bg-gray-50 font-medium"
               >
                 Cancelar
               </button>
@@ -528,7 +528,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
         @click.self="showCommentView = false"
       >
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <div class="bg-white rounded-claude-lg shadow-2xl w-full max-w-md">
           <div class="p-6">
             <div class="flex items-start justify-between mb-4">
               <h3 class="text-lg font-bold text-gray-900">Comentário</h3>
@@ -539,13 +539,13 @@
                 Excluir
               </button>
             </div>
-            <div class="bg-gray-50 rounded-lg p-4 text-gray-700 whitespace-pre-wrap">
+            <div class="bg-gray-50 rounded-claude-md p-4 text-gray-700 whitespace-pre-wrap">
               {{ currentCommentText }}
             </div>
             <div class="mt-4">
               <button
                 @click="showCommentView = false"
-                class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+                class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-claude-md hover:bg-gray-200 font-medium"
               >
                 Fechar
               </button>
@@ -598,7 +598,7 @@
               <div class="p-6 border-b border-gray-700">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-claude-lg flex items-center justify-center">
                       <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                       </svg>
@@ -610,7 +610,7 @@
                   </div>
                   <button
                     @click="closeYouTubeModal"
-                    class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                    class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-claude-md transition-colors"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -630,7 +630,7 @@
                     v-model="youtubeUrl"
                     type="text"
                     placeholder="https://www.youtube.com/watch?v=..."
-                    class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                    class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-claude-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                     @keyup.enter="confirmYouTubeInsert"
                   />
                   <p class="mt-2 text-xs text-gray-500">Cole o link completo do YouTube ou o link curto (youtu.be)</p>
@@ -646,7 +646,7 @@
                       v-model="youtubeStartTime"
                       type="text"
                       placeholder="0:00"
-                      class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                      class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-claude-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                     />
                     <p class="mt-1 text-xs text-gray-500">Ex: 1:30</p>
                   </div>
@@ -658,21 +658,21 @@
                       v-model="youtubeEndTime"
                       type="text"
                       placeholder="0:00"
-                      class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                      class="w-full px-4 py-3 bg-gray-800 border border-gray-600 text-white placeholder-gray-500 rounded-claude-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                     />
                     <p class="mt-1 text-xs text-gray-500">Ex: 5:20</p>
                   </div>
                 </div>
 
                 <!-- Info Box -->
-                <div class="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                <div class="p-4 bg-[var(--info)]/10 dark:bg-blue-500/10 border border-[var(--info)]/30 dark:border-blue-500/30 rounded-claude-lg">
                   <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-[var(--info)] dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                     </svg>
-                    <div class="text-sm text-blue-300">
+                    <div class="text-sm text-[var(--primary-hover)] dark:text-blue-300">
                       <p class="font-medium mb-1">💡 Dica:</p>
-                      <p class="text-blue-400">O intervalo é opcional. Deixe em branco para inserir o vídeo completo.</p>
+                      <p class="text-[var(--info)] dark:text-blue-400">O intervalo é opcional. Deixe em branco para inserir o vídeo completo.</p>
                     </div>
                   </div>
                 </div>
@@ -682,14 +682,14 @@
               <div class="p-6 border-t border-gray-700 flex gap-3">
                 <button
                   @click="closeYouTubeModal"
-                  class="flex-1 px-4 py-3 border border-gray-600 text-gray-300 rounded-xl hover:bg-gray-700 font-medium transition-all"
+                  class="flex-1 px-4 py-3 border border-gray-600 text-gray-300 rounded-claude-lg hover:bg-gray-700 font-medium transition-all"
                 >
                   Cancelar
                 </button>
                 <button
                   @click="confirmYouTubeInsert"
                   :disabled="!youtubeUrl.trim()"
-                  class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg shadow-red-500/30"
+                  class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-claude-lg hover:from-red-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg shadow-red-500/30"
                 >
                   Inserir Vídeo
                 </button>
@@ -732,7 +732,7 @@
               <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-primary-100 rounded-claude-md flex items-center justify-center">
                       <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
                       </svg>
@@ -741,7 +741,7 @@
                   </div>
                   <button
                     @click="closeLinkModal"
-                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-claude-md transition-colors"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -760,7 +760,7 @@
                     v-model="linkUrl"
                     type="url"
                     placeholder="https://exemplo.com"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
                     @keydown.enter="confirmLinkInsert"
                   />
                 </div>
@@ -772,7 +772,7 @@
                     v-model="linkText"
                     type="text"
                     placeholder="Clique aqui"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
                     @keydown.enter="confirmLinkInsert"
                   />
                   <p class="mt-1 text-xs text-gray-500">Se vazio, a URL será usada como texto</p>
@@ -783,14 +783,14 @@
               <div class="p-6 border-t border-gray-200 flex gap-3">
                 <button
                   @click="closeLinkModal"
-                  class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                  class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-claude-md hover:bg-gray-50 font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   @click="confirmLinkInsert"
                   :disabled="!linkUrl.trim()"
-                  class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-claude-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   Inserir
                 </button>
@@ -1109,7 +1109,7 @@ const confirmYouTubeInsert = () => {
     width: 560px;
     height: 315px;
     margin: 10px 0;
-    border: 2px solid #3b82f6;
+    border: 2px solid #ca643f;
     border-radius: 8px;
     overflow: hidden;
     resize: both;
@@ -1494,7 +1494,7 @@ const handleEditorClick = (event: MouseEvent) => {
       min-height: 50px;
       padding: 8px;
       padding-top: 20px;
-      border: 2px dashed #3b82f6;
+      border: 2px dashed #ca643f;
       background: #eff6ff;
       border-radius: 4px;
       z-index: 10;
@@ -1513,7 +1513,7 @@ const handleEditorClick = (event: MouseEvent) => {
       right: -8px;
       width: 24px;
       height: 24px;
-      background: #3b82f6;
+      background: #ca643f;
       color: white;
       border-radius: 50%;
       display: flex;
@@ -1905,7 +1905,7 @@ const drawGeometryShape = (event: MouseEvent) => {
       shape.setAttribute('y1', '20')
       shape.setAttribute('x2', '180')
       shape.setAttribute('y2', '180')
-      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke', '#ca643f')
       shape.setAttribute('stroke-width', '3')
       break
     case 'circle':
@@ -1913,7 +1913,7 @@ const drawGeometryShape = (event: MouseEvent) => {
       shape.setAttribute('cx', '100')
       shape.setAttribute('cy', '100')
       shape.setAttribute('r', '80')
-      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke', '#ca643f')
       shape.setAttribute('stroke-width', '3')
       shape.setAttribute('fill', 'none')
       break
@@ -1923,14 +1923,14 @@ const drawGeometryShape = (event: MouseEvent) => {
       shape.setAttribute('y', '40')
       shape.setAttribute('width', '160')
       shape.setAttribute('height', '120')
-      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke', '#ca643f')
       shape.setAttribute('stroke-width', '3')
       shape.setAttribute('fill', 'none')
       break
     case 'triangle':
       shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
       shape.setAttribute('points', '100,20 20,180 180,180')
-      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke', '#ca643f')
       shape.setAttribute('stroke-width', '3')
       shape.setAttribute('fill', 'none')
       break
@@ -1941,24 +1941,24 @@ const drawGeometryShape = (event: MouseEvent) => {
       line1.setAttribute('y1', '160')
       line1.setAttribute('x2', '40')
       line1.setAttribute('y2', '40')
-      line1.setAttribute('stroke', '#3b82f6')
+      line1.setAttribute('stroke', '#ca643f')
       line1.setAttribute('stroke-width', '3')
       const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line')
       line2.setAttribute('x1', '40')
       line2.setAttribute('y1', '160')
       line2.setAttribute('x2', '160')
       line2.setAttribute('y2', '160')
-      line2.setAttribute('stroke', '#3b82f6')
+      line2.setAttribute('stroke', '#ca643f')
       line2.setAttribute('stroke-width', '3')
       const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path')
       arc.setAttribute('d', 'M 80 160 A 40 40 0 0 1 40 120')
-      arc.setAttribute('stroke', '#3b82f6')
+      arc.setAttribute('stroke', '#ca643f')
       arc.setAttribute('stroke-width', '2')
       arc.setAttribute('fill', 'none')
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
       text.setAttribute('x', '70')
       text.setAttribute('y', '145')
-      text.setAttribute('fill', '#3b82f6')
+      text.setAttribute('fill', '#ca643f')
       text.setAttribute('font-size', '16')
       text.textContent = '90°'
       g.appendChild(line1)
@@ -1982,7 +1982,7 @@ const drawGeometryShape = (event: MouseEvent) => {
         points.push(`${x},${y}`)
       }
       shape.setAttribute('points', points.join(' '))
-      shape.setAttribute('stroke', '#3b82f6')
+      shape.setAttribute('stroke', '#ca643f')
       shape.setAttribute('stroke-width', '3')
       shape.setAttribute('fill', 'none')
       break
@@ -2111,7 +2111,7 @@ onUnmounted(() => {
   position: absolute;
   width: 12px;
   height: 12px;
-  background: #3b82f6;
+  background: #ca643f;
   border: 2px solid white;
   border-radius: 50%;
   cursor: nwse-resize;
@@ -2162,7 +2162,7 @@ onUnmounted(() => {
 }
 
 .rich-content-editor .prose a {
-  color: #3b82f6;
+  color: #ca643f;
   text-decoration: underline;
 }
 

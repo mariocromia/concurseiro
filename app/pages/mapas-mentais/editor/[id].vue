@@ -5,7 +5,7 @@
       <div class="flex items-center gap-4">
         <button
           @click="navigateTo('/mapas-mentais/biblioteca')"
-          class="text-gray-400 hover:text-white transition p-2 hover:bg-dark-700 rounded-lg"
+          class="text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white transition p-2 hover:bg-dark-700 rounded-claude-md"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -15,17 +15,17 @@
           v-model="title"
           @blur="saveTitle"
           type="text"
-          class="bg-transparent text-white font-semibold text-lg border-none focus:outline-none focus:ring-0 px-2 py-1 hover:bg-dark-700 rounded transition"
+          class="bg-transparent text-claude-text dark:text-white font-semibold text-lg border-none focus:outline-none focus:ring-0 px-2 py-1 hover:bg-dark-700 rounded transition"
           placeholder="Título do mapa..."
         >
-        <div v-if="saving" class="flex items-center gap-2 text-sm text-gray-400">
+        <div v-if="saving" class="flex items-center gap-2 text-sm text-claude-text-secondary dark:text-gray-400">
           <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <span>Salvando...</span>
         </div>
-        <div v-else-if="lastSaved" class="text-sm text-gray-500">
+        <div v-else-if="lastSaved" class="text-sm text-gray-600 dark:text-gray-500">
           Salvo {{ lastSaved }}
         </div>
       </div>
@@ -33,7 +33,7 @@
       <div class="flex items-center gap-2">
         <button
           @click="addNode"
-          class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition flex items-center gap-2"
+          class="px-4 py-2 bg-primary-600 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-500 transition flex items-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -43,7 +43,7 @@
         <button
           v-if="selectedNode"
           @click="deleteSelectedNode"
-          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition flex items-center gap-2"
+          class="px-4 py-2 bg-red-600 text-claude-text dark:text-white rounded-claude-md hover:bg-red-500 transition flex items-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -56,8 +56,8 @@
     <!-- Loading -->
     <div v-if="loading" class="flex-1 flex items-center justify-center">
       <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-        <p class="text-gray-400">Carregando mapa...</p>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-claude-primary dark:border-primary-500 mx-auto mb-4"></div>
+        <p class="text-claude-text-secondary dark:text-gray-400">Carregando mapa...</p>
       </div>
     </div>
 
@@ -80,8 +80,8 @@
 
         <template #node-custom="{ data }">
           <div
-            :style="{ backgroundColor: data.color || '#3b82f6' }"
-            class="px-4 py-3 rounded-lg shadow-lg border-2 border-white/20 min-w-[150px] cursor-pointer hover:shadow-xl transition"
+            :style="{ backgroundColor: data.color || '#ca643f' }"
+            class="px-4 py-3 rounded-claude-md shadow-lg border-2 border-white/20 min-w-[150px] cursor-pointer hover:shadow-xl transition"
           >
             <div
               v-if="editingNodeId === data.id"
@@ -92,11 +92,11 @@
                 v-model="data.text"
                 @blur="stopEditing"
                 @keyup.enter="stopEditing"
-                class="w-full bg-white/20 text-white font-medium text-center border-none focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-2 py-1"
+                class="w-full bg-white/20 text-claude-text dark:text-white font-medium text-center border-none focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-2 py-1"
                 @click.stop
               >
             </div>
-            <div v-else @dblclick="startEditing(data.id)" class="text-white font-medium text-center">
+            <div v-else @dblclick="startEditing(data.id)" class="text-claude-text dark:text-white font-medium text-center">
               {{ data.text }}
             </div>
           </div>
@@ -106,23 +106,23 @@
       <!-- Panel Lateral (quando nó selecionado) -->
       <div
         v-if="selectedNode"
-        class="absolute right-4 top-4 w-80 bg-dark-800 border border-dark-700 rounded-xl p-6 shadow-2xl"
+        class="absolute right-4 top-4 w-80 bg-dark-800 border border-dark-700 rounded-claude-lg p-6 shadow-2xl"
       >
-        <h3 class="font-bold text-white mb-4">Propriedades do Nó</h3>
+        <h3 class="font-bold text-claude-text dark:text-white mb-4">Propriedades do Nó</h3>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-400 mb-2">Texto</label>
+            <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-400 mb-2">Texto</label>
             <input
               v-model="selectedNode.data.text"
               @input="debouncedSave"
               type="text"
-              class="w-full bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-3 py-2 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-400 mb-2">Cor</label>
+            <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-400 mb-2">Cor</label>
             <div class="grid grid-cols-6 gap-2">
               <button
                 v-for="color in colors"
@@ -130,7 +130,7 @@
                 @click="changeNodeColor(color)"
                 :style="{ backgroundColor: color }"
                 :class="[
-                  'w-8 h-8 rounded-lg border-2 transition',
+                  'w-8 h-8 rounded-claude-md border-2 transition',
                   selectedNode.data.color === color ? 'border-white scale-110' : 'border-transparent'
                 ]"
               ></button>
@@ -140,7 +140,7 @@
           <div>
             <button
               @click="addChildNode"
-              class="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition flex items-center justify-center gap-2"
+              class="w-full py-2 bg-primary-600 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-500 transition flex items-center justify-center gap-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -182,7 +182,7 @@ const nodeInput = ref<HTMLInputElement | null>(null)
 const saveTimeout = ref<any>(null)
 
 const colors = [
-  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
+  '#ca643f', '#8b5cf6', '#ec4899', '#f59e0b',
   '#10b981', '#06b6d4', '#6366f1', '#84cc16',
   '#f97316', '#14b8a6', '#a855f7', '#ef4444'
 ]
@@ -211,7 +211,7 @@ const loadMindmap = async () => {
         data: {
           id: node.id,
           text: node.text,
-          color: node.color || '#3b82f6',
+          color: node.color || '#ca643f',
           parent_id: node.parent_id
         }
       }))
@@ -299,7 +299,7 @@ const addNode = () => {
     data: {
       id: `node-${Date.now()}`,
       text: 'Nova Ideia',
-      color: '#3b82f6',
+      color: '#ca643f',
       parent_id: null
     }
   }

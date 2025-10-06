@@ -6,28 +6,28 @@
         <NuxtLink to="/" class="inline-block text-3xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent mb-6">
           Concurseiro
         </NuxtLink>
-        <h1 class="text-4xl font-bold text-white mb-2">Finalizar Assinatura</h1>
-        <p class="text-gray-400">Complete seus dados para começar</p>
+        <h1 class="text-4xl font-bold text-claude-text dark:text-white mb-2">Finalizar Assinatura</h1>
+        <p class="text-claude-text-secondary dark:text-gray-400">Complete seus dados para começar</p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
         <!-- Formulário -->
         <div class="md:col-span-2">
-          <div class="bg-dark-800 border border-dark-700 rounded-xl p-8">
+          <div class="bg-dark-800 border border-dark-700 rounded-claude-lg p-8">
             <!-- Alerta de Erro -->
-            <div v-if="error" class="mb-6 bg-red-500/10 border border-red-500/50 rounded-lg p-4">
+            <div v-if="error" class="mb-6 bg-red-500/10 border border-red-500/50 rounded-claude-md p-4">
               <p class="text-red-400 text-sm">{{ error }}</p>
             </div>
 
             <!-- Alerta de Sucesso -->
-            <div v-if="success" class="mb-6 bg-green-500/10 border border-green-500/50 rounded-lg p-4">
+            <div v-if="success" class="mb-6 bg-green-500/10 border border-green-500/50 rounded-claude-md p-4">
               <p class="text-green-400 text-sm">{{ success }}</p>
             </div>
 
             <form @submit.prevent="handleSubmit" class="space-y-8">
               <!-- Dados Pessoais -->
               <div>
-                <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 class="text-xl font-semibold text-claude-text dark:text-white mb-4 flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
@@ -35,43 +35,43 @@
                 </h3>
                 <div class="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Nome Completo</label>
                     <input
                       v-model="formData.name"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Seu nome completo"
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Email</label>
                     <input
                       v-model="formData.email"
                       type="email"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="seu@email.com"
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">CPF/CNPJ</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">CPF/CNPJ</label>
                     <input
                       v-model="formData.cpfCnpj"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="000.000.000-00"
                       @input="formatCpfCnpj"
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Telefone</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Telefone</label>
                     <input
                       v-model="formData.phone"
                       type="tel"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="(00) 00000-0000"
                       @input="formatPhone"
                     >
@@ -81,7 +81,7 @@
 
               <!-- Cupom de Desconto -->
               <div>
-                <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 class="text-xl font-semibold text-claude-text dark:text-white mb-4 flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                   </svg>
@@ -92,28 +92,28 @@
                     v-model="couponCode"
                     type="text"
                     placeholder="Digite seu cupom"
-                    class="flex-1 bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white uppercase focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    class="flex-1 bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white uppercase focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                   <button
                     type="button"
                     @click="validateCoupon"
                     :disabled="validatingCoupon || !couponCode"
-                    class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
+                    class="px-6 py-3 bg-primary-600 text-claude-text dark:text-white rounded-claude-md font-semibold hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
                   >
                     {{ validatingCoupon ? 'Validando...' : 'Aplicar' }}
                   </button>
                 </div>
-                <div v-if="couponValid" class="mt-2 bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                <div v-if="couponValid" class="mt-2 bg-green-500/10 border border-green-500/30 rounded-claude-md p-3">
                   <p class="text-green-400 text-sm">✓ Cupom aplicado! Desconto de 20%</p>
                 </div>
-                <div v-if="couponError" class="mt-2 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                <div v-if="couponError" class="mt-2 bg-red-500/10 border border-red-500/30 rounded-claude-md p-3">
                   <p class="text-red-400 text-sm">{{ couponError }}</p>
                 </div>
               </div>
 
               <!-- Endereço -->
               <div>
-                <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 class="text-xl font-semibold text-claude-text dark:text-white mb-4 flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -122,42 +122,42 @@
                 </h3>
                 <div class="grid md:grid-cols-3 gap-4">
                   <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Endereço</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Endereço</label>
                     <input
                       v-model="formData.address"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Rua, Avenida..."
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Número</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Número</label>
                     <input
                       v-model="formData.addressNumber"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="123"
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Bairro</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Bairro</label>
                     <input
                       v-model="formData.province"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Centro"
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">CEP</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">CEP</label>
                     <input
                       v-model="formData.postalCode"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="00000-000"
                       @input="formatCep"
                     >
@@ -167,7 +167,7 @@
 
               <!-- Método de Pagamento (somente se não for trial) -->
               <div v-if="!isProPlan">
-                <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 class="text-xl font-semibold text-claude-text dark:text-white mb-4 flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                   </svg>
@@ -180,10 +180,10 @@
                     type="button"
                     @click="paymentMethod = 'CREDIT_CARD'"
                     :class="[
-                      'flex-1 py-3 rounded-lg font-semibold transition-all',
+                      'flex-1 py-3 rounded-claude-md font-semibold transition-all',
                       paymentMethod === 'CREDIT_CARD'
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                        ? 'bg-primary-600 text-claude-text dark:text-white'
+                        : 'bg-dark-700 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-600'
                     ]"
                   >
                     Cartão de Crédito
@@ -192,10 +192,10 @@
                     type="button"
                     @click="paymentMethod = 'BOLETO'"
                     :class="[
-                      'flex-1 py-3 rounded-lg font-semibold transition-all',
+                      'flex-1 py-3 rounded-claude-md font-semibold transition-all',
                       paymentMethod === 'BOLETO'
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                        ? 'bg-primary-600 text-claude-text dark:text-white'
+                        : 'bg-dark-700 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-600'
                     ]"
                   >
                     Boleto
@@ -204,10 +204,10 @@
                     type="button"
                     @click="paymentMethod = 'PIX'"
                     :class="[
-                      'flex-1 py-3 rounded-lg font-semibold transition-all',
+                      'flex-1 py-3 rounded-claude-md font-semibold transition-all',
                       paymentMethod === 'PIX'
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                        ? 'bg-primary-600 text-claude-text dark:text-white'
+                        : 'bg-dark-700 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-600'
                     ]"
                   >
                     PIX
@@ -217,57 +217,57 @@
                 <!-- Dados do Cartão -->
                 <div v-if="paymentMethod === 'CREDIT_CARD'" class="space-y-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Número do Cartão</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Número do Cartão</label>
                     <input
                       v-model="formData.cardNumber"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="0000 0000 0000 0000"
                       @input="formatCardNumber"
                     >
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Nome no Cartão</label>
+                    <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Nome no Cartão</label>
                     <input
                       v-model="formData.cardHolderName"
                       type="text"
                       required
-                      class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Nome como está no cartão"
                     >
                   </div>
                   <div class="grid grid-cols-3 gap-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-300 mb-2">Mês</label>
+                      <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Mês</label>
                       <input
                         v-model="formData.cardExpiryMonth"
                         type="text"
                         required
                         maxlength="2"
-                        class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="MM"
                       >
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-300 mb-2">Ano</label>
+                      <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Ano</label>
                       <input
                         v-model="formData.cardExpiryYear"
                         type="text"
                         required
                         maxlength="4"
-                        class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="AAAA"
                       >
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-300 mb-2">CVV</label>
+                      <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">CVV</label>
                       <input
                         v-model="formData.cardCvv"
                         type="text"
                         required
                         maxlength="4"
-                        class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        class="w-full bg-dark-700 border border-dark-600 rounded-claude-md px-4 py-3 text-claude-text dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="123"
                       >
                     </div>
@@ -283,9 +283,9 @@
                   required
                   class="mt-1 w-4 h-4 text-primary-600 bg-dark-700 border-dark-600 rounded focus:ring-primary-500"
                 >
-                <label class="text-sm text-gray-400">
-                  Li e aceito os <a href="#" class="text-primary-500 hover:text-primary-400">Termos de Uso</a> e a
-                  <a href="#" class="text-primary-500 hover:text-primary-400">Política de Privacidade</a>
+                <label class="text-sm text-claude-text-secondary dark:text-gray-400">
+                  Li e aceito os <a href="#" class="text-primary-500 hover:text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">Termos de Uso</a> e a
+                  <a href="#" class="text-primary-500 hover:text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">Política de Privacidade</a>
                 </label>
               </div>
 
@@ -293,7 +293,7 @@
               <button
                 type="submit"
                 :disabled="loading"
-                class="w-full py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-lg font-semibold hover:from-primary-500 hover:to-primary-400 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full py-4 bg-gradient-to-r from-primary-600 to-primary-500 text-claude-text dark:text-white rounded-claude-md font-semibold hover:from-primary-500 hover:to-primary-400 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span v-if="loading">Processando...</span>
                 <span v-else-if="isProPlan">Iniciar 14 Dias Grátis</span>
@@ -305,19 +305,19 @@
 
         <!-- Resumo do Pedido -->
         <div class="md:col-span-1">
-          <div class="bg-dark-800 border border-dark-700 rounded-xl p-6 sticky top-8">
-            <h3 class="text-xl font-semibold text-white mb-6">Resumo do Pedido</h3>
+          <div class="bg-dark-800 border border-dark-700 rounded-claude-lg p-6 sticky top-8">
+            <h3 class="text-xl font-semibold text-claude-text dark:text-white mb-6">Resumo do Pedido</h3>
 
             <div v-if="selectedPlan" class="space-y-4">
               <div class="flex justify-between items-start">
                 <div>
-                  <p class="font-semibold text-white">{{ selectedPlan.display_name }}</p>
-                  <p class="text-sm text-gray-400">Cobrança mensal</p>
+                  <p class="font-semibold text-claude-text dark:text-white">{{ selectedPlan.display_name }}</p>
+                  <p class="text-sm text-claude-text-secondary dark:text-gray-400">Cobrança mensal</p>
                 </div>
-                <p class="text-xl font-bold text-white">R$ {{ selectedPlan.price.toFixed(2) }}</p>
+                <p class="text-xl font-bold text-claude-text dark:text-white">R$ {{ selectedPlan.price.toFixed(2) }}</p>
               </div>
 
-              <div v-if="isProPlan" class="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <div v-if="isProPlan" class="bg-green-500/10 border border-green-500/30 rounded-claude-md p-4">
                 <p class="text-green-400 font-semibold text-sm">✨ 14 dias grátis</p>
                 <p class="text-green-300 text-xs mt-1">
                   Você não será cobrado até {{ trialEndDate }}
@@ -326,28 +326,28 @@
 
               <div class="border-t border-dark-600 pt-4">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-gray-400">Subtotal</span>
-                  <span class="text-white">R$ {{ selectedPlan.price.toFixed(2) }}</span>
+                  <span class="text-claude-text-secondary dark:text-gray-400">Subtotal</span>
+                  <span class="text-claude-text dark:text-white">R$ {{ selectedPlan.price.toFixed(2) }}</span>
                 </div>
                 <div v-if="couponValid" class="flex justify-between items-center mb-2">
-                  <span class="text-gray-400">Desconto (Cupom 20%)</span>
+                  <span class="text-claude-text-secondary dark:text-gray-400">Desconto (Cupom 20%)</span>
                   <span class="text-green-400">- R$ {{ (selectedPlan.price * 0.20).toFixed(2) }}</span>
                 </div>
                 <div v-if="isProPlan" class="flex justify-between items-center mb-2">
-                  <span class="text-gray-400">Desconto (Trial)</span>
+                  <span class="text-claude-text-secondary dark:text-gray-400">Desconto (Trial)</span>
                   <span class="text-green-400">- R$ {{ finalPrice.toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between items-center text-lg font-bold pt-2 border-t border-dark-600">
-                  <span class="text-white">Total hoje</span>
+                  <span class="text-claude-text dark:text-white">Total hoje</span>
                   <span class="text-primary-500">{{ isProPlan ? 'R$ 0,00' : `R$ ${finalPrice.toFixed(2)}` }}</span>
                 </div>
               </div>
 
               <!-- Recursos Incluídos -->
               <div class="border-t border-dark-600 pt-4">
-                <p class="text-sm font-semibold text-white mb-3">Recursos incluídos:</p>
+                <p class="text-sm font-semibold text-claude-text dark:text-white mb-3">Recursos incluídos:</p>
                 <ul class="space-y-2">
-                  <li v-for="feature in selectedPlan.features.slice(0, 5)" :key="feature" class="flex items-start gap-2 text-sm text-gray-400">
+                  <li v-for="feature in selectedPlan.features.slice(0, 5)" :key="feature" class="flex items-start gap-2 text-sm text-claude-text-secondary dark:text-gray-400">
                     <svg class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
@@ -361,7 +361,7 @@
 
               <!-- Segurança -->
               <div class="border-t border-dark-600 pt-4">
-                <div class="flex items-center gap-2 text-sm text-gray-400">
+                <div class="flex items-center gap-2 text-sm text-claude-text-secondary dark:text-gray-400">
                   <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                   </svg>
@@ -370,7 +370,7 @@
               </div>
             </div>
 
-            <div v-else class="text-center text-gray-400 py-8">
+            <div v-else class="text-center text-claude-text-secondary dark:text-gray-400 py-8">
               Carregando plano...
             </div>
           </div>

@@ -1,20 +1,20 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+  <div class="min-h-screen bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
 
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Filtro de Período -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6 mb-6">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 mb-6">
         <div class="flex items-center gap-4 flex-wrap">
           <button
             v-for="period in periods"
             :key="period.value"
             @click="selectedPeriod = period.value"
             :class="[
-              'px-4 py-2 rounded-lg font-medium transition',
+              'px-4 py-2 rounded-claude-md font-medium transition',
               selectedPeriod === period.value
                 ? 'bg-primary-500 text-white'
-                : 'bg-dark-700 text-gray-400 hover:text-white'
+                : 'bg-dark-700 text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white'
             ]"
           >
             {{ period.label }}
@@ -24,69 +24,69 @@
 
       <!-- Cards de Estatísticas Gerais -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-400 text-sm">Tempo Total</span>
-            <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="text-claude-text-secondary dark:text-gray-400 text-sm">Tempo Total</span>
+            <div class="w-10 h-10 bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md flex items-center justify-center">
+              <svg class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold text-white mb-1">{{ stats.totalHours }}</div>
-          <div class="text-xs text-gray-500">{{ stats.totalMinutes }} minutos</div>
+          <div class="text-3xl font-bold text-claude-text dark:text-white mb-1">{{ stats.totalHours }}</div>
+          <div class="text-xs text-gray-600 dark:text-gray-500">{{ stats.totalMinutes }} minutos</div>
         </div>
 
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-400 text-sm">Média Diária</span>
-            <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+            <span class="text-claude-text-secondary dark:text-gray-400 text-sm">Média Diária</span>
+            <div class="w-10 h-10 bg-green-500/20 rounded-claude-md flex items-center justify-center">
               <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold text-white mb-1">{{ stats.dailyAverage }}</div>
-          <div class="text-xs text-gray-500">horas por dia</div>
+          <div class="text-3xl font-bold text-claude-text dark:text-white mb-1">{{ stats.dailyAverage }}</div>
+          <div class="text-xs text-gray-600 dark:text-gray-500">horas por dia</div>
         </div>
 
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-400 text-sm">Total de Questões</span>
-            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="text-claude-text-secondary dark:text-gray-400 text-sm">Total de Questões</span>
+            <div class="w-10 h-10 bg-[var(--info)]/20 dark:bg-blue-500/20 rounded-claude-md flex items-center justify-center">
+              <svg class="w-5 h-5 text-[var(--info)] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold text-white mb-1">{{ stats.totalQuestions }}</div>
-          <div class="text-xs text-gray-500">questões resolvidas</div>
+          <div class="text-3xl font-bold text-claude-text dark:text-white mb-1">{{ stats.totalQuestions }}</div>
+          <div class="text-xs text-gray-600 dark:text-gray-500">questões resolvidas</div>
         </div>
 
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-gray-400 text-sm">Taxa de Acerto</span>
-            <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+            <span class="text-claude-text-secondary dark:text-gray-400 text-sm">Taxa de Acerto</span>
+            <div class="w-10 h-10 bg-yellow-500/20 rounded-claude-md flex items-center justify-center">
               <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
               </svg>
             </div>
           </div>
-          <div class="text-3xl font-bold text-white mb-1">{{ stats.successRate }}%</div>
-          <div class="text-xs text-gray-500">média geral</div>
+          <div class="text-3xl font-bold text-claude-text dark:text-white mb-1">{{ stats.successRate }}%</div>
+          <div class="text-xs text-gray-600 dark:text-gray-500">média geral</div>
         </div>
       </div>
 
       <!-- Tempo por Matéria -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6 mb-6">
-        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-claude-text dark:text-white mb-6 flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
           </svg>
           Tempo por Matéria
         </h2>
 
-        <div v-if="bySubject.length === 0" class="text-center py-8 text-gray-400">
+        <div v-if="bySubject.length === 0" class="text-center py-8 text-claude-text-secondary dark:text-gray-400">
           Nenhum dado disponível para o período selecionado
         </div>
 
@@ -94,7 +94,7 @@
           <div
             v-for="item in bySubject"
             :key="item.subject"
-            class="bg-dark-900 border border-dark-700 rounded-lg p-4"
+            class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4"
           >
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-3">
@@ -102,11 +102,11 @@
                   class="w-4 h-4 rounded-full"
                   :style="{ backgroundColor: item.color || '#22C55E' }"
                 ></div>
-                <span class="font-medium text-white">{{ item.subject }}</span>
+                <span class="font-medium text-claude-text dark:text-white">{{ item.subject }}</span>
               </div>
               <div class="text-right">
-                <div class="text-lg font-bold text-primary-400">{{ formatHours(item.minutes) }}</div>
-                <div class="text-xs text-gray-500">{{ item.sessions }} sessões</div>
+                <div class="text-lg font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">{{ formatHours(item.minutes) }}</div>
+                <div class="text-xs text-gray-600 dark:text-gray-500">{{ item.sessions }} sessões</div>
               </div>
             </div>
 
@@ -122,15 +122,15 @@
       </div>
 
       <!-- Desempenho em Questões -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6 mb-6">
-        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-claude-text dark:text-white mb-6 flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
           </svg>
           Desempenho em Questões por Matéria
         </h2>
 
-        <div v-if="questionsBySubject.length === 0" class="text-center py-8 text-gray-400">
+        <div v-if="questionsBySubject.length === 0" class="text-center py-8 text-claude-text-secondary dark:text-gray-400">
           Nenhuma questão resolvida no período selecionado
         </div>
 
@@ -138,7 +138,7 @@
           <div
             v-for="item in questionsBySubject"
             :key="item.subject"
-            class="bg-dark-900 border border-dark-700 rounded-lg p-4"
+            class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-4"
           >
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-3">
@@ -146,7 +146,7 @@
                   class="w-4 h-4 rounded-full"
                   :style="{ backgroundColor: item.color || '#22C55E' }"
                 ></div>
-                <span class="font-medium text-white">{{ item.subject }}</span>
+                <span class="font-medium text-claude-text dark:text-white">{{ item.subject }}</span>
               </div>
               <div class="text-2xl font-bold" :class="item.rate >= 70 ? 'text-green-400' : item.rate >= 50 ? 'text-yellow-400' : 'text-red-400'">
                 {{ item.rate }}%
@@ -155,15 +155,15 @@
 
             <div class="grid grid-cols-3 gap-3 text-sm">
               <div class="bg-dark-800 rounded p-2">
-                <div class="text-xs text-gray-400">Total</div>
-                <div class="font-semibold text-white">{{ item.total }}</div>
+                <div class="text-xs text-claude-text-secondary dark:text-gray-400">Total</div>
+                <div class="font-semibold text-claude-text dark:text-white">{{ item.total }}</div>
               </div>
               <div class="bg-dark-800 rounded p-2">
-                <div class="text-xs text-gray-400">Acertos</div>
+                <div class="text-xs text-claude-text-secondary dark:text-gray-400">Acertos</div>
                 <div class="font-semibold text-green-400">{{ item.correct }}</div>
               </div>
               <div class="bg-dark-800 rounded p-2">
-                <div class="text-xs text-gray-400">Erros</div>
+                <div class="text-xs text-claude-text-secondary dark:text-gray-400">Erros</div>
                 <div class="font-semibold text-red-400">{{ item.wrong }}</div>
               </div>
             </div>
@@ -173,22 +173,22 @@
 
       <!-- Tipos de Estudo -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
-          <h3 class="text-lg font-semibold text-white mb-4">📖 Conteúdo</h3>
-          <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(studyTypes.conteudo) }}</div>
-          <div class="text-sm text-gray-400">{{ studyTypes.conteudoSessions }} sessões</div>
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
+          <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-4">📖 Conteúdo</h3>
+          <div class="text-4xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors mb-2">{{ formatHours(studyTypes.conteudo) }}</div>
+          <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ studyTypes.conteudoSessions }} sessões</div>
         </div>
 
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
-          <h3 class="text-lg font-semibold text-white mb-4">📝 Questões</h3>
-          <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(studyTypes.questoes) }}</div>
-          <div class="text-sm text-gray-400">{{ studyTypes.questoesSessions }} sessões</div>
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
+          <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-4">📝 Questões</h3>
+          <div class="text-4xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors mb-2">{{ formatHours(studyTypes.questoes) }}</div>
+          <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ studyTypes.questoesSessions }} sessões</div>
         </div>
 
-        <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6">
-          <h3 class="text-lg font-semibold text-white mb-4">🔄 Revisão</h3>
-          <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(studyTypes.revisao) }}</div>
-          <div class="text-sm text-gray-400">{{ studyTypes.revisaoSessions }} sessões</div>
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
+          <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-4">🔄 Revisão</h3>
+          <div class="text-4xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors mb-2">{{ formatHours(studyTypes.revisao) }}</div>
+          <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ studyTypes.revisaoSessions }} sessões</div>
         </div>
       </div>
     </main>

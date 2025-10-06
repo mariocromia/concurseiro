@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-lg shadow-xl p-8">
+    <div class="max-w-md w-full bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-md shadow-xl p-8">
       <div class="text-center mb-8">
         <div class="flex items-center justify-center gap-2 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg"></div>
-          <span class="text-2xl font-bold text-white">Concurseiro</span>
+          <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-claude-md"></div>
+          <span class="text-2xl font-bold text-claude-text dark:text-white">Concurseiro</span>
         </div>
-        <h1 class="text-3xl font-bold text-white mb-2">Criar conta grátis</h1>
-        <p class="text-gray-400">Comece a estudar de forma inteligente</p>
+        <h1 class="text-3xl font-bold text-claude-text dark:text-white mb-2">Criar conta grátis</h1>
+        <p class="text-claude-text-secondary dark:text-gray-400">Comece a estudar de forma inteligente</p>
       </div>
 
       <!-- Registro com Google - Temporariamente desabilitado -->
@@ -15,7 +15,7 @@
       <button
         @click="handleGoogleSignup"
         :disabled="loading"
-        class="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-300 rounded-claude-md font-semibold hover:bg-gray-50 transition mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24">
           <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -31,25 +31,25 @@
           <div class="w-full border-t border-gray-300"></div>
         </div>
         <div class="relative flex justify-center text-sm">
-          <span class="px-2 bg-white text-gray-500">Ou cadastre-se com email</span>
+          <span class="px-2 bg-white text-gray-600 dark:text-gray-500">Ou cadastre-se com email</span>
         </div>
       </div>
       -->
 
       <!-- Mensagem de sucesso -->
-      <div v-if="success" class="mb-4 p-3 bg-primary-500/10 border border-primary-500/50 rounded-lg text-primary-400 text-sm">
+      <div v-if="success" class="mb-4 p-3 bg-primary-500/10 border border-claude-primary dark:border-primary-500/50 rounded-claude-md text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors text-sm">
         Conta criada com sucesso! Verifique seu email para confirmar.
       </div>
 
       <!-- Mensagem de erro -->
-      <div v-if="error" class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
+      <div v-if="error" class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-claude-md text-red-400 text-sm">
         {{ error }}
       </div>
 
       <!-- Formulário de registro -->
       <form @submit.prevent="handleEmailSignup" class="space-y-4">
         <div>
-          <label for="fullName" class="block text-sm font-medium text-gray-300 mb-1">
+          <label for="fullName" class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-1">
             Nome completo
           </label>
           <input
@@ -57,13 +57,13 @@
             v-model="fullName"
             type="text"
             required
-            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-claude-md text-claude-text dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="João Silva"
           />
         </div>
 
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-300 mb-1">
+          <label for="email" class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-1">
             Email
           </label>
           <input
@@ -71,13 +71,13 @@
             v-model="email"
             type="email"
             required
-            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-claude-md text-claude-text dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="seu@email.com"
           />
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-300 mb-1">
+          <label for="password" class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-1">
             Senha
           </label>
           <input
@@ -86,14 +86,14 @@
             type="password"
             required
             minlength="6"
-            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-claude-md text-claude-text dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="••••••••"
           />
-          <p class="mt-1 text-xs text-gray-500">Mínimo de 6 caracteres</p>
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-500">Mínimo de 6 caracteres</p>
         </div>
 
         <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-1">
+          <label for="confirmPassword" class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-1">
             Confirmar senha
           </label>
           <input
@@ -101,7 +101,7 @@
             v-model="confirmPassword"
             type="password"
             required
-            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-claude-md text-claude-text dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder="••••••••"
           />
         </div>
@@ -113,26 +113,26 @@
             required
             class="mt-1 rounded border-dark-700 bg-dark-900/50 text-primary-600 focus:ring-primary-500"
           />
-          <span class="ml-2 text-sm text-gray-400">
+          <span class="ml-2 text-sm text-claude-text-secondary dark:text-gray-400">
             Concordo com os
-            <a href="#" class="text-primary-400 hover:text-primary-300">Termos de Uso</a>
+            <a href="#" class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300">Termos de Uso</a>
             e
-            <a href="#" class="text-primary-400 hover:text-primary-300">Política de Privacidade</a>
+            <a href="#" class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300">Política de Privacidade</a>
           </span>
         </label>
 
         <button
           type="submit"
           :disabled="loading || !agreedToTerms"
-          class="w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-semibold hover:from-primary-600 hover:to-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full px-4 py-3 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-claude-text dark:text-white rounded-claude-md font-semibold hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ loading ? 'Criando conta...' : 'Criar conta grátis' }}
         </button>
       </form>
 
-      <p class="mt-6 text-center text-sm text-gray-400">
+      <p class="mt-6 text-center text-sm text-claude-text-secondary dark:text-gray-400">
         Já tem uma conta?
-        <NuxtLink to="/login" class="text-primary-400 hover:text-primary-300 font-semibold">
+        <NuxtLink to="/login" class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300 font-semibold">
           Faça login
         </NuxtLink>
       </p>

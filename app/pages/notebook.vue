@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+  <div class="min-h-screen bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
 
 
     <!-- Overlay for search (clicável para fechar) -->
@@ -34,7 +34,7 @@
               <div class="flex-1">
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
@@ -44,7 +44,7 @@
                     @input="performInlineSearch"
                     type="text"
                     placeholder="Digite para buscar... (use + para múltiplos termos: dia+lindo)"
-                    class="w-full pl-12 pr-4 py-3.5 bg-dark-800 border-2 border-dark-600 text-white text-base placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    class="w-full pl-12 pr-4 py-3.5 bg-dark-800 border-2 border-dark-600 text-claude-text dark:text-white text-base placeholder-gray-500 rounded-claude-lg focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 transition-all"
                     autofocus
                   />
                 </div>
@@ -53,7 +53,7 @@
               <!-- Close/Clear Button -->
               <button
                 @click.stop="inlineSearchQuery ? (inlineSearchQuery = '', inlineResults = []) : (showInlineSearch = false)"
-                class="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-dark-700 rounded-lg transition-colors"
+                class="flex-shrink-0 p-2 text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white hover:bg-dark-700 rounded-claude-md transition-colors"
                 :title="inlineSearchQuery ? 'Limpar busca' : 'Fechar busca'"
               >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,10 +69,10 @@
                 :key="filter.value"
                 @click="toggleInlineFilter(filter.value)"
                 :class="[
-                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                  'px-3 py-1.5 rounded-claude-md text-sm font-medium transition-all',
                   activeInlineFilters.includes(filter.value)
                     ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/50'
-                    : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white'
+                    : 'bg-dark-800 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-700 hover:text-claude-text dark:text-white'
                 ]"
               >
                 {{ filter.icon }} {{ filter.label }}
@@ -86,20 +86,20 @@
           <div class="max-w-4xl mx-auto px-6 py-6">
 
           <!-- Initial State -->
-          <div v-if="!inlineSearchQuery && !searchingInline" class="text-center py-12 text-gray-500">
+          <div v-if="!inlineSearchQuery && !searchingInline" class="text-center py-12 text-gray-600 dark:text-gray-500">
             <div class="text-6xl mb-4">🔍</div>
-            <p class="text-lg font-medium text-white">Buscar nos Cadernos</p>
+            <p class="text-lg font-medium text-claude-text dark:text-white">Buscar nos Cadernos</p>
             <p class="text-sm mt-2">Digite acima para buscar em cadernos, capítulos, conteúdos e lembretes</p>
           </div>
 
           <!-- Loading -->
           <div v-else-if="searchingInline" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
-            <p class="text-gray-400 mt-4">Buscando...</p>
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-claude-primary dark:border-primary-500"></div>
+            <p class="text-claude-text-secondary dark:text-gray-400 mt-4">Buscando...</p>
           </div>
 
           <!-- No Results -->
-          <div v-else-if="inlineSearchQuery && inlineResults.length === 0" class="text-center py-12 text-gray-500">
+          <div v-else-if="inlineSearchQuery && inlineResults.length === 0" class="text-center py-12 text-gray-600 dark:text-gray-500">
             <div class="text-6xl mb-4">🔍</div>
             <p class="text-lg font-medium">Nenhum resultado encontrado</p>
             <p class="text-sm mt-2">Tente buscar por outros termos</p>
@@ -107,32 +107,32 @@
 
           <!-- Results -->
           <div v-else-if="inlineResults.length > 0" class="space-y-5">
-            <div class="text-sm text-gray-400 mb-4">
-              <span class="font-medium text-white">{{ inlineResults.length }}</span> resultado(s) encontrado(s)
+            <div class="text-sm text-claude-text-secondary dark:text-gray-400 mb-4">
+              <span class="font-medium text-claude-text dark:text-white">{{ inlineResults.length }}</span> resultado(s) encontrado(s)
             </div>
 
             <div
               v-for="result in inlineResults"
               :key="result.id"
               @click="handleInlineResultClick(result)"
-              class="group cursor-pointer p-4 rounded-xl bg-dark-800/50 hover:bg-dark-700/70 border border-dark-600 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10"
+              class="group cursor-pointer p-4 rounded-claude-lg bg-dark-800/50 hover:bg-dark-700/70 border border-dark-600 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10"
             >
               <!-- Title -->
               <h3 class="text-lg mb-1.5">
-                <span class="text-primary-400" v-html="getSubjectNameInline(result)"></span>
-                <span v-if="getChapterNameInline(result)" class="text-primary-400"> › </span>
-                <span v-if="getChapterNameInline(result)" class="text-primary-400" v-html="getChapterNameInline(result)"></span>
+                <span class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" v-html="getSubjectNameInline(result)"></span>
+                <span v-if="getChapterNameInline(result)" class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors"> › </span>
+                <span v-if="getChapterNameInline(result)" class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" v-html="getChapterNameInline(result)"></span>
               </h3>
 
               <!-- Meta -->
               <div class="flex items-center gap-3 text-xs mb-2">
                 <span class="text-green-600">{{ formatDateInline(result.date) }}</span>
-                <span v-if="result.matchCount > 1" class="text-gray-500">•</span>
-                <span v-if="result.matchCount > 1" class="text-gray-400">{{ result.matchCount }} ocorrência(s)</span>
+                <span v-if="result.matchCount > 1" class="text-gray-600 dark:text-gray-500">•</span>
+                <span v-if="result.matchCount > 1" class="text-claude-text-secondary dark:text-gray-400">{{ result.matchCount }} ocorrência(s)</span>
               </div>
 
               <!-- Snippet -->
-              <div class="text-sm text-gray-400 leading-relaxed" v-html="highlightTextInline(result.snippet)"></div>
+              <div class="text-sm text-claude-text-secondary dark:text-gray-400 leading-relaxed" v-html="highlightTextInline(result.snippet)"></div>
             </div>
           </div>
           </div>
@@ -147,13 +147,13 @@
         <!-- Sidebar Header -->
         <div class="p-4 border-b border-dark-700/50 bg-dark-800/30">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Meus Cadernos</h3>
+            <h3 class="text-sm font-semibold text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Meus Cadernos</h3>
             <button
               @click="showSubjectForm = !showSubjectForm"
               class="p-1 hover:bg-dark-700 rounded transition-colors"
               title="Adicionar caderno"
             >
-              <svg class="w-5 h-5 text-gray-400 hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-claude-text-secondary dark:text-gray-400 hover:text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
             </button>
@@ -174,21 +174,21 @@
                   v-model="subjectForm.name"
                   type="text"
                   placeholder="Nome do caderno..."
-                  class="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-700 text-white placeholder-gray-600 rounded focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  class="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-700 text-claude-text dark:text-white placeholder-gray-600 rounded focus:ring-1 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
                   required
                 />
                 <div class="flex gap-1.5">
                   <button
                     type="submit"
                     :disabled="loading"
-                    class="flex-1 px-3 py-1.5 text-sm bg-primary-500/20 border border-primary-500/30 text-primary-400 rounded hover:bg-primary-500/30 disabled:opacity-50 font-medium transition-all"
+                    class="flex-1 px-3 py-1.5 text-sm bg-claude-primary/20 dark:bg-primary-500/20 border border-claude-primary dark:border-primary-500/30 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors rounded hover:bg-primary-500/30 disabled:opacity-50 font-medium transition-all"
                   >
                     Criar
                   </button>
                   <button
                     type="button"
                     @click="cancelSubjectForm"
-                    class="px-3 py-1.5 text-sm border border-dark-700 text-gray-500 rounded hover:bg-dark-700 transition-all"
+                    class="px-3 py-1.5 text-sm border border-dark-700 text-gray-600 dark:text-gray-500 rounded hover:bg-dark-700 transition-all"
                   >
                     ✕
                   </button>
@@ -204,10 +204,10 @@
             <svg class="w-12 h-12 text-gray-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
             </svg>
-            <p class="text-sm text-gray-500 mb-2">Nenhum caderno</p>
+            <p class="text-sm text-gray-600 dark:text-gray-500 mb-2">Nenhum caderno</p>
             <button
               @click="showSubjectForm = true"
-              class="text-sm text-primary-400 hover:text-primary-300 transition-colors"
+              class="text-sm text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300 transition-colors"
             >
               Criar primeiro caderno
             </button>
@@ -218,7 +218,7 @@
             @end="onSubjectDragEnd"
             item-key="id"
             handle=".drag-handle"
-            ghost-class="opacity-50 bg-primary-500/20"
+            ghost-class="opacity-50 bg-claude-primary/20 dark:bg-primary-500/20"
             chosen-class="shadow-lg shadow-primary-500/50 scale-105"
             drag-class="opacity-0"
             class="space-y-1"
@@ -227,12 +227,12 @@
               <div class="mb-0.5">
                 <div
                   class="flex items-center justify-between px-3 py-2 rounded hover:bg-dark-800/50 transition-colors group"
-                  :class="{ 'bg-dark-800/70 border-l-2 border-primary-500': selectedSubject?.id === subject.id }"
+                  :class="{ 'bg-dark-800/70 border-l-2 border-claude-primary dark:border-primary-500': selectedSubject?.id === subject.id }"
                 >
                   <div class="flex items-center space-x-1.5 flex-1 min-w-0">
                     <!-- Drag Handle -->
                     <svg
-                      class="w-4 h-4 text-gray-700 hover:text-gray-500 cursor-move drag-handle flex-shrink-0"
+                      class="w-4 h-4 text-gray-700 hover:text-gray-600 dark:text-gray-500 cursor-move drag-handle flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       title="Arrastar"
@@ -259,14 +259,14 @@
                       @keyup.enter="saveSubjectEdit(subject.id)"
                       @keyup.esc="cancelSubjectEdit"
                       :data-subject-id="subject.id"
-                      class="subject-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-primary-500 text-white rounded focus:outline-none"
+                      class="subject-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-claude-primary dark:border-primary-500 text-claude-text dark:text-white rounded focus:outline-none"
                       @click.stop
                     />
                     <span
                       v-else
                       @click.stop="toggleSubject(subject.id)"
                       @dblclick.stop="startEditSubject(subject)"
-                      class="text-sm font-medium text-gray-300 cursor-pointer hover:text-white transition-colors flex-1 truncate"
+                      class="text-sm font-medium text-claude-text-secondary dark:text-gray-300 cursor-pointer hover:text-claude-text dark:text-white transition-colors flex-1 truncate"
                       title="Duplo clique para editar"
                     >
                       {{ subject.name }}
@@ -276,10 +276,10 @@
                   <div class="flex items-center space-x-0.5 flex-shrink-0">
                     <button
                       @click.stop="openChapterMenu(subject)"
-                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
+                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-claude-primary/20 dark:bg-primary-500/20 rounded transition-all"
                       title="Adicionar capítulo"
                     >
-                      <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                       </svg>
                     </button>
@@ -306,22 +306,22 @@
                     @end="onChapterDragEnd"
                     item-key="id"
                     handle=".chapter-drag-handle"
-                    ghost-class="opacity-50 bg-primary-500/20"
+                    ghost-class="opacity-50 bg-claude-primary/20 dark:bg-primary-500/20"
                     chosen-class="shadow-lg shadow-primary-500/50 scale-105"
                     drag-class="opacity-0"
                     class="space-y-1"
                   >
                     <template #item="{ element: chapter }">
                       <div
-                        class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-dark-700/50 transition-colors group relative"
-                        :class="{ 'bg-primary-500/20 border border-primary-500/50': selectedChapter?.id === chapter.id }"
+                        class="flex items-center justify-between p-2 rounded-claude-md cursor-pointer hover:bg-dark-700/50 transition-colors group relative"
+                        :class="{ 'bg-claude-primary/20 dark:bg-primary-500/20 border border-claude-primary dark:border-primary-500/50': selectedChapter?.id === chapter.id }"
                       >
                         <!-- Connection Dot / Drag Icon -->
                         <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10">
                           <!-- Bolinha (visível por padrão) -->
                           <div class="w-2 h-2 rounded-full bg-primary-400 border-2 border-dark-800 group-hover:hidden"></div>
                           <!-- Ícone de arrastar (visível no hover) -->
-                          <svg class="hidden group-hover:block chapter-drag-handle cursor-move w-4 h-4 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                          <svg class="hidden group-hover:block chapter-drag-handle cursor-move w-4 h-4 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"></path>
                           </svg>
                         </div>
@@ -334,14 +334,14 @@
                             @keydown.enter="(e) => { e.preventDefault(); handleChapterEnter(chapter.id); }"
                             @keydown.esc="handleChapterEsc(chapter.id)"
                             :data-chapter-id="chapter.id"
-                            class="chapter-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-primary-500 text-white rounded focus:outline-none"
+                            class="chapter-edit-input flex-1 px-2 py-1 text-sm bg-dark-900 border border-claude-primary dark:border-primary-500 text-claude-text dark:text-white rounded focus:outline-none"
                             @click.stop
                           />
                           <span
                             v-else
                             @click.stop="selectChapter(chapter)"
                             @dblclick.stop="startEditChapter(chapter)"
-                            class="text-sm text-gray-300 cursor-pointer hover:text-primary-400 transition-colors flex-1"
+                            class="text-sm text-claude-text-secondary dark:text-gray-300 cursor-pointer hover:text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors transition-colors flex-1"
                             title="Duplo clique para editar"
                           >
                             {{ chapter.title }}
@@ -377,7 +377,7 @@
                   <!-- Add Chapter Button -->
                   <button
                     @click.stop="openChapterForm(subject)"
-                    class="w-full text-left p-2 pl-8 text-sm text-primary-400 hover:bg-dark-700/50 rounded-lg transition-colors flex items-center space-x-1"
+                    class="w-full text-left p-2 pl-8 text-sm text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:bg-dark-700/50 rounded-claude-md transition-colors flex items-center space-x-1"
                   >
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -394,7 +394,7 @@
       <!-- Main Content Area -->
       <main class="flex-1 overflow-y-auto">
         <!-- Debug Info -->
-        <div v-if="false" class="p-4 bg-red-900 text-white text-xs font-mono">
+        <div v-if="false" class="p-4 bg-red-900 text-claude-text dark:text-white text-xs font-mono">
           <div>✅ selectedChapter: {{ selectedChapter?.title || 'NULL' }}</div>
           <div>✅ selectedChapter ID: {{ selectedChapter?.id || 'NULL' }}</div>
           <div>✅ selectedSubject: {{ selectedSubject?.name || 'NULL' }}</div>
@@ -407,14 +407,14 @@
           <div class="mb-6">
             <div class="flex items-start justify-between">
               <div>
-                <div class="text-sm text-primary-400 font-medium mb-1 flex items-center space-x-2">
+                <div class="text-sm text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-medium mb-1 flex items-center space-x-2">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                   </svg>
                   <span>Central de Estudos</span>
                 </div>
-                <h2 class="text-3xl font-bold text-white mb-2">Notícias</h2>
-                <p class="text-sm text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
+                <h2 class="text-3xl font-bold text-claude-text dark:text-white mb-2">Notícias</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-500">Fique por dentro das principais notícias sobre educação e concursos públicos</p>
               </div>
             </div>
 
@@ -422,7 +422,7 @@
             <div class="mt-4 flex items-center justify-end">
               <button
                 @click="showInlineSearch = true"
-                class="px-3 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
+                class="px-3 py-2 bg-dark-800 border border-dark-600 text-claude-text dark:text-white rounded-claude-md hover:bg-dark-700 transition-colors flex items-center space-x-2"
                 title="Buscar nos cadernos"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,8 +435,8 @@
 
           <!-- Loading News -->
           <div v-if="loadingNews" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
-            <p class="text-gray-400 mt-4">Carregando notícias...</p>
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-claude-primary dark:border-primary-500"></div>
+            <p class="text-claude-text-secondary dark:text-gray-400 mt-4">Carregando notícias...</p>
           </div>
 
           <!-- News Cards Grid -->
@@ -444,16 +444,16 @@
             <div
               v-for="newsItem in concursosNews.slice(0, 6)"
               :key="newsItem.id"
-              class="bg-dark-800/50 border border-dark-600 rounded-xl p-6 hover:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10 cursor-pointer"
+              class="bg-dark-800/50 border border-dark-600 rounded-claude-lg p-6 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition-all hover:shadow-lg hover:shadow-primary-500/10 cursor-pointer"
             >
               <div class="mb-4">
-                <svg class="w-12 h-12 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-12 h-12 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-white mb-2">{{ newsItem.title }}</h3>
-              <p class="text-gray-400 text-sm mb-4">{{ newsItem.description }}</p>
-              <div class="text-sm text-primary-400 flex items-center space-x-1">
+              <h3 class="text-xl font-bold text-claude-text dark:text-white mb-2">{{ newsItem.title }}</h3>
+              <p class="text-claude-text-secondary dark:text-gray-400 text-sm mb-4">{{ newsItem.description }}</p>
+              <div class="text-sm text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors flex items-center space-x-1">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
@@ -463,18 +463,18 @@
           </div>
 
           <!-- Call to Action -->
-          <div class="mt-8 p-8 bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-primary-500/30 rounded-xl">
+          <div class="mt-8 p-8 bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-claude-primary dark:border-primary-500/30 rounded-claude-lg">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-xl font-bold text-white mb-1 flex items-center space-x-2">
-                  <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-xl font-bold text-claude-text dark:text-white mb-1 flex items-center space-x-2">
+                  <svg class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                   </svg>
                   <span>Comece a Estudar</span>
                 </h3>
-                <p class="text-gray-400 text-sm">Selecione um caderno ao lado para começar seus estudos</p>
+                <p class="text-claude-text-secondary dark:text-gray-400 text-sm">Selecione um caderno ao lado para começar seus estudos</p>
               </div>
-              <div class="flex items-center gap-4 text-sm text-gray-500">
+              <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-500">
                 <span>← Criar ou selecionar caderno</span>
               </div>
             </div>
@@ -485,9 +485,9 @@
         <div v-else-if="selectedChapter" class="p-8 max-w-7xl ml-0 mr-auto">
           <div class="mb-6 flex items-start justify-between">
             <div>
-              <div class="text-sm text-primary-400 font-medium mb-1">{{ selectedSubject?.name }}</div>
-              <h2 class="text-3xl font-bold text-white mb-2">{{ selectedChapter.title }}</h2>
-              <p class="text-sm text-gray-500">Última atualização: {{ formatDate(selectedChapter.updated_at || selectedChapter.created_at) }}</p>
+              <div class="text-sm text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-medium mb-1">{{ selectedSubject?.name }}</div>
+              <h2 class="text-3xl font-bold text-claude-text dark:text-white mb-2">{{ selectedChapter.title }}</h2>
+              <p class="text-sm text-gray-600 dark:text-gray-500">Última atualização: {{ formatDate(selectedChapter.updated_at || selectedChapter.created_at) }}</p>
             </div>
           </div>
 
@@ -496,7 +496,7 @@
             <!-- Search Button -->
             <button
               @click="showInlineSearch = true"
-              class="px-3 py-2 bg-dark-800 border border-dark-600 text-white rounded-lg hover:bg-dark-700 transition-colors flex items-center space-x-2"
+              class="px-3 py-2 bg-dark-800 border border-dark-600 text-claude-text dark:text-white rounded-claude-md hover:bg-dark-700 transition-colors flex items-center space-x-2"
               title="Buscar nos cadernos"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,10 +508,10 @@
             <button
               @click="toggleAutosave"
               :class="[
-                'px-3 py-2 rounded-lg transition-all font-medium flex items-center space-x-2 text-sm',
+                'px-3 py-2 rounded-claude-md transition-all font-medium flex items-center space-x-2 text-sm',
                 autoSaveEnabled
                   ? 'bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30'
-                  : 'bg-dark-800 border border-dark-600 text-gray-400 hover:bg-dark-700'
+                  : 'bg-dark-800 border border-dark-600 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-700'
               ]"
               :title="autoSaveEnabled ? 'Autosave ativado' : 'Autosave desativado'"
             >
@@ -524,7 +524,7 @@
               v-if="!autoSaveEnabled"
               @click="saveChapterContent"
               :disabled="saving"
-              class="px-4 py-2 bg-primary-500/20 border border-primary-500/30 text-primary-300 rounded-lg hover:bg-primary-500/30 hover:border-primary-500/50 transition-all font-medium disabled:opacity-50 flex items-center space-x-2"
+              class="px-4 py-2 bg-claude-primary/20 dark:bg-primary-500/20 border border-claude-primary/30 text-primary-300 rounded-claude-md hover:bg-primary-500/30 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition-all font-medium disabled:opacity-50 flex items-center space-x-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
@@ -536,7 +536,7 @@
             <button
               v-if="selectedChapter"
               @click="exportToPDF"
-              class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
+              class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-claude-md hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
               title="Exportar capítulo para PDF"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -603,18 +603,18 @@
         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm"
         @click.self="cancelChapterForm"
       >
-        <div class="bg-dark-800 border border-dark-700 rounded-xl shadow-2xl w-full max-w-md" @click.stop>
+        <div class="bg-dark-800 border border-dark-700 rounded-claude-lg shadow-2xl w-full max-w-md" @click.stop>
           <div class="p-6">
-            <h3 class="text-lg font-bold text-white mb-4">Novo Capítulo</h3>
+            <h3 class="text-lg font-bold text-claude-text dark:text-white mb-4">Novo Capítulo</h3>
             <form @submit.prevent="createChapter" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Título do capítulo</label>
+                <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Título do capítulo</label>
                 <input
                   ref="chapterTitleInput"
                   v-model="chapterForm.title"
                   type="text"
                   placeholder="Ex: Capítulo 1 - Introdução"
-                  class="w-full px-4 py-2 bg-dark-900 border border-dark-600 text-white placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  class="w-full px-4 py-2 bg-dark-900 border border-dark-600 text-claude-text dark:text-white placeholder-gray-500 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
                   required
                   autofocus
                 />
@@ -623,14 +623,14 @@
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 font-medium"
+                  class="flex-1 px-4 py-2 bg-primary-500 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-600 disabled:opacity-50 font-medium"
                 >
                   Criar Capítulo
                 </button>
                 <button
                   type="button"
                   @click="cancelChapterForm"
-                  class="flex-1 px-4 py-2 border border-dark-600 text-gray-400 rounded-lg hover:bg-dark-700 font-medium"
+                  class="flex-1 px-4 py-2 border border-dark-600 text-claude-text-secondary dark:text-gray-400 rounded-claude-md hover:bg-dark-700 font-medium"
                 >
                   Cancelar
                 </button>
@@ -648,7 +648,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm"
         @click.self="showDeleteModal = false"
       >
-        <div class="bg-dark-800 border border-red-500/50 rounded-xl shadow-2xl w-full max-w-md">
+        <div class="bg-dark-800 border border-red-500/50 rounded-claude-lg shadow-2xl w-full max-w-md">
           <div class="p-6">
             <div class="flex items-center space-x-3 mb-4">
               <div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
@@ -657,16 +657,16 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-bold text-white">Confirmar Exclusão</h3>
-                <p class="text-sm text-gray-400">Esta ação não pode ser desfeita</p>
+                <h3 class="text-lg font-bold text-claude-text dark:text-white">Confirmar Exclusão</h3>
+                <p class="text-sm text-claude-text-secondary dark:text-gray-400">Esta ação não pode ser desfeita</p>
               </div>
             </div>
 
-            <div class="bg-dark-900/50 rounded-lg p-4 mb-6">
-              <p class="text-sm text-gray-300 mb-2">
+            <div class="bg-dark-900/50 rounded-claude-md p-4 mb-6">
+              <p class="text-sm text-claude-text-secondary dark:text-gray-300 mb-2">
                 Você está prestes a excluir {{ deleteTarget?.type === 'subject' ? 'o caderno' : 'o capítulo' }}:
               </p>
-              <p class="text-white font-semibold">"{{ deleteTarget?.name }}"</p>
+              <p class="text-claude-text dark:text-white font-semibold">"{{ deleteTarget?.name }}"</p>
               <p v-if="deleteTarget?.type === 'subject'" class="text-xs text-red-400 mt-2">
                 ⚠️ Todos os capítulos e conteúdos deste caderno também serão excluídos!
               </p>
@@ -676,7 +676,7 @@
               <button
                 @click="executeDelete"
                 :disabled="loading"
-                class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium flex items-center justify-center space-x-2"
+                class="flex-1 px-4 py-2 bg-red-600 text-claude-text dark:text-white rounded-claude-md hover:bg-red-700 disabled:opacity-50 font-medium flex items-center justify-center space-x-2"
               >
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -686,7 +686,7 @@
               <button
                 @click="showDeleteModal = false"
                 :disabled="loading"
-                class="flex-1 px-4 py-2 border border-dark-600 text-gray-400 rounded-lg hover:bg-dark-700 font-medium disabled:opacity-50"
+                class="flex-1 px-4 py-2 border border-dark-600 text-claude-text-secondary dark:text-gray-400 rounded-claude-md hover:bg-dark-700 font-medium disabled:opacity-50"
               >
                 Cancelar
               </button>

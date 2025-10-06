@@ -1,11 +1,11 @@
 <template>
-  <nav class="fixed top-0 left-0 right-0 z-50 theme-nav-gradient border-b theme-nav-border">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-[#f5f5ed] dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-b border-[#E5E5E5] dark:border-slate-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
 
         <!-- Logo -->
         <NuxtLink to="/dashboard" class="flex items-center gap-3 group">
-          <div class="w-9 h-9 bg-gradient-to-br from-slate-700 to-slate-800 dark:from-slate-700 dark:to-slate-800 rounded-lg flex items-center justify-center group-hover:from-slate-600 group-hover:to-slate-700 transition-all duration-300">
+          <div class="w-9 h-9 bg-gradient-to-br from-slate-700 to-slate-800 dark:from-slate-700 dark:to-slate-800 rounded-claude-md flex items-center justify-center group-hover:from-slate-600 group-hover:to-slate-700 transition-all duration-300">
             <svg class="w-5 h-5 text-slate-300 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
@@ -32,7 +32,7 @@
           <!-- Mobile Menu Button -->
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
-            class="lg:hidden p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
+            class="lg:hidden p-2 rounded-claude-md text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
           >
             <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -46,7 +46,7 @@
           <div class="relative">
             <button
               @click="userMenuOpen = !userMenuOpen"
-              class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-800/50 transition-colors"
+              class="flex items-center gap-2 px-2 py-1.5 rounded-claude-md hover:bg-slate-800/50 transition-colors"
             >
               <div class="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full flex items-center justify-center">
                 <span class="text-xs font-semibold text-slate-300">{{ userInitial }}</span>
@@ -65,7 +65,7 @@
               leave-from-class="transform scale-100 opacity-100"
               leave-to-class="transform scale-95 opacity-0"
             >
-              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 theme-bg-secondary border theme-border-primary rounded-lg shadow-xl overflow-hidden">
+              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 theme-bg-secondary border theme-border-primary rounded-claude-md shadow-xl overflow-hidden">
                 <div class="px-4 py-3 border-b theme-border-primary">
                   <p class="text-sm font-medium theme-text-primary">{{ userName }}</p>
                   <p class="text-xs theme-text-tertiary truncate mt-0.5">{{ userEmail }}</p>
@@ -100,7 +100,7 @@
                     v-if="isAdmin"
                     to="/admin-afiliados"
                     @click="userMenuOpen = false"
-                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-blue-400 hover:bg-slate-800/50 transition-colors"
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-[#ca643f] dark:text-blue-400 hover:bg-slate-800/50 transition-colors"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -278,21 +278,25 @@ const handleLogout = async () => {
 <style scoped>
 .menu-item {
   @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium;
-  @apply text-slate-400 hover:text-slate-200 hover:bg-slate-800/50;
+  @apply text-[#ca643f] dark:text-slate-400 hover:text-[#b85635] dark:hover:text-slate-200;
+  @apply hover:bg-[#f0e8e1] dark:hover:bg-slate-800/50;
   @apply transition-all duration-200;
 }
 
 .menu-item-active {
-  @apply text-slate-100 bg-slate-800;
+  @apply text-[#b85635] dark:text-slate-100 bg-[#f0e8e1] dark:bg-slate-800;
+  @apply font-semibold;
 }
 
 .mobile-menu-item {
   @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium;
-  @apply text-slate-400 hover:text-slate-200 hover:bg-slate-800/50;
+  @apply text-[#ca643f] dark:text-slate-400 hover:text-[#b85635] dark:hover:text-slate-200;
+  @apply hover:bg-[#f0e8e1] dark:hover:bg-slate-800/50;
   @apply transition-all duration-200;
 }
 
 .mobile-menu-item-active {
-  @apply text-slate-100 bg-slate-800;
+  @apply text-[#b85635] dark:text-slate-100 bg-[#f0e8e1] dark:bg-slate-800;
+  @apply font-semibold;
 }
 </style>

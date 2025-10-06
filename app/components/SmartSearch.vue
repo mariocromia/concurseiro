@@ -5,7 +5,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm"
       @click.self="$emit('close')"
     >
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+      <div class="bg-white rounded-claude-lg shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
         <!-- Header -->
         <div class="p-6 border-b border-gray-200">
           <div class="flex items-center justify-between mb-4">
@@ -32,7 +32,7 @@
               @input="performSearch"
               type="text"
               placeholder="Digite sua busca... Ex: altura, fórmula de bhaskara, teorema"
-              class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900"
+              class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 text-gray-900"
               autofocus
             />
           </div>
@@ -128,7 +128,7 @@
         <div class="flex-1 overflow-y-auto p-6">
           <!-- Loading -->
           <div v-if="searching" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-claude-primary dark:border-primary-500"></div>
             <p class="text-gray-600 mt-4">Buscando...</p>
           </div>
 
@@ -160,9 +160,9 @@
             >
               <!-- Title with Subject > Chapter format -->
               <h3 class="text-xl mb-1">
-                <span class="text-blue-800 underline group-hover:no-underline" v-html="getSubjectName(result)"></span>
-                <span v-if="getChapterName(result)" class="text-blue-800"> › </span>
-                <span v-if="getChapterName(result)" class="text-blue-800 group-hover:underline" v-html="getChapterName(result)"></span>
+                <span class="text-[var(--info)] dark:text-blue-800 underline group-hover:no-underline" v-html="getSubjectName(result)"></span>
+                <span v-if="getChapterName(result)" class="text-[var(--info)] dark:text-blue-800"> › </span>
+                <span v-if="getChapterName(result)" class="text-[var(--info)] dark:text-blue-800 group-hover:underline" v-html="getChapterName(result)"></span>
               </h3>
 
               <!-- URL-like line -->

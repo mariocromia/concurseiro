@@ -4,18 +4,18 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Filters -->
-      <div class="bg-dark-800 border border-dark-700 rounded-xl p-6 mb-6">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm text-gray-400 mb-1">Matéria</label>
-            <select v-model="filterSubjectId" @change="loadRevisions" class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-lg text-white">
+            <label class="block text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Matéria</label>
+            <select v-model="filterSubjectId" @change="loadRevisions" class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-claude-md text-claude-text dark:text-white">
               <option value="all">Todas</option>
               <option v-for="(name, id) in subjectsMap" :key="id" :value="id">{{ name }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm text-gray-400 mb-1">Status</label>
-            <select v-model="filterStatus" @change="loadRevisions" class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-lg text-white">
+            <label class="block text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Status</label>
+            <select v-model="filterStatus" @change="loadRevisions" class="w-full px-4 py-2 bg-dark-900/50 border border-dark-700 rounded-claude-md text-claude-text dark:text-white">
               <option value="pending">Pendentes</option>
               <option value="completed">Concluídas</option>
               <option value="skipped">Puladas</option>
@@ -25,7 +25,7 @@
           <div class="md:col-span-2 flex items-end">
             <label class="inline-flex items-center">
               <input type="checkbox" v-model="onlyUntilToday" @change="loadRevisions" class="mr-2" />
-              <span class="text-gray-300">Mostrar apenas até hoje</span>
+              <span class="text-claude-text-secondary dark:text-gray-300">Mostrar apenas até hoje</span>
             </label>
           </div>
         </div>
@@ -33,35 +33,35 @@
 
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-dark-800 border border-dark-700 rounded-xl p-6">
-          <p class="text-sm text-gray-400 mb-1">Pendentes</p>
-          <p class="text-3xl font-bold text-white">{{ stats.pending }}</p>
+        <div class="bg-dark-800 border border-dark-700 rounded-claude-lg p-6">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Pendentes</p>
+          <p class="text-3xl font-bold text-claude-text dark:text-white">{{ stats.pending }}</p>
         </div>
-        <div class="bg-dark-800 border border-dark-700 rounded-xl p-6">
-          <p class="text-sm text-gray-400 mb-1">Concluídas</p>
-          <p class="text-3xl font-bold text-white">{{ stats.completed }}</p>
+        <div class="bg-dark-800 border border-dark-700 rounded-claude-lg p-6">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Concluídas</p>
+          <p class="text-3xl font-bold text-claude-text dark:text-white">{{ stats.completed }}</p>
         </div>
-        <div class="bg-dark-800 border border-dark-700 rounded-xl p-6">
-          <p class="text-sm text-gray-400 mb-1">Puladas</p>
-          <p class="text-3xl font-bold text-white">{{ stats.skipped }}</p>
+        <div class="bg-dark-800 border border-dark-700 rounded-claude-lg p-6">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Puladas</p>
+          <p class="text-3xl font-bold text-claude-text dark:text-white">{{ stats.skipped }}</p>
         </div>
       </div>
 
       <!-- List -->
-      <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-hidden">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg overflow-hidden">
         <div class="p-4 border-b border-dark-700 flex justify-between items-center">
-          <h2 class="text-lg font-semibold text-white">Revisões</h2>
-          <div v-if="loading" class="text-gray-400">Carregando...</div>
+          <h2 class="text-lg font-semibold text-claude-text dark:text-white">Revisões</h2>
+          <div v-if="loading" class="text-claude-text-secondary dark:text-gray-400">Carregando...</div>
         </div>
         <div v-if="error" class="p-4 text-red-400">{{ error }}</div>
         <table class="min-w-full">
           <thead>
             <tr class="bg-dark-900">
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Data</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Matéria</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Revisão</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Ações</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Data</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Matéria</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Revisão</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Ações</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-dark-700">
@@ -74,14 +74,14 @@
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button @click="markCompleted(rev)" :disabled="rev.status !== 'pending'" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-500 disabled:opacity-50">Concluir</button>
+                  <button @click="markCompleted(rev)" :disabled="rev.status !== 'pending'" class="px-3 py-1 bg-green-600 text-claude-text dark:text-white rounded hover:bg-green-500 disabled:opacity-50">Concluir</button>
                   <button @click="skipRevision(rev)" :disabled="rev.status !== 'pending'" class="px-3 py-1 border border-dark-700 text-gray-200 rounded hover:bg-dark-700 disabled:opacity-50">Pular</button>
                   <button @click="postponeOneDay(rev)" :disabled="rev.status !== 'pending'" class="px-3 py-1 border border-dark-700 text-gray-200 rounded hover:bg-dark-700 disabled:opacity-50">Adiar +1 dia</button>
                 </div>
               </td>
             </tr>
             <tr v-if="!loading && revisions.length === 0">
-              <td colspan="5" class="px-4 py-6 text-center text-gray-400">Nenhuma revisão encontrada.</td>
+              <td colspan="5" class="px-4 py-6 text-center text-claude-text-secondary dark:text-gray-400">Nenhuma revisão encontrada.</td>
             </tr>
           </tbody>
         </table>

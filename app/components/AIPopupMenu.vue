@@ -3,7 +3,7 @@
     <div
       v-if="isVisible"
       :style="{ top: `${position.y}px`, left: `${position.x}px` }"
-      class="fixed z-50 bg-dark-800 rounded-xl shadow-2xl border-2 border-primary-500/50 overflow-hidden animate-fadeIn backdrop-blur-xl"
+      class="fixed z-50 bg-dark-800 rounded-claude-lg shadow-2xl border-2 border-claude-primary dark:border-primary-500/50 overflow-hidden animate-fadeIn backdrop-blur-xl"
       @click.stop
     >
       <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-2.5 border-b border-gray-700">
@@ -22,9 +22,9 @@
           :key="option.id"
           @click="handleOptionClick(option.id)"
           :disabled="!isPro && option.requiresPro"
-          class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-dark-700 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+          class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-claude-md hover:bg-dark-700 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
         >
-          <div class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-lg border border-gray-700 group-hover:border-gray-500 group-hover:bg-gray-700 transition-all group-hover:shadow-lg group-hover:shadow-gray-900/50 group-hover:scale-105">
+          <div class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-claude-md border border-gray-700 group-hover:border-gray-500 group-hover:bg-gray-700 transition-all group-hover:shadow-lg group-hover:shadow-gray-900/50 group-hover:scale-105">
             <component :is="option.iconComponent" class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
           </div>
           <div class="flex-1">

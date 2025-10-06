@@ -1,34 +1,34 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+  <div class="min-h-screen bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
 
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Add/Edit Form -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl p-6 mb-8">
-        <h2 class="text-lg font-semibold text-white mb-4">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 mb-8">
+        <h2 class="text-lg font-semibold text-claude-text dark:text-white mb-4">
           {{ form.id ? 'Editar Matéria' : 'Adicionar Nova Matéria' }}
         </h2>
 
         <form @submit.prevent="handleSubmit" class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-300 mb-2">Nome da matéria</label>
+            <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Nome da matéria</label>
             <input
               v-model="form.name"
               type="text"
-              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="Ex: Direito Administrativo"
               required
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">Cor</label>
+            <label class="block text-sm font-medium text-claude-text-secondary dark:text-gray-300 mb-2">Cor</label>
             <select
               v-model="form.color"
-              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              class="w-full px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md text-claude-text dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="#22C55E">🟢 Verde</option>
-              <option value="#3B82F6">🔵 Azul</option>
+              <option value="#ca643f">🔵 Azul</option>
               <option value="#10B981">🟢 Verde Escuro</option>
               <option value="#EF4444">🔴 Vermelho</option>
               <option value="#F59E0B">🟡 Amarelo</option>
@@ -43,7 +43,7 @@
             <button
               type="submit"
               :disabled="loading"
-              class="w-full px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="w-full px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-claude-text dark:text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {{ loading ? 'Salvando...' : (form.id ? 'Atualizar' : 'Adicionar') }}
             </button>
@@ -53,67 +53,67 @@
         <div v-if="form.id" class="mt-4 flex justify-end">
           <button
             @click="cancelEdit"
-            class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+            class="px-4 py-2 text-claude-text-secondary dark:text-gray-400 hover:text-claude-text dark:text-white transition-colors"
           >
             Cancelar edição
           </button>
         </div>
 
-        <div v-if="error" class="mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400">
+        <div v-if="error" class="mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-claude-md text-red-400">
           {{ error }}
         </div>
 
-        <div v-if="loading" class="mt-4 p-3 bg-primary-500/10 border border-primary-500/30 rounded-lg text-primary-400 text-sm">
+        <div v-if="loading" class="mt-4 p-3 bg-primary-500/10 border border-claude-primary dark:border-primary-500/30 rounded-claude-md text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors text-sm">
           Salvando matéria...
         </div>
       </div>
 
       <!-- Subjects List -->
-      <div class="bg-dark-800/50 backdrop-blur-sm border border-dark-700 rounded-xl overflow-hidden">
+      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-dark-700">
-          <h2 class="text-lg font-semibold text-white">Suas Matérias</h2>
-          <p class="text-sm text-gray-400 mt-1">{{ subjects.length }} matéria(s) cadastrada(s)</p>
+          <h2 class="text-lg font-semibold text-claude-text dark:text-white">Suas Matérias</h2>
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mt-1">{{ subjects.length }} matéria(s) cadastrada(s)</p>
         </div>
 
         <div v-if="subjects.length === 0" class="p-8 text-center">
           <div class="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-8 h-8 text-gray-600 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-medium text-white mb-2">Nenhuma matéria cadastrada</h3>
-          <p class="text-gray-400">Adicione sua primeira matéria usando o formulário acima.</p>
+          <h3 class="text-lg font-medium text-claude-text dark:text-white mb-2">Nenhuma matéria cadastrada</h3>
+          <p class="text-claude-text-secondary dark:text-gray-400">Adicione sua primeira matéria usando o formulário acima.</p>
         </div>
 
         <div v-else class="overflow-x-auto">
           <table class="min-w-full divide-y divide-dark-700">
             <thead class="bg-dark-900/50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  <button @click="toggleSort('name')" class="flex items-center gap-1 hover:text-white transition">
+                <th class="px-6 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">
+                  <button @click="toggleSort('name')" class="flex items-center gap-1 hover:text-claude-text dark:text-white transition">
                     Matéria
                     <svg v-if="sortField === 'name'" class="w-4 h-4" :class="{ 'rotate-180': sortOrder === 'desc' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                     </svg>
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  <button @click="toggleSort('time')" class="flex items-center gap-1 hover:text-white transition">
+                <th class="px-6 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">
+                  <button @click="toggleSort('time')" class="flex items-center gap-1 hover:text-claude-text dark:text-white transition">
                     Tempo Total
                     <svg v-if="sortField === 'time'" class="w-4 h-4" :class="{ 'rotate-180': sortOrder === 'desc' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                     </svg>
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  <button @click="toggleSort('sessions')" class="flex items-center gap-1 hover:text-white transition">
+                <th class="px-6 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">
+                  <button @click="toggleSort('sessions')" class="flex items-center gap-1 hover:text-claude-text dark:text-white transition">
                     Sessões
                     <svg v-if="sortField === 'sessions'" class="w-4 h-4" :class="{ 'rotate-180': sortOrder === 'desc' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                     </svg>
                   </button>
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Ações</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-dark-700">
@@ -125,20 +125,20 @@
                       :style="{ backgroundColor: subject.color || '#22C55E' }"
                     ></span>
                     <div>
-                      <div class="text-sm font-medium text-white">{{ subject.name }}</div>
+                      <div class="text-sm font-medium text-claude-text dark:text-white">{{ subject.name }}</div>
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-claude-text-secondary dark:text-gray-300">
                   {{ formatDuration(subject.total_study_time) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-claude-text-secondary dark:text-gray-300">
                   {{ sessionsCountBySubject[subject.id] || 0 }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     @click="editSubject(subject)"
-                    class="text-primary-400 hover:text-primary-300 mr-4"
+                    class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300 mr-4"
                   >
                     Editar
                   </button>
@@ -162,7 +162,7 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       @click.self="cancelDelete"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-md w-full p-6 shadow-2xl animate-scale-in">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-md w-full p-6 shadow-2xl animate-scale-in">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
             <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,27 +170,27 @@
             </svg>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-white">Confirmar Exclusão</h3>
-            <p class="text-sm text-gray-400">Esta ação não pode ser desfeita</p>
+            <h3 class="text-xl font-bold text-claude-text dark:text-white">Confirmar Exclusão</h3>
+            <p class="text-sm text-claude-text-secondary dark:text-gray-400">Esta ação não pode ser desfeita</p>
           </div>
         </div>
 
-        <p class="text-gray-300 mb-6">
+        <p class="text-claude-text-secondary dark:text-gray-300 mb-6">
           Tem certeza que deseja excluir a matéria
-          <span class="font-semibold text-white">"{{ subjectToDelete?.name }}"</span>?
+          <span class="font-semibold text-claude-text dark:text-white">"{{ subjectToDelete?.name }}"</span>?
         </p>
 
         <div class="flex gap-3">
           <button
             @click="cancelDelete"
-            class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-lg transition-colors"
+            class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition-colors"
           >
             Cancelar
           </button>
           <button
             @click="deleteSubject"
             :disabled="loading"
-            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50"
+            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-claude-text dark:text-white rounded-claude-md transition-colors disabled:opacity-50"
           >
             {{ loading ? 'Excluindo...' : 'Excluir' }}
           </button>
@@ -205,15 +205,15 @@
           v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm border flex items-center gap-3 min-w-[300px]',
+            'px-4 py-3 rounded-claude-md shadow-lg backdrop-blur-sm border flex items-center gap-3 min-w-[300px]',
             toast.type === 'success'
-              ? 'bg-primary-500/20 border-primary-500/50 text-primary-100'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 border-claude-primary dark:border-primary-500/50 text-primary-100'
               : 'bg-red-500/20 border-red-500/50 text-red-100'
           ]"
         >
           <svg
             v-if="toast.type === 'success'"
-            class="w-5 h-5 text-primary-400 flex-shrink-0"
+            class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors flex-shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

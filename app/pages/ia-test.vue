@@ -1,35 +1,35 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 p-8">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-3xl font-bold text-white mb-8">🤖 Teste de IA - Google Gemini</h1>
+      <h1 class="text-3xl font-bold text-claude-text dark:text-white mb-8">🤖 Teste de IA - Google Gemini</h1>
 
       <!-- Gerador de Resumo -->
-      <div class="bg-dark-800 rounded-xl p-6 mb-6">
-        <h2 class="text-xl font-semibold text-white mb-4">📝 Resumir Conteúdo</h2>
+      <div class="bg-dark-800 rounded-claude-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-claude-text dark:text-white mb-4">📝 Resumir Conteúdo</h2>
         <textarea
           v-model="contentToSummarize"
-          class="w-full h-32 bg-dark-900 border border-dark-600 text-white rounded-lg p-3 mb-3"
+          class="w-full h-32 bg-dark-900 border border-dark-600 text-claude-text dark:text-white rounded-claude-md p-3 mb-3"
           placeholder="Cole o texto que deseja resumir..."
         ></textarea>
         <button
           @click="testSummarize"
           :disabled="loading"
-          class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+          class="px-4 py-2 bg-primary-500 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-600 disabled:opacity-50"
         >
           {{ loading ? 'Gerando...' : 'Resumir' }}
         </button>
-        <div v-if="summary" class="mt-4 p-4 bg-dark-900 rounded-lg">
-          <p class="text-sm text-gray-400 mb-2">Resumo:</p>
-          <p class="text-white">{{ summary }}</p>
+        <div v-if="summary" class="mt-4 p-4 bg-dark-900 rounded-claude-md">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-2">Resumo:</p>
+          <p class="text-claude-text dark:text-white">{{ summary }}</p>
         </div>
       </div>
 
       <!-- Gerador de Questões -->
-      <div class="bg-dark-800 rounded-xl p-6 mb-6">
-        <h2 class="text-xl font-semibold text-white mb-4">❓ Gerar Questões</h2>
+      <div class="bg-dark-800 rounded-claude-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-claude-text dark:text-white mb-4">❓ Gerar Questões</h2>
         <textarea
           v-model="contentForQuestions"
-          class="w-full h-32 bg-dark-900 border border-dark-600 text-white rounded-lg p-3 mb-3"
+          class="w-full h-32 bg-dark-900 border border-dark-600 text-claude-text dark:text-white rounded-claude-md p-3 mb-3"
           placeholder="Cole o conteúdo para gerar questões..."
         ></textarea>
         <div class="flex gap-3 mb-3">
@@ -38,63 +38,63 @@
             type="number"
             min="1"
             max="10"
-            class="w-20 bg-dark-900 border border-dark-600 text-white rounded-lg px-3 py-2"
+            class="w-20 bg-dark-900 border border-dark-600 text-claude-text dark:text-white rounded-claude-md px-3 py-2"
             placeholder="5"
           />
           <button
             @click="testGenerateQuestions"
             :disabled="loading"
-            class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+            class="px-4 py-2 bg-primary-500 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-600 disabled:opacity-50"
           >
             {{ loading ? 'Gerando...' : 'Gerar Questões' }}
           </button>
         </div>
-        <div v-if="questions" class="mt-4 p-4 bg-dark-900 rounded-lg">
-          <p class="text-sm text-gray-400 mb-2">Questões geradas:</p>
-          <pre class="text-white whitespace-pre-wrap">{{ questions }}</pre>
+        <div v-if="questions" class="mt-4 p-4 bg-dark-900 rounded-claude-md">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-2">Questões geradas:</p>
+          <pre class="text-claude-text dark:text-white whitespace-pre-wrap">{{ questions }}</pre>
         </div>
       </div>
 
       <!-- Gerador de Flashcards -->
-      <div class="bg-dark-800 rounded-xl p-6 mb-6">
-        <h2 class="text-xl font-semibold text-white mb-4">🎴 Gerar Flashcards</h2>
+      <div class="bg-dark-800 rounded-claude-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-claude-text dark:text-white mb-4">🎴 Gerar Flashcards</h2>
         <textarea
           v-model="contentForFlashcards"
-          class="w-full h-32 bg-dark-900 border border-dark-600 text-white rounded-lg p-3 mb-3"
+          class="w-full h-32 bg-dark-900 border border-dark-600 text-claude-text dark:text-white rounded-claude-md p-3 mb-3"
           placeholder="Cole o conteúdo para gerar flashcards..."
         ></textarea>
         <button
           @click="testGenerateFlashcards"
           :disabled="loading"
-          class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+          class="px-4 py-2 bg-primary-500 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-600 disabled:opacity-50"
         >
           {{ loading ? 'Gerando...' : 'Gerar Flashcards' }}
         </button>
-        <div v-if="flashcards" class="mt-4 p-4 bg-dark-900 rounded-lg">
-          <p class="text-sm text-gray-400 mb-2">Flashcards gerados:</p>
+        <div v-if="flashcards" class="mt-4 p-4 bg-dark-900 rounded-claude-md">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-2">Flashcards gerados:</p>
           <div v-if="Array.isArray(flashcards)" class="space-y-3">
-            <div v-for="(card, index) in flashcards" :key="index" class="border border-dark-600 rounded-lg p-3">
-              <p class="text-primary-400 font-semibold mb-1">{{ card.front }}</p>
-              <p class="text-gray-300">{{ card.back }}</p>
+            <div v-for="(card, index) in flashcards" :key="index" class="border border-dark-600 rounded-claude-md p-3">
+              <p class="text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-semibold mb-1">{{ card.front }}</p>
+              <p class="text-claude-text-secondary dark:text-gray-300">{{ card.back }}</p>
             </div>
           </div>
-          <pre v-else class="text-white whitespace-pre-wrap">{{ flashcards }}</pre>
+          <pre v-else class="text-claude-text dark:text-white whitespace-pre-wrap">{{ flashcards }}</pre>
         </div>
       </div>
 
       <!-- Explicar Conceito -->
-      <div class="bg-dark-800 rounded-xl p-6 mb-6">
-        <h2 class="text-xl font-semibold text-white mb-4">💡 Explicar Conceito</h2>
+      <div class="bg-dark-800 rounded-claude-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold text-claude-text dark:text-white mb-4">💡 Explicar Conceito</h2>
         <input
           v-model="conceptToExplain"
           type="text"
-          class="w-full bg-dark-900 border border-dark-600 text-white rounded-lg p-3 mb-3"
+          class="w-full bg-dark-900 border border-dark-600 text-claude-text dark:text-white rounded-claude-md p-3 mb-3"
           placeholder="Digite o conceito que deseja entender..."
         />
         <div class="flex gap-3 mb-3">
           <select
             v-model="explanationLevel"
-            class="bg-dark-900 border border-dark-600 text-white rounded-lg px-3 py-2"
+            class="bg-dark-900 border border-dark-600 text-claude-text dark:text-white rounded-claude-md px-3 py-2"
           >
             <option value="simples">Simples</option>
             <option value="intermediario">Intermediário</option>
@@ -103,19 +103,19 @@
           <button
             @click="testExplainConcept"
             :disabled="loading"
-            class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+            class="px-4 py-2 bg-primary-500 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-600 disabled:opacity-50"
           >
             {{ loading ? 'Explicando...' : 'Explicar' }}
           </button>
         </div>
-        <div v-if="explanation" class="mt-4 p-4 bg-dark-900 rounded-lg">
-          <p class="text-sm text-gray-400 mb-2">Explicação:</p>
-          <p class="text-white">{{ explanation }}</p>
+        <div v-if="explanation" class="mt-4 p-4 bg-dark-900 rounded-claude-md">
+          <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-2">Explicação:</p>
+          <p class="text-claude-text dark:text-white">{{ explanation }}</p>
         </div>
       </div>
 
       <!-- Erro -->
-      <div v-if="error" class="bg-red-900/20 border border-red-500 rounded-xl p-4 mb-6">
+      <div v-if="error" class="bg-red-900/20 border border-red-500 rounded-claude-lg p-4 mb-6">
         <p class="text-red-400">❌ {{ error }}</p>
       </div>
     </div>

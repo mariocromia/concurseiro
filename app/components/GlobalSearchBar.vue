@@ -136,7 +136,7 @@ const toggleAdvanced = () => {
 }
 
 .search-container:focus-within {
-  @apply bg-white border-primary-500 ring-2 ring-primary-200;
+  @apply bg-white border-claude-primary ring-2 ring-primary-200;
 }
 
 .search-icon {
