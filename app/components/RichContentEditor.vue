@@ -1,7 +1,7 @@
 <template>
   <div class="rich-content-editor">
     <!-- Toolbar -->
-    <div class="flex flex-wrap items-center gap-2 mb-2 bg-white border border-gray-200 rounded-lg px-4 py-3 sticky top-0 z-10 shadow-sm">
+    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-lg px-4 py-3 sticky top-0 z-10 shadow-sm">
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
@@ -12,20 +12,20 @@
           :class="[
             'p-2 rounded transition-colors',
             isFormatActive(tool.command)
-              ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              ? 'bg-primary-500/20 text-primary-400'
+              : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" v-html="tool.icon"></svg>
         </button>
 
-        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+        <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
         <!-- Font Size -->
         <select
           @change="changeFontSize(($event.target as HTMLSelectElement).value)"
-          class="px-2 py-1 bg-white border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          class="px-2 py-1 bg-dark-700 border border-dark-700 text-gray-400 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           title="Tamanho da fonte"
         >
           <option value="">Tamanho</option>
@@ -35,7 +35,7 @@
           <option value="7">Muito grande</option>
         </select>
 
-        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+        <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
         <!-- Highlight -->
         <button
@@ -44,8 +44,8 @@
           :class="[
             'p-2 rounded transition-colors',
             isHighlightActive
-              ? 'bg-yellow-200 text-yellow-900 hover:bg-yellow-300'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'bg-yellow-500/20 text-yellow-400'
+              : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
         >
@@ -59,7 +59,7 @@
         <button
           @click="showLinkModal = true"
           title="Inserir link"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -67,13 +67,13 @@
           </svg>
         </button>
 
-        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+        <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
         <!-- Add Comment -->
         <button
           @click="showCommentModal = true"
           title="Inserir comentário"
-          class="p-2 rounded transition-colors text-gray-700 hover:bg-gray-100"
+          class="p-2 rounded transition-colors text-gray-400 hover:bg-dark-700/50"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -88,8 +88,8 @@
           :class="[
             'p-2 rounded transition-colors',
             textBoxMode
-              ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'bg-primary-500/20 text-primary-400'
+              : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
         >
@@ -102,7 +102,7 @@
         <button
           @click="triggerImageUpload"
           title="Inserir imagem"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -115,7 +115,7 @@
         <button
           @click="insertYouTubeVideo"
           title="Inserir vídeo do YouTube"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -127,7 +127,7 @@
         <button
           @click="insertPageBreak"
           title="Inserir quebra de página"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           type="button"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +135,51 @@
           </svg>
         </button>
 
-        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+        <!-- Toggle Notebook Lines -->
+        <button
+          @click="showNotebookLines = !showNotebookLines"
+          title="Mostrar/Ocultar linhas do caderno"
+          :class="[
+            'p-2 rounded transition-colors',
+            showNotebookLines
+              ? 'bg-primary-500/20 text-primary-400'
+              : 'text-gray-400 hover:bg-dark-700/50'
+          ]"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Page Navigation -->
+        <div class="flex items-center gap-1">
+          <button
+            @click="goToPreviousPage"
+            :disabled="currentPage <= 1"
+            title="Página Anterior"
+            class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed"
+            type="button"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <span class="text-xs text-gray-400 px-2">Página {{ currentPage }} de {{ totalPages }}</span>
+          <button
+            @click="goToNextPage"
+            :disabled="currentPage >= totalPages"
+            title="Próxima Página"
+            class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed"
+            type="button"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
         <!-- Screenshot/Capture Tool -->
         <button
@@ -144,8 +188,8 @@
           :class="[
             'p-2 rounded transition-colors',
             screenshotMode
-              ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'bg-primary-500/20 text-primary-400'
+              : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           type="button"
         >
@@ -159,7 +203,7 @@
         <!-- Calculator Button -->
         <button
           @click="showCalculator = true"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           title="Calculadora"
           type="button"
         >
@@ -171,7 +215,7 @@
         <!-- Reminders Button -->
         <button
           @click="showReminders = true"
-          class="p-2 hover:bg-gray-100 rounded transition-colors text-gray-700"
+          class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           title="Lembretes e Fórmulas"
           type="button"
         >
@@ -186,8 +230,8 @@
           :class="[
             'p-2 rounded transition-colors',
             showGeometryTools
-              ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'bg-primary-500/20 text-primary-400'
+              : 'text-gray-400 hover:bg-dark-700/50'
           ]"
           title="Ferramentas de Geometria"
           type="button"
@@ -208,7 +252,7 @@
           </svg>
           <span>IA</span>
         </button>
-        <span v-else class="text-xs text-gray-500">Seleção + IA = PRO</span>
+        <span v-else class="text-xs text-gray-400">Seleção + IA = PRO</span>
       </div>
     </div>
 
@@ -280,10 +324,11 @@
       @click="handleEditorClick"
       @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
       @focus="updateActiveFormats"
-      class="min-h-[500px] p-8 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
+      class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
         'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode,
-        'cursor-crosshair': commentMode || geometryTool || screenshotMode
+        'cursor-crosshair': commentMode || geometryTool || screenshotMode,
+        'notebook-lines': showNotebookLines
       }"
       @paste="handlePaste"
       @mouseup.capture="handleEditorMouseUp"
@@ -753,6 +798,13 @@ const showReminders = ref(false)
 const showGeometryTools = ref(false)
 const geometryTool = ref<'line' | 'circle' | 'rectangle' | 'triangle' | 'angle' | null>(null)
 
+// Notebook lines
+const showNotebookLines = ref(true)
+
+// Page navigation
+const currentPage = ref(1)
+const totalPages = ref(1)
+
 // YouTube modal
 const showYouTubeModal = ref(false)
 const youtubeUrl = ref('')
@@ -1045,7 +1097,41 @@ const insertPageBreak = () => {
   }
 
   handleInput()
+  updatePageCount()
   editorRef.value?.focus()
+}
+
+// Page navigation functions
+const updatePageCount = () => {
+  if (!editorRef.value) return
+  const pageBreaks = editorRef.value.querySelectorAll('.page-break')
+  totalPages.value = pageBreaks.length + 1
+}
+
+const goToPreviousPage = () => {
+  if (currentPage.value <= 1) return
+  currentPage.value--
+  scrollToPage(currentPage.value)
+}
+
+const goToNextPage = () => {
+  if (currentPage.value >= totalPages.value) return
+  currentPage.value++
+  scrollToPage(currentPage.value)
+}
+
+const scrollToPage = (pageNumber: number) => {
+  if (!editorRef.value) return
+  const pageBreaks = editorRef.value.querySelectorAll('.page-break')
+
+  if (pageNumber === 1) {
+    editorRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  } else if (pageNumber <= pageBreaks.length + 1) {
+    const targetBreak = pageBreaks[pageNumber - 2]
+    if (targetBreak) {
+      targetBreak.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 }
 
 // Screenshot/Capture functions
@@ -1401,6 +1487,7 @@ const handleInput = () => {
   if (editorRef.value) {
     console.log('📝 Editor content changed, emitting update:', editorRef.value.innerHTML.substring(0, 50) + '...')
     emit('update:modelValue', editorRef.value.innerHTML)
+    updatePageCount()
   }
 }
 
@@ -1726,6 +1813,7 @@ onMounted(() => {
   // Wrap existing images with resize handles
   setTimeout(() => {
     wrapImagesWithResizeHandles()
+    updatePageCount()
   }, 200)
 })
 
@@ -1988,5 +2076,35 @@ onUnmounted(() => {
   max-width: 100%;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Notebook lines styling */
+.rich-content-editor .notebook-lines {
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 29px,
+    rgba(59, 130, 246, 0.25) 29px,
+    rgba(59, 130, 246, 0.25) 30px
+  ) !important;
+  background-color: white !important;
+  line-height: 30px;
+}
+
+/* Page break styling - não afeta o layout, apenas visual */
+.rich-content-editor .page-break {
+  margin: 2rem 0;
+  border: none;
+  border-top: 2px dashed rgba(59, 130, 246, 0.3);
+  page-break-after: always;
+  position: relative;
+}
+
+.rich-content-editor .page-break::after {
+  content: '--- Quebra de Página ---';
+  display: block;
+  text-align: center;
+  color: rgba(59, 130, 246, 0.5);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
 }
 </style>
