@@ -1175,6 +1175,33 @@ const changeFontFamily = () => {
 
   if (currentFontFamily.value && editorRef.value) {
     const range = selection.getRangeAt(0)
+
+    // Check if selection is entirely within a single span with font-family
+    let commonAncestor = range.commonAncestorContainer
+    if (commonAncestor.nodeType === Node.TEXT_NODE) {
+      commonAncestor = commonAncestor.parentElement!
+    }
+
+    // Walk up the tree to find a span with font-family
+    let targetSpan: HTMLElement | null = null
+    let current = commonAncestor as HTMLElement
+    while (current && current !== editorRef.value) {
+      if (current.tagName === 'SPAN' && current.style.fontFamily) {
+        targetSpan = current
+        break
+      }
+      current = current.parentElement!
+    }
+
+    // If found a parent span with font-family, just update it
+    if (targetSpan) {
+      targetSpan.style.fontFamily = currentFontFamily.value
+      editorRef.value?.focus()
+      handleInput()
+      return
+    }
+
+    // Otherwise extract, clean and wrap
     const contents = range.extractContents()
 
     // Remove existing font-family styles from all elements
@@ -1188,7 +1215,6 @@ const changeFontFamily = () => {
     elements.forEach((el) => {
       if (el.style) {
         el.style.fontFamily = ''
-        // Clean empty style attributes
         if (el.getAttribute('style') === '') {
           el.removeAttribute('style')
         }
@@ -1222,6 +1248,33 @@ const changeFontSizeNew = () => {
 
   if (currentFontSize.value && editorRef.value) {
     const range = selection.getRangeAt(0)
+
+    // Check if selection is entirely within a single span with font-size
+    let commonAncestor = range.commonAncestorContainer
+    if (commonAncestor.nodeType === Node.TEXT_NODE) {
+      commonAncestor = commonAncestor.parentElement!
+    }
+
+    // Walk up the tree to find a span with font-size
+    let targetSpan: HTMLElement | null = null
+    let current = commonAncestor as HTMLElement
+    while (current && current !== editorRef.value) {
+      if (current.tagName === 'SPAN' && current.style.fontSize) {
+        targetSpan = current
+        break
+      }
+      current = current.parentElement!
+    }
+
+    // If found a parent span with font-size, just update it
+    if (targetSpan) {
+      targetSpan.style.fontSize = currentFontSize.value
+      editorRef.value?.focus()
+      handleInput()
+      return
+    }
+
+    // Otherwise extract, clean and wrap
     const contents = range.extractContents()
 
     // Remove existing font-size styles from all elements
@@ -1235,7 +1288,6 @@ const changeFontSizeNew = () => {
     elements.forEach((el) => {
       if (el.style) {
         el.style.fontSize = ''
-        // Clean empty style attributes
         if (el.getAttribute('style') === '') {
           el.removeAttribute('style')
         }
