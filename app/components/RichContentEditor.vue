@@ -22,17 +22,39 @@
 
         <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
+        <!-- Font Family -->
+        <select
+          v-model="currentFontFamily"
+          @change="changeFontFamily"
+          class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[140px]"
+          title="Tipo de fonte"
+        >
+          <option value="">Fonte</option>
+          <option v-for="font in googleFonts" :key="font.value" :value="font.value" :style="{ fontFamily: font.value }">
+            {{ font.label }}
+          </option>
+        </select>
+
         <!-- Font Size -->
         <select
-          @change="changeFontSize(($event.target as HTMLSelectElement).value)"
-          class="px-2 py-1 bg-dark-700 border border-dark-700 text-gray-400 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500"
+          v-model="currentFontSize"
+          @change="changeFontSizeNew"
+          class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[80px]"
           title="Tamanho da fonte"
         >
           <option value="">Tamanho</option>
-          <option value="1">Pequeno</option>
-          <option value="3">Normal</option>
-          <option value="5">Grande</option>
-          <option value="7">Muito grande</option>
+          <option value="10px">10</option>
+          <option value="12px">12</option>
+          <option value="14px">14</option>
+          <option value="16px">16</option>
+          <option value="18px">18</option>
+          <option value="20px">20</option>
+          <option value="24px">24</option>
+          <option value="28px">28</option>
+          <option value="32px">32</option>
+          <option value="36px">36</option>
+          <option value="42px">42</option>
+          <option value="48px">48</option>
         </select>
 
         <div class="w-px h-6 bg-dark-700 mx-1"></div>
@@ -879,6 +901,25 @@
 import Calculator from './Calculator.vue'
 import RemindersManager from './RemindersManager.vue'
 
+// Load Google Fonts
+useHead({
+  link: [
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.googleapis.com'
+    },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossorigin: ''
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Source+Code+Pro:wght@400;600&family=Indie+Flower&display=swap'
+    }
+  ]
+})
+
 interface Props {
   modelValue: string
   isPro: boolean
@@ -959,6 +1000,32 @@ const fontColors = [
 
 // AI Assistant mode
 const aiAssistantMode = ref(false)
+
+// Font family and size
+const currentFontFamily = ref('')
+const currentFontSize = ref('')
+
+// Google Fonts list - popular fonts for study notes
+const googleFonts = [
+  { label: 'Arial', value: 'Arial, sans-serif' },
+  { label: 'Helvetica', value: 'Helvetica, sans-serif' },
+  { label: 'Times New Roman', value: '"Times New Roman", serif' },
+  { label: 'Georgia', value: 'Georgia, serif' },
+  { label: 'Courier New', value: '"Courier New", monospace' },
+  { label: 'Verdana', value: 'Verdana, sans-serif' },
+  { label: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+  { label: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
+  { label: 'Roboto', value: 'Roboto, sans-serif' },
+  { label: 'Open Sans', value: '"Open Sans", sans-serif' },
+  { label: 'Lato', value: 'Lato, sans-serif' },
+  { label: 'Montserrat', value: 'Montserrat, sans-serif' },
+  { label: 'Poppins', value: 'Poppins, sans-serif' },
+  { label: 'Raleway', value: 'Raleway, sans-serif' },
+  { label: 'Merriweather', value: 'Merriweather, serif' },
+  { label: 'Playfair Display', value: '"Playfair Display", serif' },
+  { label: 'Source Code Pro', value: '"Source Code Pro", monospace' },
+  { label: 'Indie Flower', value: '"Indie Flower", cursive' }
+]
 
 const formatTools = [
   {
@@ -1096,6 +1163,47 @@ const insertCheckMark = () => {
   const checkMark = '<span style="color: #22c55e; font-size: 1.2em; font-weight: bold;">✓</span>&nbsp;'
   document.execCommand('insertHTML', false, checkMark)
   editorRef.value?.focus()
+}
+
+const changeFontFamily = () => {
+  const selection = window.getSelection()
+  if (!selection || !selection.toString()) {
+    alert('Selecione o texto para alterar a fonte')
+    currentFontFamily.value = ''
+    return
+  }
+
+  if (currentFontFamily.value) {
+    document.execCommand('fontName', false, currentFontFamily.value)
+    editorRef.value?.focus()
+  }
+}
+
+const changeFontSizeNew = () => {
+  const selection = window.getSelection()
+  if (!selection || !selection.toString()) {
+    alert('Selecione o texto para alterar o tamanho')
+    currentFontSize.value = ''
+    return
+  }
+
+  if (currentFontSize.value) {
+    // Wrap selected text in span with font-size
+    const range = selection.getRangeAt(0)
+    const span = document.createElement('span')
+    span.style.fontSize = currentFontSize.value
+
+    try {
+      range.surroundContents(span)
+    } catch {
+      // If surroundContents fails, use insertHTML
+      const selectedText = selection.toString()
+      const html = `<span style="font-size: ${currentFontSize.value}">${selectedText}</span>`
+      document.execCommand('insertHTML', false, html)
+    }
+
+    editorRef.value?.focus()
+  }
 }
 
 const toggleAIAssistantMode = () => {
