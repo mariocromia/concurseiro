@@ -969,9 +969,8 @@
 <script setup lang="ts">
 import Calculator from './Calculator.vue'
 import RemindersManager from './RemindersManager.vue'
-import type Quill from 'quill'
 
-// Load Google Fonts and Quill CSS
+// Load Google Fonts
 useHead({
   link: [
     {
@@ -986,10 +985,6 @@ useHead({
     {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Source+Code+Pro:wght@400;600&family=Indie+Flower&display=swap'
-    },
-    {
-      rel: 'stylesheet',
-      href: 'https://cdn.quilljs.com/2.0.3/quill.snow.css'
     }
   ]
 })
@@ -1011,7 +1006,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const editorRef = ref<HTMLElement | null>(null)
-const quillInstance = ref<Quill | null>(null)
 const showSelectionMenu = ref(false)
 const menuPosition = ref({ x: 0, y: 0 })
 const isSelecting = ref(false)
@@ -2383,34 +2377,72 @@ onMounted(async () => {
     editorRef.value.innerHTML = props.modelValue
   }
 
-  // Initialize Quill (client-side only)
-  if (process.client) {
-    try {
-      const QuillModule = await import('quill')
-      const Quill = QuillModule.default
+  // Initialize Quill toolbar handlers (client-side only)
+  if (process.client && editorRef.value) {
+    setTimeout(() => {
+      const toolbar = document.getElementById('quill-toolbar')
+      if (toolbar) {
+        // Bold
+        toolbar.querySelector('.ql-bold')?.addEventListener('click', () => {
+          document.execCommand('bold', false)
+          editorRef.value?.focus()
+        })
 
-      quillInstance.value = new Quill(editorRef.value!, {
-        modules: {
-          toolbar: '#quill-toolbar'
-        },
-        theme: 'snow'
-      })
+        // Italic
+        toolbar.querySelector('.ql-italic')?.addEventListener('click', () => {
+          document.execCommand('italic', false)
+          editorRef.value?.focus()
+        })
 
-      // Sync Quill changes to editor
-      quillInstance.value.on('text-change', () => {
-        if (editorRef.value) {
-          const html = quillInstance.value?.root.innerHTML || ''
-          emit('update:modelValue', html)
-        }
-      })
+        // Underline
+        toolbar.querySelector('.ql-underline')?.addEventListener('click', () => {
+          document.execCommand('underline', false)
+          editorRef.value?.focus()
+        })
 
-      // Set initial content
-      if (props.modelValue && quillInstance.value) {
-        quillInstance.value.root.innerHTML = props.modelValue
+        // Strike
+        toolbar.querySelector('.ql-strike')?.addEventListener('click', () => {
+          document.execCommand('strikeThrough', false)
+          editorRef.value?.focus()
+        })
+
+        // Lists
+        toolbar.querySelectorAll('.ql-list').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const type = (e.currentTarget as HTMLElement).getAttribute('value')
+            if (type === 'ordered') {
+              document.execCommand('insertOrderedList', false)
+            } else if (type === 'bullet') {
+              document.execCommand('insertUnorderedList', false)
+            }
+            editorRef.value?.focus()
+          })
+        })
+
+        // Alignment
+        toolbar.querySelectorAll('.ql-align').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const align = (e.currentTarget as HTMLElement).getAttribute('value') || 'left'
+            if (align === '') {
+              document.execCommand('justifyLeft', false)
+            } else if (align === 'center') {
+              document.execCommand('justifyCenter', false)
+            } else if (align === 'right') {
+              document.execCommand('justifyRight', false)
+            } else if (align === 'justify') {
+              document.execCommand('justifyFull', false)
+            }
+            editorRef.value?.focus()
+          })
+        })
+
+        // Clean formatting
+        toolbar.querySelector('.ql-clean')?.addEventListener('click', () => {
+          document.execCommand('removeFormat', false)
+          editorRef.value?.focus()
+        })
       }
-    } catch (error) {
-      console.error('Error initializing Quill:', error)
-    }
+    }, 100)
   }
 
   // Add global selection change listener
@@ -2438,6 +2470,51 @@ onUnmounted(() => {
 </script>
 
 <style>
+/* Quill Toolbar Styling */
+#quill-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#quill-toolbar select,
+#quill-toolbar button {
+  background: #374151;
+  border: 1px solid #4b5563;
+  color: #d1d5db;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+#quill-toolbar button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#quill-toolbar select:hover,
+#quill-toolbar button:hover {
+  background: #4b5563;
+}
+
+#quill-toolbar select:focus,
+#quill-toolbar button:focus {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+#quill-toolbar button.ql-active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white;
+}
+
 .rich-content-editor .prose {
   max-width: none;
   color: #111827;
