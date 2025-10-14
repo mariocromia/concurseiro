@@ -1193,73 +1193,48 @@ const insertCheckMark = () => {
 
 // Função para alterar a família da fonte
 const changeFontFamily = () => {
-  const selection = window.getSelection()
-
-  if (!currentFontFamily.value) {
+  if (!currentFontFamily.value || !editorRef.value) {
     return
   }
 
-  // Se há texto selecionado, aplica no texto
-  if (selection && selection.toString()) {
-    const selectedText = selection.toString()
-    const html = `<span style="font-family: ${currentFontFamily.value}">${selectedText}</span>`
-    document.execCommand('insertHTML', false, html)
-    handleInput()
-  } else {
-    // Se não há texto selecionado, insere um span vazio com a fonte
-    // e posiciona o cursor dentro dele para digitar
-    const html = `<span style="font-family: ${currentFontFamily.value}">&nbsp;</span>`
-    document.execCommand('insertHTML', false, html)
+  const selection = window.getSelection()
 
-    // Move o cursor para dentro do span
-    if (editorRef.value) {
-      const sel = window.getSelection()
-      if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0)
-        range.setStart(range.endContainer, range.endOffset - 1)
-        range.collapse(true)
-        sel.removeAllRanges()
-        sel.addRange(range)
-      }
-    }
+  if (selection && !selection.isCollapsed) {
+    // Há texto selecionado - usa execCommand que funciona melhor
+    document.execCommand('fontName', false, currentFontFamily.value)
+    handleInput()
   }
 
-  editorRef.value?.focus()
+  // Sempre foca o editor
+  editorRef.value.focus()
 }
 
 const changeFontSizeNew = () => {
-  const selection = window.getSelection()
-
-  if (!currentFontSize.value) {
+  if (!currentFontSize.value || !editorRef.value) {
     return
   }
 
-  // Se há texto selecionado, aplica no texto
-  if (selection && selection.toString()) {
-    const selectedText = selection.toString()
-    const html = `<span style="font-size: ${currentFontSize.value}">${selectedText}</span>`
-    document.execCommand('insertHTML', false, html)
-    handleInput()
-  } else {
-    // Se não há texto selecionado, insere um span vazio com o tamanho
-    // e posiciona o cursor dentro dele para digitar
-    const html = `<span style="font-size: ${currentFontSize.value}">&nbsp;</span>`
-    document.execCommand('insertHTML', false, html)
+  const selection = window.getSelection()
 
-    // Move o cursor para dentro do span
-    if (editorRef.value) {
-      const sel = window.getSelection()
-      if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0)
-        range.setStart(range.endContainer, range.endOffset - 1)
-        range.collapse(true)
-        sel.removeAllRanges()
-        sel.addRange(range)
-      }
-    }
+  if (selection && !selection.isCollapsed) {
+    // Há texto selecionado - aplica o tamanho
+    const sizeInPx = parseInt(currentFontSize.value)
+    let fontSize = 3 // padrão
+
+    // Mapeia px para tamanhos HTML (1-7)
+    if (sizeInPx <= 10) fontSize = 1
+    else if (sizeInPx <= 13) fontSize = 2
+    else if (sizeInPx <= 16) fontSize = 3
+    else if (sizeInPx <= 18) fontSize = 4
+    else if (sizeInPx <= 24) fontSize = 5
+    else if (sizeInPx <= 32) fontSize = 6
+    else fontSize = 7
+
+    document.execCommand('fontSize', false, String(fontSize))
+    handleInput()
   }
 
-  editorRef.value?.focus()
+  editorRef.value.focus()
 }
 
 const resetFontFamily = () => {
