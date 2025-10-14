@@ -4,42 +4,46 @@
     <ClientOnly>
       <div id="quill-toolbar" class="bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-2 mb-2 sticky top-0 z-11 shadow-sm">
         <!-- Font Family -->
-        <select class="ql-font">
-          <option value=""></option>
-          <option value="serif"></option>
-          <option value="monospace"></option>
+        <select class="ql-font" title="Tipo de fonte">
+          <option value="">Sans Serif</option>
+          <option value="serif">Serif</option>
+          <option value="monospace">Monospace</option>
         </select>
 
         <!-- Font Size -->
-        <select class="ql-size">
-          <option value="small"></option>
-          <option selected></option>
-          <option value="large"></option>
-          <option value="huge"></option>
+        <select class="ql-size" title="Tamanho da fonte">
+          <option value="small">Pequeno</option>
+          <option value="" selected>Normal</option>
+          <option value="large">Grande</option>
+          <option value="huge">Enorme</option>
         </select>
 
         <!-- Formatting -->
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
-        <button class="ql-strike"></button>
+        <button class="ql-bold" title="Negrito"><strong>B</strong></button>
+        <button class="ql-italic" title="Itálico"><em>I</em></button>
+        <button class="ql-underline" title="Sublinhado"><u>U</u></button>
+        <button class="ql-strike" title="Tachado"><s>S</s></button>
 
         <!-- Colors -->
-        <select class="ql-color"></select>
-        <select class="ql-background"></select>
+        <select class="ql-color" title="Cor da fonte">
+          <option value="">Cor</option>
+        </select>
+        <select class="ql-background" title="Marcador">
+          <option value="">Marcador</option>
+        </select>
 
         <!-- Lists -->
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
+        <button class="ql-list" value="ordered" title="Lista numerada">1.</button>
+        <button class="ql-list" value="bullet" title="Lista com marcadores">•</button>
 
         <!-- Alignment -->
-        <button class="ql-align" value=""></button>
-        <button class="ql-align" value="center"></button>
-        <button class="ql-align" value="right"></button>
-        <button class="ql-align" value="justify"></button>
+        <button class="ql-align" value="" title="Alinhar esquerda">⬅</button>
+        <button class="ql-align" value="center" title="Centralizar">↔</button>
+        <button class="ql-align" value="right" title="Alinhar direita">➡</button>
+        <button class="ql-align" value="justify" title="Justificar">⬌</button>
 
         <!-- Clean -->
-        <button class="ql-clean"></button>
+        <button class="ql-clean" title="Limpar formatação">✕</button>
       </div>
     </ClientOnly>
 
