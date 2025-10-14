@@ -23,39 +23,65 @@
         <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
         <!-- Font Family -->
-        <select
-          v-model="currentFontFamily"
-          @change="changeFontFamily"
-          class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[140px]"
-          title="Tipo de fonte"
-        >
-          <option value="">Fonte</option>
-          <option v-for="font in googleFonts" :key="font.value" :value="font.value" :style="{ fontFamily: font.value }">
-            {{ font.label }}
-          </option>
-        </select>
+        <div class="flex items-center gap-1">
+          <select
+            v-model="currentFontFamily"
+            @change="changeFontFamily"
+            class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[140px]"
+            title="Tipo de fonte"
+          >
+            <option value="">Fonte Padrão</option>
+            <option v-for="font in googleFonts" :key="font.value" :value="font.value" :style="{ fontFamily: font.value }">
+              {{ font.label }}
+            </option>
+          </select>
+          <button
+            v-if="currentFontFamily"
+            @click="resetFontFamily"
+            title="Resetar fonte padrão"
+            class="p-1 text-gray-400 hover:text-gray-300 hover:bg-dark-700 rounded transition-colors"
+            type="button"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
 
         <!-- Font Size -->
-        <select
-          v-model="currentFontSize"
-          @change="changeFontSizeNew"
-          class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[80px]"
-          title="Tamanho da fonte"
-        >
-          <option value="">Tamanho</option>
-          <option value="10px">10</option>
-          <option value="12px">12</option>
-          <option value="14px">14</option>
-          <option value="16px">16</option>
-          <option value="18px">18</option>
-          <option value="20px">20</option>
-          <option value="24px">24</option>
-          <option value="28px">28</option>
-          <option value="32px">32</option>
-          <option value="36px">36</option>
-          <option value="42px">42</option>
-          <option value="48px">48</option>
-        </select>
+        <div class="flex items-center gap-1">
+          <select
+            v-model="currentFontSize"
+            @change="changeFontSizeNew"
+            class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[80px]"
+            title="Tamanho da fonte"
+          >
+            <option value="">Tamanho Padrão</option>
+            <option value="10px">10</option>
+            <option value="12px">12</option>
+            <option value="14px">14</option>
+            <option value="16px">16</option>
+            <option value="18px">18</option>
+            <option value="20px">20</option>
+            <option value="24px">24</option>
+            <option value="28px">28</option>
+            <option value="32px">32</option>
+            <option value="36px">36</option>
+            <option value="42px">42</option>
+            <option value="48px">48</option>
+          </select>
+          <button
+            v-if="currentFontSize"
+            @click="resetFontSize"
+            title="Resetar tamanho padrão"
+            class="p-1 text-gray-400 hover:text-gray-300 hover:bg-dark-700 rounded transition-colors"
+            type="button"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
 
         <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
@@ -1167,39 +1193,61 @@ const insertCheckMark = () => {
 
 const changeFontFamily = () => {
   const selection = window.getSelection()
-  if (!selection || !selection.toString()) {
-    alert('Selecione o texto para alterar a fonte')
-    currentFontFamily.value = ''
+
+  if (!currentFontFamily.value) {
     return
   }
 
-  if (currentFontFamily.value && editorRef.value) {
-    // Simple approach: use insertHTML with the selected text
+  // Se há texto selecionado, aplica no texto
+  if (selection && selection.toString()) {
     const selectedText = selection.toString()
     const html = `<span style="font-family: ${currentFontFamily.value}">${selectedText}</span>`
-
     document.execCommand('insertHTML', false, html)
-    editorRef.value?.focus()
     handleInput()
+  }
+
+  // Sempre aplica no editor para novos textos
+  if (editorRef.value) {
+    editorRef.value.style.fontFamily = currentFontFamily.value
+    editorRef.value?.focus()
   }
 }
 
 const changeFontSizeNew = () => {
   const selection = window.getSelection()
-  if (!selection || !selection.toString()) {
-    alert('Selecione o texto para alterar o tamanho')
-    currentFontSize.value = ''
+
+  if (!currentFontSize.value) {
     return
   }
 
-  if (currentFontSize.value && editorRef.value) {
-    // Simple approach: use insertHTML with the selected text
+  // Se há texto selecionado, aplica no texto
+  if (selection && selection.toString()) {
     const selectedText = selection.toString()
     const html = `<span style="font-size: ${currentFontSize.value}">${selectedText}</span>`
-
     document.execCommand('insertHTML', false, html)
-    editorRef.value?.focus()
     handleInput()
+  }
+
+  // Sempre aplica no editor para novos textos
+  if (editorRef.value) {
+    editorRef.value.style.fontSize = currentFontSize.value
+    editorRef.value?.focus()
+  }
+}
+
+const resetFontFamily = () => {
+  currentFontFamily.value = ''
+  if (editorRef.value) {
+    editorRef.value.style.fontFamily = ''
+    editorRef.value?.focus()
+  }
+}
+
+const resetFontSize = () => {
+  currentFontSize.value = ''
+  if (editorRef.value) {
+    editorRef.value.style.fontSize = ''
+    editorRef.value?.focus()
   }
 }
 
