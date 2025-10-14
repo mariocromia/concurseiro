@@ -1174,65 +1174,11 @@ const changeFontFamily = () => {
   }
 
   if (currentFontFamily.value && editorRef.value) {
-    const range = selection.getRangeAt(0)
+    // Simple approach: use insertHTML with the selected text
+    const selectedText = selection.toString()
+    const html = `<span style="font-family: ${currentFontFamily.value}">${selectedText}</span>`
 
-    // Check if selection is entirely within a single span with font-family
-    let commonAncestor = range.commonAncestorContainer
-    if (commonAncestor.nodeType === Node.TEXT_NODE) {
-      commonAncestor = commonAncestor.parentElement!
-    }
-
-    // Walk up the tree to find a span with font-family
-    let targetSpan: HTMLElement | null = null
-    let current = commonAncestor as HTMLElement
-    while (current && current !== editorRef.value) {
-      if (current.tagName === 'SPAN' && current.style.fontFamily) {
-        targetSpan = current
-        break
-      }
-      current = current.parentElement!
-    }
-
-    // If found a parent span with font-family, just update it
-    if (targetSpan) {
-      targetSpan.style.fontFamily = currentFontFamily.value
-      editorRef.value?.focus()
-      handleInput()
-      return
-    }
-
-    // Otherwise extract, clean and wrap
-    const contents = range.extractContents()
-
-    // Remove existing font-family styles from all elements
-    const walker = document.createTreeWalker(contents, NodeFilter.SHOW_ELEMENT)
-    const elements: HTMLElement[] = []
-    let node = walker.currentNode as HTMLElement
-    while (node) {
-      elements.push(node)
-      node = walker.nextNode() as HTMLElement
-    }
-    elements.forEach((el) => {
-      if (el.style) {
-        el.style.fontFamily = ''
-        if (el.getAttribute('style') === '') {
-          el.removeAttribute('style')
-        }
-      }
-    })
-
-    // Wrap in new span with font-family
-    const wrapper = document.createElement('span')
-    wrapper.style.fontFamily = currentFontFamily.value
-    wrapper.appendChild(contents)
-
-    range.insertNode(wrapper)
-
-    // Re-select the text
-    range.selectNodeContents(wrapper)
-    selection.removeAllRanges()
-    selection.addRange(range)
-
+    document.execCommand('insertHTML', false, html)
     editorRef.value?.focus()
     handleInput()
   }
@@ -1247,65 +1193,11 @@ const changeFontSizeNew = () => {
   }
 
   if (currentFontSize.value && editorRef.value) {
-    const range = selection.getRangeAt(0)
+    // Simple approach: use insertHTML with the selected text
+    const selectedText = selection.toString()
+    const html = `<span style="font-size: ${currentFontSize.value}">${selectedText}</span>`
 
-    // Check if selection is entirely within a single span with font-size
-    let commonAncestor = range.commonAncestorContainer
-    if (commonAncestor.nodeType === Node.TEXT_NODE) {
-      commonAncestor = commonAncestor.parentElement!
-    }
-
-    // Walk up the tree to find a span with font-size
-    let targetSpan: HTMLElement | null = null
-    let current = commonAncestor as HTMLElement
-    while (current && current !== editorRef.value) {
-      if (current.tagName === 'SPAN' && current.style.fontSize) {
-        targetSpan = current
-        break
-      }
-      current = current.parentElement!
-    }
-
-    // If found a parent span with font-size, just update it
-    if (targetSpan) {
-      targetSpan.style.fontSize = currentFontSize.value
-      editorRef.value?.focus()
-      handleInput()
-      return
-    }
-
-    // Otherwise extract, clean and wrap
-    const contents = range.extractContents()
-
-    // Remove existing font-size styles from all elements
-    const walker = document.createTreeWalker(contents, NodeFilter.SHOW_ELEMENT)
-    const elements: HTMLElement[] = []
-    let node = walker.currentNode as HTMLElement
-    while (node) {
-      elements.push(node)
-      node = walker.nextNode() as HTMLElement
-    }
-    elements.forEach((el) => {
-      if (el.style) {
-        el.style.fontSize = ''
-        if (el.getAttribute('style') === '') {
-          el.removeAttribute('style')
-        }
-      }
-    })
-
-    // Wrap in new span with font-size
-    const wrapper = document.createElement('span')
-    wrapper.style.fontSize = currentFontSize.value
-    wrapper.appendChild(contents)
-
-    range.insertNode(wrapper)
-
-    // Re-select the text
-    range.selectNodeContents(wrapper)
-    selection.removeAllRanges()
-    selection.addRange(range)
-
+    document.execCommand('insertHTML', false, html)
     editorRef.value?.focus()
     handleInput()
   }
