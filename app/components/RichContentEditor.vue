@@ -1217,20 +1217,23 @@ const changeFontSizeNew = () => {
   const selection = window.getSelection()
 
   if (selection && !selection.isCollapsed) {
-    // Há texto selecionado - aplica o tamanho
-    const sizeInPx = parseInt(currentFontSize.value)
-    let fontSize = 3 // padrão
+    // Há texto selecionado - aplica o tamanho diretamente em pixels
+    const range = selection.getRangeAt(0)
+    const selectedContent = range.extractContents()
 
-    // Mapeia px para tamanhos HTML (1-7)
-    if (sizeInPx <= 10) fontSize = 1
-    else if (sizeInPx <= 13) fontSize = 2
-    else if (sizeInPx <= 16) fontSize = 3
-    else if (sizeInPx <= 18) fontSize = 4
-    else if (sizeInPx <= 24) fontSize = 5
-    else if (sizeInPx <= 32) fontSize = 6
-    else fontSize = 7
+    // Cria um span com o tamanho desejado
+    const span = document.createElement('span')
+    span.style.fontSize = currentFontSize.value
+    span.appendChild(selectedContent)
 
-    document.execCommand('fontSize', false, String(fontSize))
+    // Insere o span no lugar do texto selecionado
+    range.insertNode(span)
+
+    // Reseleciona o texto formatado
+    range.selectNodeContents(span)
+    selection.removeAllRanges()
+    selection.addRange(range)
+
     handleInput()
   }
 
