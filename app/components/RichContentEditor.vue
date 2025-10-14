@@ -1191,6 +1191,32 @@ const insertCheckMark = () => {
   editorRef.value?.focus()
 }
 
+// Função auxiliar para extrair texto puro mantendo estrutura de quebras de linha
+const extractTextContent = (node: Node): string => {
+  let text = ''
+
+  const processNode = (n: Node) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      text += n.textContent || ''
+    } else if (n.nodeType === Node.ELEMENT_NODE) {
+      const el = n as Element
+      // Preserva quebras de linha
+      if (el.tagName === 'BR') {
+        text += '\n'
+      } else if (el.tagName === 'DIV' || el.tagName === 'P') {
+        if (text && !text.endsWith('\n')) text += '\n'
+        n.childNodes.forEach(processNode)
+        if (!text.endsWith('\n')) text += '\n'
+      } else {
+        n.childNodes.forEach(processNode)
+      }
+    }
+  }
+
+  processNode(node)
+  return text
+}
+
 // Função para alterar a família da fonte
 const changeFontFamily = () => {
   if (!currentFontFamily.value || !editorRef.value) {
@@ -1200,8 +1226,28 @@ const changeFontFamily = () => {
   const selection = window.getSelection()
 
   if (selection && !selection.isCollapsed) {
-    // Há texto selecionado - usa execCommand que funciona melhor
-    document.execCommand('fontName', false, currentFontFamily.value)
+    const range = selection.getRangeAt(0)
+    const selectedContent = range.cloneContents()
+
+    // Extrai apenas o texto puro
+    const textContent = extractTextContent(selectedContent)
+
+    // Remove o conteúdo selecionado
+    range.deleteContents()
+
+    // Cria um span com a fonte desejada e o texto puro
+    const span = document.createElement('span')
+    span.style.fontFamily = currentFontFamily.value
+    span.textContent = textContent
+
+    // Insere o span no lugar do texto selecionado
+    range.insertNode(span)
+
+    // Reseleciona o texto formatado
+    range.selectNodeContents(span)
+    selection.removeAllRanges()
+    selection.addRange(range)
+
     handleInput()
   }
 
@@ -1217,14 +1263,19 @@ const changeFontSizeNew = () => {
   const selection = window.getSelection()
 
   if (selection && !selection.isCollapsed) {
-    // Há texto selecionado - aplica o tamanho diretamente em pixels
     const range = selection.getRangeAt(0)
-    const selectedContent = range.extractContents()
+    const selectedContent = range.cloneContents()
 
-    // Cria um span com o tamanho desejado
+    // Extrai apenas o texto puro
+    const textContent = extractTextContent(selectedContent)
+
+    // Remove o conteúdo selecionado
+    range.deleteContents()
+
+    // Cria um span com o tamanho desejado e o texto puro
     const span = document.createElement('span')
     span.style.fontSize = currentFontSize.value
-    span.appendChild(selectedContent)
+    span.textContent = textContent
 
     // Insere o span no lugar do texto selecionado
     range.insertNode(span)
