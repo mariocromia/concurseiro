@@ -37,6 +37,42 @@
 
         <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
+        <!-- Font Color -->
+        <div class="relative">
+          <button
+            @click="showColorPicker = !showColorPicker"
+            title="Cor da fonte"
+            class="p-2 rounded transition-colors text-gray-400 hover:bg-dark-700/50 relative"
+            type="button"
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9.62 12L12 5.67 14.38 12H9.62zM11 3L5.5 17h2.25l1.12-3h6.25l1.12 3h2.25L13 3h-2z"/>
+            </svg>
+            <div
+              class="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded"
+              :style="{ backgroundColor: currentFontColor }"
+            ></div>
+          </button>
+          <div
+            v-if="showColorPicker"
+            class="absolute top-full mt-2 z-20 bg-dark-800 border border-dark-700 rounded-claude-md p-2 shadow-xl"
+            @click.stop
+          >
+            <div class="grid grid-cols-6 gap-1">
+              <button
+                v-for="color in fontColors"
+                :key="color"
+                @click="changeFontColor(color)"
+                :title="color"
+                class="w-6 h-6 rounded border-2 hover:scale-110 transition-transform"
+                :class="currentFontColor === color ? 'border-white' : 'border-dark-600'"
+                :style="{ backgroundColor: color }"
+                type="button"
+              />
+            </div>
+          </div>
+        </div>
+
         <!-- Highlight -->
         <button
           @click="toggleHighlight"
@@ -53,6 +89,42 @@
             <path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29a.9959.9959 0 00-1.41 0L15 2.25 18.75 6l1.96-1.96z"/>
             <path fill="#FCD34D" d="M0 20h24v4H0v-4z"/>
           </svg>
+        </button>
+
+        <!-- Check Mark Tool -->
+        <button
+          @click="insertCheckMark"
+          title="Inserir check verde ✓"
+          class="p-2 rounded transition-colors text-gray-400 hover:bg-dark-700/50"
+          type="button"
+        >
+          <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+        </button>
+
+        <div class="w-px h-6 bg-dark-700 mx-1"></div>
+
+        <!-- AI Assistant Tool -->
+        <button
+          @click="toggleAIAssistantMode"
+          title="Assistente IA - Ative e selecione texto para usar"
+          :class="[
+            'p-2 rounded transition-colors relative',
+            aiAssistantMode
+              ? 'bg-purple-500/20 text-purple-400 ring-2 ring-purple-500/50'
+              : 'text-gray-400 hover:bg-dark-700/50'
+          ]"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            <circle cx="12" cy="8" r="1.5" fill="currentColor"/>
+          </svg>
+          <div
+            v-if="aiAssistantMode"
+            class="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full animate-pulse"
+          ></div>
         </button>
 
         <!-- Insert Link -->
@@ -876,6 +948,18 @@ const showLinkModal = ref(false)
 const linkUrl = ref('')
 const linkText = ref('')
 
+// Font color
+const showColorPicker = ref(false)
+const currentFontColor = ref('#ffffff')
+const fontColors = [
+  '#ffffff', '#000000', '#ef4444', '#f97316', '#f59e0b', '#eab308',
+  '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
+  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
+]
+
+// AI Assistant mode
+const aiAssistantMode = ref(false)
+
 const formatTools = [
   {
     command: 'bold',
@@ -993,6 +1077,63 @@ const toggleHighlight = () => {
   }, 100)
 
   editorRef.value?.focus()
+}
+
+const changeFontColor = (color: string) => {
+  const selection = window.getSelection()
+  if (!selection || !selection.toString()) {
+    alert('Selecione o texto para alterar a cor')
+    return
+  }
+
+  currentFontColor.value = color
+  document.execCommand('foreColor', false, color)
+  showColorPicker.value = false
+  editorRef.value?.focus()
+}
+
+const insertCheckMark = () => {
+  const checkMark = '<span style="color: #22c55e; font-size: 1.2em; font-weight: bold;">✓</span>&nbsp;'
+  document.execCommand('insertHTML', false, checkMark)
+  editorRef.value?.focus()
+}
+
+const toggleAIAssistantMode = () => {
+  aiAssistantMode.value = !aiAssistantMode.value
+
+  // Fechar o menu se desativar o modo
+  if (!aiAssistantMode.value) {
+    showSelectionMenu.value = false
+  }
+
+  // Desativar outros modos ao ativar IA
+  if (aiAssistantMode.value) {
+    textBoxMode.value = false
+    commentMode.value = false
+    screenshotMode.value = false
+    pageBreakMode.value = false
+
+    // Verificar se há texto já selecionado
+    const selection = window.getSelection()
+    const text = selection?.toString().trim()
+
+    if (text && text.length > 0 && props.isPro) {
+      selectedText.value = text
+      const range = selection!.getRangeAt(0)
+      const rect = range.getBoundingClientRect()
+
+      menuPosition.value = {
+        x: rect.left + rect.width / 2 - 128,
+        y: rect.top - 10 + window.scrollY
+      }
+
+      isSelecting.value = true
+      // Abrir menu imediatamente se já houver seleção
+      setTimeout(() => {
+        showSelectionMenu.value = true
+      }, 100)
+    }
+  }
 }
 
 const clearFormatting = () => {
@@ -1681,7 +1822,7 @@ const handleTextSelection = () => {
   const selection = window.getSelection()
   const text = selection?.toString().trim()
 
-  if (text && text.length > 0 && props.isPro) {
+  if (text && text.length > 0 && props.isPro && aiAssistantMode.value) {
     selectedText.value = text
     const range = selection!.getRangeAt(0)
     const rect = range.getBoundingClientRect()
@@ -1692,7 +1833,7 @@ const handleTextSelection = () => {
     }
 
     isSelecting.value = true
-    // Mostrar menu automaticamente após seleção
+    // Mostrar menu automaticamente após seleção (somente se modo IA estiver ativo)
     setTimeout(() => {
       showSelectionMenu.value = true
     }, 100)
@@ -2010,6 +2151,15 @@ onMounted(() => {
 
   // Add global selection change listener
   document.addEventListener('selectionchange', updateActiveFormats)
+
+  // Close color picker when clicking outside
+  const handleClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.relative') || !target.closest('button[title="Cor da fonte"]')) {
+      showColorPicker.value = false
+    }
+  }
+  document.addEventListener('click', handleClickOutside)
 
   // Wrap existing images with resize handles
   setTimeout(() => {
