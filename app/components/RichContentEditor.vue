@@ -1,7 +1,50 @@
 <template>
   <div class="rich-content-editor">
-    <!-- Toolbar -->
-    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-0 z-10 shadow-sm">
+    <!-- Quill Professional Toolbar -->
+    <ClientOnly>
+      <div id="quill-toolbar" class="bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-2 mb-2 sticky top-0 z-11 shadow-sm">
+        <!-- Font Family -->
+        <select class="ql-font">
+          <option value=""></option>
+          <option value="serif"></option>
+          <option value="monospace"></option>
+        </select>
+
+        <!-- Font Size -->
+        <select class="ql-size">
+          <option value="small"></option>
+          <option selected></option>
+          <option value="large"></option>
+          <option value="huge"></option>
+        </select>
+
+        <!-- Formatting -->
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+        <button class="ql-strike"></button>
+
+        <!-- Colors -->
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+
+        <!-- Lists -->
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+
+        <!-- Alignment -->
+        <button class="ql-align" value=""></button>
+        <button class="ql-align" value="center"></button>
+        <button class="ql-align" value="right"></button>
+        <button class="ql-align" value="justify"></button>
+
+        <!-- Clean -->
+        <button class="ql-clean"></button>
+      </div>
+    </ClientOnly>
+
+    <!-- Original Toolbar -->
+    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-12 z-10 shadow-sm">
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
@@ -926,8 +969,9 @@
 <script setup lang="ts">
 import Calculator from './Calculator.vue'
 import RemindersManager from './RemindersManager.vue'
+import type Quill from 'quill'
 
-// Load Google Fonts
+// Load Google Fonts and Quill CSS
 useHead({
   link: [
     {
@@ -942,6 +986,10 @@ useHead({
     {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Source+Code+Pro:wght@400;600&family=Indie+Flower&display=swap'
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://cdn.quilljs.com/2.0.3/quill.snow.css'
     }
   ]
 })
@@ -963,6 +1011,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const editorRef = ref<HTMLElement | null>(null)
+const quillInstance = ref<Quill | null>(null)
 const showSelectionMenu = ref(false)
 const menuPosition = ref({ x: 0, y: 0 })
 const isSelecting = ref(false)
@@ -2329,9 +2378,39 @@ watch(() => props.modelValue, (newValue) => {
   }
 }, { immediate: true })
 
-onMounted(() => {
+onMounted(async () => {
   if (editorRef.value && props.modelValue) {
     editorRef.value.innerHTML = props.modelValue
+  }
+
+  // Initialize Quill (client-side only)
+  if (process.client) {
+    try {
+      const QuillModule = await import('quill')
+      const Quill = QuillModule.default
+
+      quillInstance.value = new Quill(editorRef.value!, {
+        modules: {
+          toolbar: '#quill-toolbar'
+        },
+        theme: 'snow'
+      })
+
+      // Sync Quill changes to editor
+      quillInstance.value.on('text-change', () => {
+        if (editorRef.value) {
+          const html = quillInstance.value?.root.innerHTML || ''
+          emit('update:modelValue', html)
+        }
+      })
+
+      // Set initial content
+      if (props.modelValue && quillInstance.value) {
+        quillInstance.value.root.innerHTML = props.modelValue
+      }
+    } catch (error) {
+      console.error('Error initializing Quill:', error)
+    }
   }
 
   // Add global selection change listener
