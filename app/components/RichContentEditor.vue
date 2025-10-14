@@ -1191,6 +1191,7 @@ const insertCheckMark = () => {
   editorRef.value?.focus()
 }
 
+// Função para alterar a família da fonte
 const changeFontFamily = () => {
   const selection = window.getSelection()
 
@@ -1204,13 +1205,26 @@ const changeFontFamily = () => {
     const html = `<span style="font-family: ${currentFontFamily.value}">${selectedText}</span>`
     document.execCommand('insertHTML', false, html)
     handleInput()
+  } else {
+    // Se não há texto selecionado, insere um span vazio com a fonte
+    // e posiciona o cursor dentro dele para digitar
+    const html = `<span style="font-family: ${currentFontFamily.value}">&nbsp;</span>`
+    document.execCommand('insertHTML', false, html)
+
+    // Move o cursor para dentro do span
+    if (editorRef.value) {
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0)
+        range.setStart(range.endContainer, range.endOffset - 1)
+        range.collapse(true)
+        sel.removeAllRanges()
+        sel.addRange(range)
+      }
+    }
   }
 
-  // Sempre aplica no editor para novos textos
-  if (editorRef.value) {
-    editorRef.value.style.fontFamily = currentFontFamily.value
-    editorRef.value?.focus()
-  }
+  editorRef.value?.focus()
 }
 
 const changeFontSizeNew = () => {
@@ -1226,29 +1240,36 @@ const changeFontSizeNew = () => {
     const html = `<span style="font-size: ${currentFontSize.value}">${selectedText}</span>`
     document.execCommand('insertHTML', false, html)
     handleInput()
+  } else {
+    // Se não há texto selecionado, insere um span vazio com o tamanho
+    // e posiciona o cursor dentro dele para digitar
+    const html = `<span style="font-size: ${currentFontSize.value}">&nbsp;</span>`
+    document.execCommand('insertHTML', false, html)
+
+    // Move o cursor para dentro do span
+    if (editorRef.value) {
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0)
+        range.setStart(range.endContainer, range.endOffset - 1)
+        range.collapse(true)
+        sel.removeAllRanges()
+        sel.addRange(range)
+      }
+    }
   }
 
-  // Sempre aplica no editor para novos textos
-  if (editorRef.value) {
-    editorRef.value.style.fontSize = currentFontSize.value
-    editorRef.value?.focus()
-  }
+  editorRef.value?.focus()
 }
 
 const resetFontFamily = () => {
   currentFontFamily.value = ''
-  if (editorRef.value) {
-    editorRef.value.style.fontFamily = ''
-    editorRef.value?.focus()
-  }
+  editorRef.value?.focus()
 }
 
 const resetFontSize = () => {
   currentFontSize.value = ''
-  if (editorRef.value) {
-    editorRef.value.style.fontSize = ''
-    editorRef.value?.focus()
-  }
+  editorRef.value?.focus()
 }
 
 const toggleAIAssistantMode = () => {
