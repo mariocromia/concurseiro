@@ -1173,9 +1173,42 @@ const changeFontFamily = () => {
     return
   }
 
-  if (currentFontFamily.value) {
-    document.execCommand('fontName', false, currentFontFamily.value)
+  if (currentFontFamily.value && editorRef.value) {
+    const range = selection.getRangeAt(0)
+    const contents = range.extractContents()
+
+    // Remove existing font-family styles from all elements
+    const walker = document.createTreeWalker(contents, NodeFilter.SHOW_ELEMENT)
+    const elements: HTMLElement[] = []
+    let node = walker.currentNode as HTMLElement
+    while (node) {
+      elements.push(node)
+      node = walker.nextNode() as HTMLElement
+    }
+    elements.forEach((el) => {
+      if (el.style) {
+        el.style.fontFamily = ''
+        // Clean empty style attributes
+        if (el.getAttribute('style') === '') {
+          el.removeAttribute('style')
+        }
+      }
+    })
+
+    // Wrap in new span with font-family
+    const wrapper = document.createElement('span')
+    wrapper.style.fontFamily = currentFontFamily.value
+    wrapper.appendChild(contents)
+
+    range.insertNode(wrapper)
+
+    // Re-select the text
+    range.selectNodeContents(wrapper)
+    selection.removeAllRanges()
+    selection.addRange(range)
+
     editorRef.value?.focus()
+    handleInput()
   }
 }
 
@@ -1187,22 +1220,42 @@ const changeFontSizeNew = () => {
     return
   }
 
-  if (currentFontSize.value) {
-    // Wrap selected text in span with font-size
+  if (currentFontSize.value && editorRef.value) {
     const range = selection.getRangeAt(0)
-    const span = document.createElement('span')
-    span.style.fontSize = currentFontSize.value
+    const contents = range.extractContents()
 
-    try {
-      range.surroundContents(span)
-    } catch {
-      // If surroundContents fails, use insertHTML
-      const selectedText = selection.toString()
-      const html = `<span style="font-size: ${currentFontSize.value}">${selectedText}</span>`
-      document.execCommand('insertHTML', false, html)
+    // Remove existing font-size styles from all elements
+    const walker = document.createTreeWalker(contents, NodeFilter.SHOW_ELEMENT)
+    const elements: HTMLElement[] = []
+    let node = walker.currentNode as HTMLElement
+    while (node) {
+      elements.push(node)
+      node = walker.nextNode() as HTMLElement
     }
+    elements.forEach((el) => {
+      if (el.style) {
+        el.style.fontSize = ''
+        // Clean empty style attributes
+        if (el.getAttribute('style') === '') {
+          el.removeAttribute('style')
+        }
+      }
+    })
+
+    // Wrap in new span with font-size
+    const wrapper = document.createElement('span')
+    wrapper.style.fontSize = currentFontSize.value
+    wrapper.appendChild(contents)
+
+    range.insertNode(wrapper)
+
+    // Re-select the text
+    range.selectNodeContents(wrapper)
+    selection.removeAllRanges()
+    selection.addRange(range)
 
     editorRef.value?.focus()
+    handleInput()
   }
 }
 
