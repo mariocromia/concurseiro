@@ -1191,30 +1191,12 @@ const insertCheckMark = () => {
   editorRef.value?.focus()
 }
 
-// Função auxiliar para extrair texto puro mantendo estrutura de quebras de linha
-const extractTextContent = (node: Node): string => {
-  let text = ''
-
-  const processNode = (n: Node) => {
-    if (n.nodeType === Node.TEXT_NODE) {
-      text += n.textContent || ''
-    } else if (n.nodeType === Node.ELEMENT_NODE) {
-      const el = n as Element
-      // Preserva quebras de linha
-      if (el.tagName === 'BR') {
-        text += '\n'
-      } else if (el.tagName === 'DIV' || el.tagName === 'P') {
-        if (text && !text.endsWith('\n')) text += '\n'
-        n.childNodes.forEach(processNode)
-        if (!text.endsWith('\n')) text += '\n'
-      } else {
-        n.childNodes.forEach(processNode)
-      }
-    }
-  }
-
-  processNode(node)
-  return text
+// Função auxiliar para extrair texto puro preservando o conteúdo
+const extractTextContent = (fragment: DocumentFragment): string => {
+  // Cria um elemento temporário para obter o textContent
+  const temp = document.createElement('div')
+  temp.appendChild(fragment.cloneNode(true))
+  return temp.textContent || ''
 }
 
 // Função para alterar a família da fonte
