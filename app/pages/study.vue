@@ -29,7 +29,7 @@
             </div>
 
             <!-- Timer Display -->
-            <div class="p-12 text-center bg-gradient-to-br from-dark-900 to-dark-800 relative overflow-hidden">
+            <div class="p-12 text-center bg-[#cb785b] dark:bg-gradient-to-br dark:from-dark-900 dark:to-dark-800 relative overflow-hidden">
               <!-- Background decoration -->
               <div class="absolute inset-0 opacity-5">
                 <div class="absolute top-0 left-0 w-64 h-64 bg-primary-500 rounded-full filter blur-3xl"></div>
