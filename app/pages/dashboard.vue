@@ -211,7 +211,7 @@
               <div
                 v-for="task in todoTasks"
                 :key="task.id"
-                class="bg-[#f5e4dd] dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition"
+                class="bg-white dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition"
                 @click="editTask(task)"
               >
                 <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
@@ -225,7 +225,7 @@
           </div>
 
           <!-- In Progress Column -->
-          <div class="bg-primary-500/10 border border-claude-primary dark:border-primary-500/30 rounded-claude-md p-4">
+          <div class="bg-primary-500/10 border border-[#ca643f]/30 dark:border-primary-500/30 rounded-claude-md p-4">
             <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
               <div class="w-3 h-3 bg-primary-500 rounded-full"></div>
               Em Progresso ({{ inProgressTasks.length }})
@@ -234,7 +234,7 @@
               <div
                 v-for="task in inProgressTasks"
                 :key="task.id"
-                class="bg-dark-800 p-4 rounded-claude-md border border-dark-700 cursor-pointer hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition"
+                class="bg-white dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition"
                 @click="editTask(task)"
               >
                 <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
@@ -248,7 +248,7 @@
           </div>
 
           <!-- Done Column -->
-          <div class="bg-primary-500/10 border border-claude-primary dark:border-primary-500/30 rounded-claude-md p-4">
+          <div class="bg-primary-500/10 border border-[#ca643f]/30 dark:border-primary-500/30 rounded-claude-md p-4">
             <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
               <div class="w-3 h-3 bg-primary-500 rounded-full"></div>
               Concluído ({{ doneTasks.length }})
@@ -257,7 +257,7 @@
               <div
                 v-for="task in doneTasks"
                 :key="task.id"
-                class="bg-dark-800 p-4 rounded-claude-md border border-dark-700 cursor-pointer hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition opacity-75"
+                class="bg-white dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition opacity-75"
                 @click="editTask(task)"
               >
                 <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
