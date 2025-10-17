@@ -1,20 +1,26 @@
 export default defineNuxtRouteMiddleware((to, from) => {
   const user = useSupabaseUser()
 
-  console.log('🔐 Auth Middleware - De:', from.path, '→ Para:', to.path)
-  console.log('🔐 Usuário:', user.value?.email || 'NÃO AUTENTICADO')
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/login', '/register', '/confirm', '/forgot-password', '/precos', '/checkout']
+  const isPublicRoute = publicRoutes.includes(to.path)
 
-  // Se não estiver logado e tentar acessar rota protegida
-  if (!user.value && to.path !== '/login' && to.path !== '/register' && to.path !== '/' && to.path !== '/confirm') {
-    console.log('❌ Acesso negado - redirecionando para /login')
+  // Auth routes that should redirect if already logged in
+  const authRoutes = ['/login', '/register']
+  const isAuthRoute = authRoutes.includes(to.path)
+
+  // Quick check: if going to public route and not an auth route, allow immediately
+  if (isPublicRoute && !isAuthRoute) {
+    return
+  }
+
+  // If not logged in and trying to access protected route
+  if (!user.value && !isPublicRoute) {
     return navigateTo('/login')
   }
 
-  // Se estiver logado e tentar acessar login/register
-  if (user.value && (to.path === '/login' || to.path === '/register')) {
-    console.log('✅ Já autenticado - redirecionando para /dashboard')
+  // If logged in and trying to access auth routes
+  if (user.value && isAuthRoute) {
     return navigateTo('/dashboard')
   }
-
-  console.log('✅ Acesso permitido a:', to.path)
 })

@@ -36,7 +36,36 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Plataforma de estudos para concursos e vestibulares com IA' }
+        { name: 'description', content: 'Plataforma de estudos para concursos e vestibulares com IA' },
+        { name: 'color-scheme', content: 'dark light' }
+      ],
+      script: [
+        {
+          children: `
+            // Critical: Apply theme IMMEDIATELY before any render
+            (function() {
+              try {
+                const theme = localStorage.getItem('theme') ||
+                             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.classList.add(theme);
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch(e) {
+                document.documentElement.classList.add('dark');
+              }
+            })();
+          `,
+          type: 'text/javascript',
+          tagPosition: 'head'
+        }
+      ],
+      style: [
+        {
+          children: `
+            html { visibility: hidden; }
+            html.dark, html.light { visibility: visible; }
+          `,
+          type: 'text/css'
+        }
       ]
     }
   }
