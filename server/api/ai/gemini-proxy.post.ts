@@ -1,22 +1,20 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { geminiProxySchema, validateBody } from '~/server/utils/validation-schemas'
+import { aiRateLimit, checkRateLimit } from '~/server/utils/rate-limit'
 
 /**
  * Gemini AI Proxy Endpoint
  *
  * Security: Google AI API key is kept server-side only
- * Rate Limiting: 20 requests per hour per user
+ * Rate Limiting: 20 requests per hour per user (Redis distributed)
  * Authentication: Required
  * Authorization: Pro plan required for AI features
  * Validation: Zod schema validation
  *
  * @author Claude Code
- * @date 2025-10-16 (Updated with Zod validation)
+ * @date 2025-10-17 (Updated with Redis rate limiting)
  */
-
-// In-memory rate limiting (temporary - TODO: migrate to Redis)
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>()
 
 export default defineEventHandler(async (event) => {
   const startTime = Date.now()
@@ -31,28 +29,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 2. Rate Limiting (20 requests/hour)
-    const rateLimitKey = `gemini:${user.id}`
-    const now = Date.now()
-    const windowMs = 60 * 60 * 1000 // 1 hour
-    const maxRequests = 20
-
-    let rateLimit = rateLimitStore.get(rateLimitKey)
-
-    if (!rateLimit || now > rateLimit.resetAt) {
-      rateLimit = { count: 0, resetAt: now + windowMs }
-      rateLimitStore.set(rateLimitKey, rateLimit)
-    }
-
-    if (rateLimit.count >= maxRequests) {
-      const resetIn = Math.ceil((rateLimit.resetAt - now) / 1000 / 60) // minutes
-      throw createError({
-        statusCode: 429,
-        message: `Rate limit exceeded. Try again in ${resetIn} minutes.`
-      })
-    }
-
-    rateLimit.count++
+    // 2. Rate Limiting with Redis (20 requests/hour per user)
+    const rateLimitInfo = await checkRateLimit(
+      user.id,
+      aiRateLimit,
+      'AI rate limit exceeded. You can make 20 AI requests per hour.'
+    )
 
     // 3. Subscription Check (Pro plan required for AI)
     const supabase = await serverSupabaseClient(event)
@@ -129,8 +111,9 @@ export default defineEventHandler(async (event) => {
         }
       },
       rateLimit: {
-        remaining: maxRequests - rateLimit.count,
-        resetAt: new Date(rateLimit.resetAt).toISOString()
+        remaining: rateLimitInfo.remaining,
+        limit: rateLimitInfo.limit,
+        reset: new Date(rateLimitInfo.reset).toISOString()
       }
     }
 
