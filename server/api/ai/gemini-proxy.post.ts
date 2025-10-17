@@ -1,5 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { geminiProxySchema, validateBody } from '~/server/utils/validation-schemas'
 
 /**
  * Gemini AI Proxy Endpoint
@@ -8,9 +9,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
  * Rate Limiting: 20 requests per hour per user
  * Authentication: Required
  * Authorization: Pro plan required for AI features
+ * Validation: Zod schema validation
  *
  * @author Claude Code
- * @date 2025-10-16
+ * @date 2025-10-16 (Updated with Zod validation)
  */
 
 // In-memory rate limiting (temporary - TODO: migrate to Redis)
@@ -70,31 +72,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 4. Validate Request Body
+    // 4. Validate Request Body with Zod
     const body = await readBody(event)
-
-    if (!body || !body.prompt) {
-      throw createError({
-        statusCode: 400,
-        message: 'Prompt is required'
-      })
-    }
-
     const {
       prompt,
-      model = 'gemini-pro',
-      temperature = 0.7,
-      maxTokens = 2048,
+      model,
+      temperature,
+      maxTokens,
       systemInstruction
-    } = body
-
-    // Validate prompt length
-    if (typeof prompt !== 'string' || prompt.length < 1 || prompt.length > 10000) {
-      throw createError({
-        statusCode: 400,
-        message: 'Prompt must be between 1 and 10,000 characters'
-      })
-    }
+    } = validateBody(geminiProxySchema, body)
 
     // 5. Call Google Gemini API (server-side only)
     const config = useRuntimeConfig()
