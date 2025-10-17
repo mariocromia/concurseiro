@@ -4,7 +4,7 @@
     <nav class="border-b border-dark-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <NuxtLink to="/" class="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-          Concurseiro
+          PraPassar
         </NuxtLink>
         <div class="flex gap-4">
           <NuxtLink
@@ -279,7 +279,7 @@
     <!-- Footer -->
     <footer class="border-t border-dark-700 mt-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-        <p class="text-gray-600 dark:text-gray-500 text-sm">&copy; 2025 Concurseiro. Todos os direitos reservados.</p>
+        <p class="text-gray-600 dark:text-gray-500 text-sm">&copy; 2025 PraPassar. Todos os direitos reservados.</p>
       </div>
     </footer>
   </div>
@@ -288,7 +288,7 @@
 <script setup lang="ts">
 // SEO
 useHead({
-  title: 'Planos e Preços - Concurseiro',
+  title: 'Planos e Preços - PraPassar',
   meta: [
     {
       name: 'description',

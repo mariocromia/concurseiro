@@ -145,7 +145,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div class="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 class="text-claude-text dark:text-white font-bold text-lg mb-4">Concurseiro</h3>
+            <h3 class="text-claude-text dark:text-white font-bold text-lg mb-4">PraPassar</h3>
             <p class="text-claude-text-secondary dark:text-gray-400 text-sm">
               Plataforma completa de estudos com inteligência artificial para concursos e vestibulares.
             </p>
@@ -175,7 +175,7 @@
           </div>
         </div>
         <div class="border-t border-dark-700 pt-8 text-center">
-          <p class="text-gray-600 dark:text-gray-500 text-sm">&copy; 2025 Concurseiro. Desenvolvido para aprovação.</p>
+          <p class="text-gray-600 dark:text-gray-500 text-sm">&copy; 2025 PraPassar. Desenvolvido para aprovação.</p>
         </div>
       </div>
     </footer>

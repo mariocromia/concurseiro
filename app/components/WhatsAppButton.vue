@@ -67,7 +67,7 @@ const props = defineProps({
   },
   message: {
     type: String,
-    default: 'Olá! Preciso de ajuda com o Concurseiro.'
+    default: 'Olá! Preciso de ajuda com o PraPassar.'
   }
 })
 

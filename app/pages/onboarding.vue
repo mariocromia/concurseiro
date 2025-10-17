@@ -5,7 +5,7 @@
       <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-claude-text dark:text-white p-6">
         <div class="flex items-center justify-center gap-2 mb-2">
           <div class="w-8 h-8 bg-white/20 rounded-claude-md"></div>
-          <h1 class="text-3xl font-bold">Bem-vindo ao Concurseiro!</h1>
+          <h1 class="text-3xl font-bold">Bem-vindo ao PraPassar!</h1>
         </div>
         <p class="text-center text-primary-100 mt-2">Configure sua meta de estudo e suas primeiras matérias</p>
 

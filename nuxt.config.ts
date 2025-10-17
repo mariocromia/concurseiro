@@ -31,7 +31,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Concurseiro - Plataforma de Estudos',
+      title: 'PraPassar - Plataforma de Estudos',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },

@@ -4,7 +4,7 @@
       <div class="text-center mb-8">
         <div class="flex items-center justify-center gap-2 mb-4">
           <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-claude-md"></div>
-          <span class="text-2xl font-bold text-claude-text dark:text-white">Concurseiro</span>
+          <span class="text-2xl font-bold text-claude-text dark:text-white">PraPassar</span>
         </div>
         <h1 class="text-3xl font-bold text-claude-text dark:text-white mb-2">Criar conta grátis</h1>
         <p class="text-claude-text-secondary dark:text-gray-400">Comece a estudar de forma inteligente</p>
