@@ -1,10 +1,10 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { affiliateRegisterSchema, validateBody } from '~/server/utils/validation-schemas'
 
 // POST /api/affiliates/register - Cadastrar como afiliado
 export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event)
   const user = await serverSupabaseUser(event)
-  const body = await readBody(event)
 
   if (!user) {
     throw createError({
@@ -13,14 +13,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { coupon_code, cpf } = body
-
-  if (!coupon_code || !cpf) {
-    throw createError({
-      statusCode: 400,
-      message: 'Cupom e CPF são obrigatórios'
-    })
-  }
+  const body = await readBody(event)
+  const { coupon_code, cpf } = validateBody(affiliateRegisterSchema, body)
 
   try {
     // Verificar se usuário já é afiliado

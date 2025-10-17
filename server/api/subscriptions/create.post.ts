@@ -1,11 +1,12 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { createSubscriptionSchema, validateBody } from '~/server/utils/validation-schemas'
 
 // POST /api/subscriptions/create - Criar nova assinatura
 export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event)
   const asaas = useAsaas()
-  const body = await readBody(event)
 
+  const body = await readBody(event)
   const {
     planId,
     customerData,
@@ -13,15 +14,7 @@ export default defineEventHandler(async (event) => {
     creditCardData,
     couponCode,
     affiliateId
-  } = body
-
-  // Validações
-  if (!planId || !customerData) {
-    throw createError({
-      statusCode: 400,
-      message: 'Dados incompletos'
-    })
-  }
+  } = validateBody(createSubscriptionSchema, body)
 
   // Buscar usuário autenticado
   const user = event.context.user

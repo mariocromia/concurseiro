@@ -76,6 +76,97 @@ export const createSubscriptionSchema = z.object({
   affiliateId: uuidSchema.optional()
 })
 
+export const changePlanSchema = z.object({
+  newPlanId: uuidSchema
+})
+
+export const cancelSubscriptionSchema = z.object({
+  reason: z.string().max(500).optional()
+})
+
+// ============================================
+// AFFILIATE SCHEMAS
+// ============================================
+
+export const affiliateRegisterSchema = z.object({
+  coupon_code: z.string().min(3).max(50).regex(/^[A-Z0-9_-]+$/i),
+  cpf: cpfSchema
+})
+
+export const affiliateWithdrawSchema = z.object({
+  amount: z.number().positive().min(50),
+  pix_key: z.string().min(3).max(100)
+})
+
+export const checkCouponSchema = z.object({
+  code: z.string().min(1).max(50)
+})
+
+export const validateCouponSchema = z.object({
+  code: z.string().min(1).max(50),
+  planId: uuidSchema
+})
+
+export const trackClickSchema = z.object({
+  affiliateId: uuidSchema
+})
+
+export const approveWithdrawSchema = z.object({
+  withdrawId: uuidSchema,
+  status: z.enum(['approved', 'rejected']),
+  admin_notes: z.string().max(500).optional()
+})
+
+// ============================================
+// MINDMAP SCHEMAS
+// ============================================
+
+export const mindmapNodeSchema = z.object({
+  id: z.string().optional(),
+  parent_id: z.union([uuidSchema, z.string()]).nullable().optional(),
+  text: z.string().min(1).max(500),
+  position_x: z.number().default(0),
+  position_y: z.number().default(0),
+  color: colorSchema.optional().default('#3b82f6')
+})
+
+export const createMindmapSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(1000).optional(),
+  nodes: z.array(mindmapNodeSchema).optional()
+})
+
+export const addMindmapNodeSchema = z.object({
+  parent_id: uuidSchema.nullable().optional(),
+  text: z.string().min(1).max(500),
+  position_x: z.number().default(0),
+  position_y: z.number().default(0),
+  color: colorSchema.optional().default('#3b82f6')
+})
+
+export const generateMindmapFromTextSchema = z.object({
+  text: z.string().min(10).max(50000),
+  title: z.string().min(1).max(200).optional()
+})
+
+// ============================================
+// WEBHOOK SCHEMAS
+// ============================================
+
+export const asaasWebhookSchema = z.object({
+  event: z.string(),
+  payment: z.object({
+    id: z.string(),
+    customer: z.string(),
+    subscription: z.string().optional(),
+    value: z.number(),
+    status: z.string(),
+    dueDate: z.string(),
+    invoiceUrl: z.string().optional(),
+    bankSlipUrl: z.string().optional()
+  }).passthrough()
+})
+
 // ============================================
 // HELPER FUNCTION
 // ============================================

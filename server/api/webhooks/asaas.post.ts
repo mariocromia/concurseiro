@@ -1,9 +1,11 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { asaasWebhookSchema, validateBody } from '~/server/utils/validation-schemas'
 
 // POST /api/webhooks/asaas - Receber webhooks do Asaas
 export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event)
-  const body = await readBody(event)
+  const rawBody = await readBody(event)
+  const body = validateBody(asaasWebhookSchema, rawBody)
 
   console.log('Webhook Asaas recebido:', JSON.stringify(body, null, 2))
 

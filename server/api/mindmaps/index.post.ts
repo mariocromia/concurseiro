@@ -1,4 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { createMindmapSchema, validateBody } from '~/server/utils/validation-schemas'
 
 // POST /api/mindmaps - Criar novo mapa mental
 export default defineEventHandler(async (event) => {
@@ -19,17 +20,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const { title, description, nodes } = body
+    const { title, description, nodes } = validateBody(createMindmapSchema, body)
 
     console.log('[CREATE-MINDMAP] Título:', title)
     console.log('[CREATE-MINDMAP] Quantidade de nós:', nodes?.length || 0)
-
-    if (!title) {
-      throw createError({
-        statusCode: 400,
-        message: 'Título é obrigatório'
-      })
-    }
 
     // Criar mapa mental
     const { data: mindmap, error: mindmapError } = await supabase
