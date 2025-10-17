@@ -5,7 +5,7 @@
 
         <!-- Logo -->
         <NuxtLink to="/dashboard" class="flex items-center gap-3 group">
-          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-9 w-auto transition-opacity duration-300 group-hover:opacity-80">
+          <Logo size="sm" class-name="group-hover:opacity-80" />
         </NuxtLink>
 
         <!-- Menu Items -->

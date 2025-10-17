@@ -5,7 +5,7 @@
         <!-- Logo/Icon -->
         <div class="mb-8">
           <div class="w-32 h-32 mx-auto flex items-center justify-center">
-            <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="w-full h-full object-contain animate-pulse">
+            <Logo size="xl" class-name="animate-pulse" />
           </div>
         </div>
 

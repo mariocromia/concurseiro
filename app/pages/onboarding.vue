@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-claude-text dark:text-white p-6">
         <div class="flex flex-col items-center justify-center mb-2">
-          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-12 w-auto mb-3">
+          <Logo size="md" class-name="mb-3" />
           <h1 class="text-3xl font-bold">Bem-vindo ao PraPassar!</h1>
         </div>
         <p class="text-center text-primary-100 mt-2">Configure sua meta de estudo e suas primeiras matérias</p>
