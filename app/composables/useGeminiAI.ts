@@ -1,31 +1,71 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+/**
+ * Gemini AI Composable - Client-side wrapper
+ *
+ * Security: All AI calls go through server-side proxy
+ * No API keys exposed to client
+ * Rate limiting and auth handled server-side
+ *
+ * @author Claude Code
+ * @date 2025-10-16 (Security Update)
+ */
 
 export const useGeminiAI = () => {
-  const config = useRuntimeConfig()
+  const client = useSupabaseClient()
 
-  const genAI = new GoogleGenerativeAI(config.public.googleAiApiKey)
+  /**
+   * Internal: Call Gemini proxy with proper error handling
+   */
+  const callProxy = async (prompt: string, options: {
+    model?: string
+    temperature?: number
+    maxTokens?: number
+    systemInstruction?: string
+  } = {}) => {
+    try {
+      const response = await $fetch('/api/ai/gemini-proxy', {
+        method: 'POST',
+        body: {
+          prompt,
+          model: options.model || 'gemini-pro',
+          temperature: options.temperature || 0.7,
+          maxTokens: options.maxTokens || 2048,
+          systemInstruction: options.systemInstruction
+        }
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to generate AI response')
+      }
+
+      return response.data.text
+    } catch (error: any) {
+      // Handle rate limiting
+      if (error.statusCode === 429) {
+        throw new Error('Você atingiu o limite de requisições de IA. Aguarde alguns minutos e tente novamente.')
+      }
+
+      // Handle auth errors
+      if (error.statusCode === 401) {
+        throw new Error('Você precisa estar logado para usar a IA.')
+      }
+
+      // Handle subscription errors
+      if (error.statusCode === 403) {
+        throw new Error('Features de IA requerem plano Pro. Faça upgrade para desbloquear.')
+      }
+
+      // Generic error
+      console.error('Erro ao chamar IA:', error)
+      throw new Error(error.message || 'Erro ao gerar resposta da IA. Tente novamente.')
+    }
+  }
 
   /**
    * Gerar texto com Gemini
    */
   const generateText = async (prompt: string, context?: string) => {
-    try {
-      // Usar modelo gemini-2.0-flash-exp que é compatível
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp'
-      })
-
-      const fullPrompt = context
-        ? `${context}\n\n${prompt}`
-        : prompt
-
-      const result = await model.generateContent(fullPrompt)
-      const response = await result.response
-      return response.text()
-    } catch (error) {
-      console.error('Erro ao gerar texto com Gemini:', error)
-      throw error
-    }
+    const fullPrompt = context ? `${context}\n\n${prompt}` : prompt
+    return await callProxy(fullPrompt)
   }
 
   /**
@@ -36,7 +76,7 @@ export const useGeminiAI = () => {
 
 ${content}`
 
-    return await generateText(prompt)
+    return await callProxy(prompt)
   }
 
   /**
@@ -55,7 +95,7 @@ C) [Alternativa]
 D) [Alternativa]
 Resposta: [Letra correta]`
 
-    return await generateText(prompt)
+    return await callProxy(prompt, { temperature: 0.8 })
   }
 
   /**
@@ -74,7 +114,7 @@ Formato JSON:
   }
 ]`
 
-    const response = await generateText(prompt)
+    const response = await callProxy(prompt, { temperature: 0.7 })
 
     // Tentar extrair JSON da resposta
     try {
@@ -92,7 +132,10 @@ Formato JSON:
   /**
    * Explicar conceito
    */
-  const explainConcept = async (concept: string, level: 'simples' | 'intermediario' | 'avancado' = 'intermediario') => {
+  const explainConcept = async (
+    concept: string,
+    level: 'simples' | 'intermediario' | 'avancado' = 'intermediario'
+  ) => {
     const levels = {
       simples: 'de forma simples e didática, como se estivesse explicando para um iniciante',
       intermediario: 'de forma clara e objetiva',
@@ -101,7 +144,7 @@ Formato JSON:
 
     const prompt = `Explique o conceito de "${concept}" ${levels[level]}.`
 
-    return await generateText(prompt)
+    return await callProxy(prompt)
   }
 
   /**
@@ -118,7 +161,7 @@ Formato:
   - Subtópico 2
     - Detalhe 1`
 
-    return await generateText(prompt)
+    return await callProxy(prompt, { temperature: 0.8 })
   }
 
   /**
@@ -142,7 +185,7 @@ SUGESTÕES:
 
 PONTUAÇÃO: [0-10]`
 
-    return await generateText(prompt)
+    return await callProxy(prompt, { temperature: 0.5 })
   }
 
   /**
@@ -158,26 +201,42 @@ Inclua:
 - Recursos recomendados
 - Forma de avaliação do progresso`
 
-    return await generateText(prompt)
+    return await callProxy(prompt, { temperature: 0.7 })
   }
 
   /**
    * Chat com contexto (para conversação)
    */
-  const chat = async (messages: { role: 'user' | 'assistant', content: string }[]) => {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-    const chat = model.startChat({
-      history: messages.slice(0, -1).map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }))
-    })
+  const chat = async (messages: { role: 'user' | 'assistant'; content: string }[]) => {
+    // Construir contexto a partir do histórico
+    const context = messages
+      .slice(0, -1)
+      .map(msg => `${msg.role === 'user' ? 'Usuário' : 'Assistente'}: ${msg.content}`)
+      .join('\n\n')
 
     const lastMessage = messages[messages.length - 1]
-    const result = await chat.sendMessage(lastMessage.content)
-    const response = await result.response
+    const systemInstruction = 'Você é um assistente de estudos especializado em concursos e vestibulares. Ajude o usuário com suas dúvidas de forma clara e didática.'
 
-    return response.text()
+    const fullPrompt = context
+      ? `Histórico da conversa:\n${context}\n\nPergunta atual do usuário:\n${lastMessage.content}`
+      : lastMessage.content
+
+    return await callProxy(fullPrompt, { systemInstruction, temperature: 0.7 })
+  }
+
+  /**
+   * Enviar mensagem ao assistente (wrapper simplificado)
+   */
+  const sendMessage = async (message: string, conversationHistory: any[] = []) => {
+    const messages = [
+      ...conversationHistory.map((msg: any) => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })),
+      { role: 'user', content: message }
+    ]
+
+    return await chat(messages)
   }
 
   return {
@@ -189,6 +248,7 @@ Inclua:
     generateMindMap,
     correctText,
     generateStudyPlan,
-    chat
+    chat,
+    sendMessage
   }
 }

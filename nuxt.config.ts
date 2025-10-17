@@ -22,10 +22,11 @@ export default defineNuxtConfig({
     asaasApiKey: process.env.ASAAS_API_KEY,
     asaasBaseUrl: process.env.ASAAS_BASE_URL || 'https://api.asaas.com/v3',
     asaasWebhookSecret: process.env.ASAAS_WEBHOOK_SECRET,
+    googleAiApiKey: process.env.GOOGLE_AI_API_KEY, // Moved to private - security fix
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
-      googleAiApiKey: process.env.GOOGLE_AI_API_KEY,
+      // googleAiApiKey REMOVED - now server-side only for security
     }
   },
 
