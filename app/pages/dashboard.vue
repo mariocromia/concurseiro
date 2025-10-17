@@ -202,9 +202,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- To Do Column -->
-          <div class="bg-[#f5f5ed] dark:bg-dark-900/50 border border-[#E5E5E5] dark:border-dark-700 rounded-claude-md p-4">
+          <div class="bg-[#f5f5ed] dark:bg-dark-900/50 border border-[#ca643f]/30 dark:border-dark-700 rounded-claude-md p-4">
             <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
-              <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+              <div class="w-3 h-3 bg-primary-500 rounded-full"></div>
               A Fazer ({{ todoTasks.length }})
             </h4>
             <div class="space-y-3">
