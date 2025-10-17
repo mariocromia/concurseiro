@@ -384,13 +384,13 @@ const statusText = computed(() => {
 const statusBadgeClass = computed(() => {
   if (timer.isRunning) return 'bg-claude-primary/20 text-primary-300 border border-claude-primary/50'
   if (timer.isPaused) return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50'
-  return 'bg-gray-500/20 text-gray-300 border border-gray-500/50'
+  return 'bg-gray-500/20 text-[#cb785b] dark:text-gray-300 border border-gray-500/50'
 })
 
 const statusDotClass = computed(() => {
   if (timer.isRunning) return 'bg-primary-400 animate-pulse'
   if (timer.isPaused) return 'bg-yellow-400'
-  return 'bg-gray-400'
+  return 'bg-[#cb785b] dark:bg-gray-400'
 })
 
 // Methods
