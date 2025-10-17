@@ -26,7 +26,7 @@
         <!-- Step 2 -->
         <div class="relative">
           <div class="text-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl font-bold text-white shadow-2xl">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl font-bold text-white shadow-2xl">
               2
             </div>
             <h3 class="text-2xl font-bold text-white mb-4">Configure Suas Matérias</h3>
@@ -34,13 +34,13 @@
               Adicione as disciplinas do seu concurso. O sistema já cria o cronograma de revisões.
             </p>
           </div>
-          <div class="hidden md:block absolute top-10 -right-6 text-6xl text-blue-500/30">→</div>
+          <div class="hidden md:block absolute top-10 -right-6 text-6xl text-primary-500/30">→</div>
         </div>
 
         <!-- Step 3 -->
         <div>
           <div class="text-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl font-bold text-white shadow-2xl">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl font-bold text-white shadow-2xl">
               3
             </div>
             <h3 class="text-2xl font-bold text-white mb-4">Comece a Estudar!</h3>
@@ -53,13 +53,17 @@
 
       <!-- CTA -->
       <div class="text-center mt-16 pt-12 border-t border-white/10">
-        <div class="mb-6 text-6xl">🎯</div>
+        <div class="mb-6">
+          <svg class="w-16 h-16 mx-auto text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </div>
         <p class="text-2xl text-white mb-8">
           Pronto para começar sua <span class="text-primary-400 font-bold">jornada rumo à aprovação</span>?
         </p>
         <NuxtLink
           to="/register"
-          class="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-bold text-xl shadow-2xl hover:shadow-green-500/50 transform hover:scale-105 transition-all"
+          class="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold text-xl shadow-2xl hover:shadow-primary-500/50 transform hover:scale-105 transition-all"
         >
           Sim, Quero Passar em 2025!
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
