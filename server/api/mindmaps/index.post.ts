@@ -1,5 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { createMindmapSchema, validateBody } from '~/server/utils/validation-schemas'
+import { createMindmapSchema, validateBody } from '../../utils/validation-schemas'
 
 // POST /api/mindmaps - Criar novo mapa mental
 export default defineEventHandler(async (event) => {

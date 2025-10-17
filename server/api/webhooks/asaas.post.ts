@@ -1,11 +1,11 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { asaasWebhookSchema, validateBody } from '~/server/utils/validation-schemas'
+import { asaasWebhookSchema, validateBody } from '../../utils/validation-schemas'
 import {
   verifyAsaasWebhookSignature,
   isAsaasWhitelistedIP,
   logWebhookSecurityEvent
-} from '~/server/utils/webhook-security'
-import { webhookRateLimit, checkRateLimit } from '~/server/utils/rate-limit'
+} from '../../utils/webhook-security'
+import { webhookRateLimit, checkRateLimit } from '../../utils/rate-limit'
 
 // POST /api/webhooks/asaas - Receber webhooks do Asaas
 export default defineEventHandler(async (event) => {

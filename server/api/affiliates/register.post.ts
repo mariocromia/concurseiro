@@ -1,5 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { affiliateRegisterSchema, validateBody } from '~/server/utils/validation-schemas'
+import { affiliateRegisterSchema, validateBody } from '../../utils/validation-schemas'
 
 // POST /api/affiliates/register - Cadastrar como afiliado
 export default defineEventHandler(async (event) => {

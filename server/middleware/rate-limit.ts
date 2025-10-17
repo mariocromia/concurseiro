@@ -8,7 +8,7 @@
  * @date 2025-10-17
  */
 
-import { globalRateLimit, checkRateLimit } from '~/server/utils/rate-limit'
+import { globalRateLimit, checkRateLimit } from '../utils/rate-limit'
 
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event)

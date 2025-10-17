@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { createSubscriptionSchema, validateBody } from '~/server/utils/validation-schemas'
+import { createSubscriptionSchema, validateBody } from '../../utils/validation-schemas'
 
 // POST /api/subscriptions/create - Criar nova assinatura
 export default defineEventHandler(async (event) => {
