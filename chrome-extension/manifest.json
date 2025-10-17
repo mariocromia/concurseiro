@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "Concurseiro - Extensão de Estudo",
+  "version": "1.0.0",
+  "description": "Extensão integrada ao Concurseiro App para controle de navegação e captura inteligente de questões.",
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "contextMenus",
+    "notifications",
+    "webNavigation",
+    "clipboardWrite",
+    "declarativeNetRequest"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background/background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content/content-script.js",
+        "content/selection-handler.js",
+        "content/question-detector.js"
+      ],
+      "css": ["assets/content-styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "options_page": "options/options.html",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "assets/block-overlay.html", "lib/supabase.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:3000/*",
+      "http://localhost:3001/*",
+      "http://localhost:3002/*"
+    ]
+  }
+}

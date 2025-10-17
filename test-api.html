@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste API Mindmaps</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        #result {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .success {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste API Mindmaps</h1>
+    <p>Teste as rotas da API de mapas mentais</p>
+
+    <div>
+        <button onclick="testGenerateFromText()">1. Testar Geração com IA</button>
+        <button onclick="testCreateMindmap()">2. Testar Criação de Mapa</button>
+        <button onclick="testListMindmaps()">3. Listar Mapas</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        function log(message, isError = false) {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const className = isError ? 'error' : 'success';
+            result.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+        }
+
+        async function testGenerateFromText() {
+            document.getElementById('result').innerHTML = '';
+            log('🔄 Testando geração com IA...');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/mindmaps/generate-from-text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: 'Outras Áreas: Empresas e Serviços: Diversas empresas no Brasil utilizam "PWS" em seus nomes.'
+                    })
+                });
+
+                log(`Status: ${response.status} ${response.statusText}`);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`Erro: ${errorText}`, true);
+                    return;
+                }
+
+                const data = await response.json();
+                log('✅ Sucesso!');
+                log(JSON.stringify(data, null, 2));
+            } catch (error) {
+                log(`❌ Erro de rede: ${error.message}`, true);
+                log('Possíveis causas:', true);
+                log('1. Servidor não está rodando na porta 3000', true);
+                log('2. CORS bloqueado', true);
+                log('3. Timeout de conexão', true);
+            }
+        }
+
+        async function testCreateMindmap() {
+            document.getElementById('result').innerHTML = '';
+            log('🔄 Testando criação de mapa...');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/mindmaps`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: 'Teste de API',
+                        description: 'Criado via HTML de teste',
+                        nodes: [{
+                            text: 'Ideia Central',
+                            parent_id: null,
+                            position_x: 400,
+                            position_y: 300,
+                            color: '#3b82f6'
+                        }]
+                    })
+                });
+
+                log(`Status: ${response.status} ${response.statusText}`);
+
+                const text = await response.text();
+                log(`Resposta: ${text}`);
+
+                if (response.ok) {
+                    const data = JSON.parse(text);
+                    log('✅ Sucesso!');
+                    log(JSON.stringify(data, null, 2));
+                } else {
+                    log(`❌ Erro: ${text}`, true);
+                }
+            } catch (error) {
+                log(`❌ Erro de rede: ${error.message}`, true);
+            }
+        }
+
+        async function testListMindmaps() {
+            document.getElementById('result').innerHTML = '';
+            log('🔄 Listando mapas...');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/mindmaps`);
+                log(`Status: ${response.status} ${response.statusText}`);
+
+                const text = await response.text();
+                log(`Resposta: ${text}`);
+
+                if (response.ok) {
+                    const data = JSON.parse(text);
+                    log('✅ Sucesso!');
+                    log(JSON.stringify(data, null, 2));
+                } else {
+                    log(`❌ Erro: ${text}`, true);
+                }
+            } catch (error) {
+                log(`❌ Erro de rede: ${error.message}`, true);
+            }
+        }
+
+        // Testar conexão ao carregar
+        window.onload = async () => {
+            log('🔍 Verificando servidor...');
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                if (response.ok) {
+                    log('✅ Servidor respondendo!');
+                } else {
+                    log(`⚠️ Servidor respondeu com status ${response.status}`, true);
+                }
+            } catch (error) {
+                log(`❌ Servidor não acessível: ${error.message}`, true);
+                log('Certifique-se de que o servidor está rodando com: npm run dev', true);
+            }
+        };
+    </script>
+</body>
+</html>

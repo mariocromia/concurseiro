@@ -1,0 +1,163 @@
+/* Theme Variables and Styles - Claude.ai Complete Palette */
+
+/* Root defaults (Light Theme - Claude.ai Style) */
+:root {
+  /* === BACKGROUNDS === */
+  --bg-primary: #FFFFFF;              /* Fundo principal - branco puro */
+  --bg-secondary: #F5F5F5;            /* Cards e áreas destacadas */
+  --bg-tertiary: #FAFAFA;             /* Áreas sutilmente destacadas */
+  --bg-hover: #F8F8F8;                /* Hover em elementos */
+  --bg-chat: #FFFFFF;                 /* Fundo de chat */
+  --bg-sidebar: #FAFAFA;              /* Sidebar/menu lateral */
+  --bg-input: #FFFFFF;                /* Inputs e textareas */
+  --bg-input-focus: #FFFFFF;          /* Input em foco */
+  --bg-disabled: #F5F5F5;             /* Elementos desabilitados */
+
+  /* === TEXT COLORS === */
+  --text-primary: #2C2C2C;            /* Texto principal - escuro */
+  --text-secondary: #6B6B6B;          /* Texto secundário */
+  --text-tertiary: #999999;           /* Texto terciário/menos importante */
+  --text-placeholder: #B0B0B0;        /* Placeholders */
+  --text-disabled: #CCCCCC;           /* Texto desabilitado */
+  --text-link: #CC785C;               /* Links */
+  --text-link-hover: #B86849;         /* Links hover */
+
+  /* === BRAND/PRIMARY COLORS === */
+  --primary: #CC785C;                 /* Cor primária Claude */
+  --primary-hover: #B86849;           /* Hover primário */
+  --primary-active: #A65738;          /* Active/pressed */
+  --primary-focus: #E8B4A0;           /* Estado de foco */
+  --primary-light: #F5E6E0;           /* Versão clara */
+  --primary-subtle: rgba(204, 120, 92, 0.08);  /* Fundo sutil */
+
+  /* === BORDERS === */
+  --border-primary: #E5E5E5;          /* Bordas principais */
+  --border-secondary: #D4D4D4;        /* Bordas de divisão */
+  --border-input: #CCCCCC;            /* Bordas de inputs */
+  --border-input-focus: #CC785C;      /* Input em foco */
+  --border-input-error: #DC2626;      /* Input com erro */
+  --border-hover: #999999;            /* Borda hover */
+
+  /* === SHADOWS === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.16);
+
+  /* === MESSAGES/CHAT === */
+  --bg-message-user: #F5F5F5;         /* Mensagem do usuário */
+  --bg-message-assistant: #FFFFFF;    /* Mensagem do assistente */
+  --border-message: #E5E5E5;          /* Borda de mensagens */
+
+  /* === GRADIENTS === */
+  --gradient-from: #FFFFFF;
+  --gradient-via: #FAFAFA;
+  --gradient-to: #F5F5F5;
+
+  /* === NAVIGATION === */
+  --nav-bg: #f5f5ed;
+  --nav-border: #E5E5E5;
+  --nav-hover: #ececdf;
+  --nav-active: #e3e3d1;
+
+  /* === STATES === */
+  --success: #10B981;
+  --success-bg: #D1FAE5;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+  --error: #DC2626;
+  --error-bg: #FEE2E2;
+  --info: #ca643f;
+  --info-bg: #f0e8e1;
+
+  /* === MISC === */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+/* Dark Theme */
+.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+
+  --border-primary: #334155;
+  --border-secondary: #475569;
+
+  --gradient-from: #0f172a;
+  --gradient-via: #1e293b;
+  --gradient-to: #0f172a;
+
+  --nav-from: #1e1b4b;
+  --nav-via: #020617;
+  --nav-to: #1e1b4b;
+  --nav-border: rgba(148, 163, 184, 0.5);
+
+  --hover-bg: rgba(30, 41, 59, 0.5);
+}
+
+/* Theme-aware component styles - Base classes that adapt */
+.theme-bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.theme-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.theme-bg-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.theme-border-primary {
+  border-color: var(--border-primary);
+}
+
+.theme-border-secondary {
+  border-color: var(--border-secondary);
+}
+
+/* Gradient backgrounds */
+.theme-gradient {
+  background: linear-gradient(to bottom right, var(--gradient-from), var(--gradient-via), var(--gradient-to));
+}
+
+.theme-nav-gradient {
+  background: linear-gradient(to right, var(--nav-from), var(--nav-via), var(--nav-to));
+}
+
+.theme-nav-border {
+  border-color: var(--nav-border);
+}
+
+.theme-hover:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Smooth transition for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable transitions on page load */
+.no-transition * {
+  transition: none !important;
+}

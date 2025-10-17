@@ -1,0 +1,182 @@
+// Plugin para garantir que apenas uma aba do sistema está aberta
+export default defineNuxtPlugin(() => {
+  if (process.client) {
+    const CHANNEL_NAME = 'concurseiro_tab_sync'
+    const STORAGE_KEY = 'concurseiro_active_tab_id'
+    const TAB_ID = `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    let channel: BroadcastChannel | null = null
+    let isMainTab = false
+
+    // Função para verificar se é a aba principal
+    const checkIfMainTab = () => {
+      const activeTabId = localStorage.getItem(STORAGE_KEY)
+
+      if (!activeTabId || activeTabId === TAB_ID) {
+        // Primeira aba ou esta aba é a principal
+        localStorage.setItem(STORAGE_KEY, TAB_ID)
+        isMainTab = true
+        console.log('✅ Esta é a aba principal do Concurseiro')
+        return true
+      } else {
+        // Já existe outra aba aberta
+        isMainTab = false
+        console.log('⚠️ Já existe outra aba do Concurseiro aberta')
+        return false
+      }
+    }
+
+    // Criar BroadcastChannel para comunicação entre abas
+    try {
+      channel = new BroadcastChannel(CHANNEL_NAME)
+
+      // Escutar mensagens de outras abas
+      channel.onmessage = (event) => {
+        if (event.data.type === 'TAB_CHECK') {
+          // Outra aba está verificando se esta aba está ativa
+          if (isMainTab) {
+            channel?.postMessage({
+              type: 'TAB_ACTIVE',
+              tabId: TAB_ID
+            })
+          }
+        } else if (event.data.type === 'TAB_ACTIVE' && !isMainTab) {
+          // Outra aba respondeu que está ativa
+          console.log('⚠️ Aba principal detectada, esta aba será redirecionada')
+          showDuplicateTabWarning()
+        } else if (event.data.type === 'TAB_CLOSED' && event.data.tabId === localStorage.getItem(STORAGE_KEY)) {
+          // A aba principal foi fechada, esta aba pode assumir
+          console.log('✅ Aba principal fechada, assumindo controle')
+          localStorage.setItem(STORAGE_KEY, TAB_ID)
+          isMainTab = true
+          hideDuplicateTabWarning()
+        }
+      }
+
+      // Verificar se já existe uma aba ativa
+      const isMain = checkIfMainTab()
+
+      if (!isMain) {
+        // Perguntar às outras abas se estão ativas
+        channel.postMessage({ type: 'TAB_CHECK' })
+
+        // Aguardar 500ms para resposta
+        setTimeout(() => {
+          const currentActiveTab = localStorage.getItem(STORAGE_KEY)
+          if (currentActiveTab === TAB_ID) {
+            // Nenhuma aba respondeu, esta é a principal
+            isMainTab = true
+            console.log('✅ Nenhuma aba respondeu, assumindo como principal')
+          } else {
+            // Outra aba está ativa, mostrar aviso
+            showDuplicateTabWarning()
+          }
+        }, 500)
+      }
+
+      // Quando esta aba for fechada
+      window.addEventListener('beforeunload', () => {
+        if (isMainTab) {
+          console.log('📤 Aba principal fechando, notificando outras abas')
+          channel?.postMessage({
+            type: 'TAB_CLOSED',
+            tabId: TAB_ID
+          })
+          localStorage.removeItem(STORAGE_KEY)
+        }
+        channel?.close()
+      })
+
+      // Verificar periodicamente se ainda é a aba principal
+      setInterval(() => {
+        const currentActiveTab = localStorage.getItem(STORAGE_KEY)
+        if (isMainTab && currentActiveTab !== TAB_ID) {
+          // Outra aba assumiu o controle
+          console.log('⚠️ Outra aba assumiu controle')
+          isMainTab = false
+          showDuplicateTabWarning()
+        }
+      }, 2000)
+
+    } catch (error) {
+      console.warn('BroadcastChannel não suportado:', error)
+    }
+
+    // Função para mostrar aviso de aba duplicada
+    function showDuplicateTabWarning() {
+      // Criar overlay se não existir
+      if (document.getElementById('duplicate-tab-overlay')) return
+
+      const overlay = document.createElement('div')
+      overlay.id = 'duplicate-tab-overlay'
+      overlay.innerHTML = `
+        <div style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.95);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 999999;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        ">
+          <div style="
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          ">
+            <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+            <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #1f2937;">
+              Aba Duplicada Detectada
+            </h2>
+            <p style="margin: 0 0 30px 0; color: #6b7280; line-height: 1.6;">
+              O sistema Concurseiro já está aberto em outra aba.
+              Para evitar conflitos e garantir o melhor desempenho,
+              por favor use apenas uma aba.
+            </p>
+            <button onclick="window.close()" style="
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+              border: none;
+              padding: 12px 30px;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+              Fechar Esta Aba
+            </button>
+            <div style="margin-top: 15px;">
+              <a href="#" onclick="location.reload(); return false;" style="
+                color: #667eea;
+                text-decoration: none;
+                font-size: 14px;
+              ">
+                Ou atualizar esta aba
+              </a>
+            </div>
+          </div>
+        </div>
+      `
+      document.body.appendChild(overlay)
+
+      // Desabilitar scroll
+      document.body.style.overflow = 'hidden'
+    }
+
+    function hideDuplicateTabWarning() {
+      const overlay = document.getElementById('duplicate-tab-overlay')
+      if (overlay) {
+        overlay.remove()
+        document.body.style.overflow = ''
+      }
+    }
+  }
+})
