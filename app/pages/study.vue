@@ -39,7 +39,7 @@
               <div class="relative z-10">
                 <!-- Timer -->
                 <div class="mb-8">
-                  <div class="text-7xl md:text-8xl font-mono font-bold text-[#2C2C2C] dark:text-white mb-4 tracking-tight">
+                  <div class="text-7xl md:text-8xl font-mono font-bold text-[#cb785b] dark:text-white mb-4 tracking-tight">
                     {{ formattedTime }}
                   </div>
 
