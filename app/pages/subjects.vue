@@ -86,8 +86,8 @@
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-dark-700">
-            <thead class="bg-dark-900/50">
+          <table class="min-w-full divide-y divide-[#E5E5E5] dark:divide-dark-700">
+            <thead class="bg-[#f5f5ed] dark:bg-dark-900/50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">
                   <button @click="toggleSort('name')" class="flex items-center gap-1 hover:text-claude-text dark:text-white transition">
@@ -116,8 +116,8 @@
                 <th class="px-6 py-3 text-right text-xs font-medium text-claude-text-secondary dark:text-gray-400 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-dark-700">
-              <tr v-for="subject in sortedSubjects" :key="subject.id" class="hover:bg-dark-700/50 transition">
+            <tbody class="divide-y divide-[#E5E5E5] dark:divide-dark-700">
+              <tr v-for="subject in sortedSubjects" :key="subject.id" class="hover:bg-[#f5f5ed] dark:hover:bg-dark-700/50 transition">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <span
