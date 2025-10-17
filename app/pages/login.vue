@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-md shadow-xl p-8">
+  <div class="min-h-screen bg-gradient-to-br from-[#f5f5ed] to-[#f0e8e1] dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white dark:bg-dark-800/50 backdrop-blur-sm border border-[#E5E5E5] dark:border-dark-700 rounded-claude-md shadow-xl p-8">
       <div class="text-center mb-8">
         <div class="flex items-center justify-center gap-2 mb-4">
           <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-claude-md"></div>
