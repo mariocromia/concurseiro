@@ -28,11 +28,11 @@ const logoSrc = computed(() => {
 
 // Size mapping
 const sizeClasses = {
-  xs: 'h-6',
-  sm: 'h-9',
-  md: 'h-12',
-  lg: 'h-16',
-  xl: 'h-32'
+  xs: 'h-7',
+  sm: 'h-11',
+  md: 'h-14',
+  lg: 'h-20',
+  xl: 'h-40'
 }
 
 const className = computed(() => {
