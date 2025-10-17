@@ -1,15 +1,17 @@
 <template>
-  <section class="relative py-24 overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-blue-900">
+  <section class="relative py-24 overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700">
     <!-- Background decoration -->
     <div class="absolute inset-0 opacity-10">
       <div class="absolute top-10 left-10 w-96 h-96 bg-white rounded-full filter blur-3xl"></div>
-      <div class="absolute bottom-10 right-10 w-96 h-96 bg-blue-400 rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-96 h-96 bg-primary-400 rounded-full filter blur-3xl"></div>
     </div>
 
     <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <!-- Urgency badge -->
-      <div class="inline-flex items-center gap-2 px-6 py-3 bg-red-500/20 backdrop-blur-sm rounded-full mb-8 border border-red-500/50 animate-pulse">
-        <span class="text-2xl">🔥</span>
+      <div class="inline-flex items-center gap-2 px-6 py-3 bg-primary-400/20 backdrop-blur-sm rounded-full mb-8 border border-primary-400/50 animate-pulse">
+        <svg class="w-6 h-6 text-primary-200" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+        </svg>
         <span class="text-white font-semibold">Vagas limitadas para o trial gratuito!</span>
       </div>
 
@@ -44,19 +46,19 @@
       <!-- Trust indicators -->
       <div class="flex flex-wrap justify-center gap-8 text-white/80">
         <div class="flex items-center gap-2">
-          <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-6 h-6 text-primary-200" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           <span class="font-semibold">Acesso imediato</span>
         </div>
         <div class="flex items-center gap-2">
-          <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-6 h-6 text-primary-200" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           <span class="font-semibold">Sem burocracia</span>
         </div>
         <div class="flex items-center gap-2">
-          <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-6 h-6 text-primary-200" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           <span class="font-semibold">Suporte 24/7</span>
@@ -66,8 +68,8 @@
       <!-- Guarantee -->
       <div class="mt-16 p-8 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 max-w-2xl mx-auto">
         <div class="flex items-center justify-center gap-4 mb-4">
-          <svg class="w-16 h-16 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          <svg class="w-16 h-16 text-primary-200" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
           </svg>
           <div class="text-left">
             <div class="text-white font-bold text-2xl">Garantia de 14 Dias</div>

@@ -3,7 +3,7 @@
     <!-- Background decoration -->
     <div class="absolute inset-0 opacity-10">
       <div class="absolute top-20 left-10 w-72 h-72 bg-primary-500 rounded-full filter blur-3xl animate-pulse"></div>
-      <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+      <div class="absolute bottom-20 right-10 w-96 h-96 bg-primary-400 rounded-full filter blur-3xl animate-pulse" style="animation-delay: 1s"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -12,7 +12,7 @@
         <div class="text-center lg:text-left">
           <!-- Trust badge -->
           <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-white/20">
-            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 text-primary-300" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
             <span class="text-white/90 text-sm font-medium">Usado por +10.000 aprovados</span>
@@ -22,7 +22,7 @@
           <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span class="text-white">Passe no seu</span>
             <br>
-            <span class="bg-gradient-to-r from-primary-400 via-primary-300 to-blue-400 bg-clip-text text-transparent">
+            <span class="bg-gradient-to-r from-primary-400 via-primary-300 to-primary-200 bg-clip-text text-transparent">
               Concurso
             </span>
             <br>
@@ -108,7 +108,7 @@
                       <div class="h-2 w-16 bg-white/20 rounded mb-2"></div>
                       <div class="h-6 w-20 bg-white/30 rounded"></div>
                     </div>
-                    <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/10 p-4 rounded-xl border border-blue-400/30">
+                    <div class="bg-gradient-to-br from-primary-400/20 to-primary-500/10 p-4 rounded-xl border border-primary-300/30">
                       <div class="h-2 w-16 bg-white/20 rounded mb-2"></div>
                       <div class="h-6 w-20 bg-white/30 rounded"></div>
                     </div>
@@ -133,12 +133,20 @@
               </div>
             </div>
 
-            <!-- Floating elements -->
-            <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl opacity-80 animate-bounce" style="animation-duration: 3s">
-              <div class="flex items-center justify-center h-full text-4xl">🎯</div>
+            <!-- Floating elements - monocromático -->
+            <div class="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-500 rounded-2xl opacity-80 animate-bounce" style="animation-duration: 3s">
+              <div class="flex items-center justify-center h-full">
+                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </div>
             </div>
-            <div class="absolute -bottom-6 -left-6 w-28 h-28 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl opacity-80 animate-bounce" style="animation-duration: 3s; animation-delay: 0.5s">
-              <div class="flex items-center justify-center h-full text-4xl">✅</div>
+            <div class="absolute -bottom-6 -left-6 w-28 h-28 bg-gradient-to-br from-primary-300 to-primary-400 rounded-2xl opacity-80 animate-bounce" style="animation-duration: 3s; animation-delay: 0.5s">
+              <div class="flex items-center justify-center h-full">
+                <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
