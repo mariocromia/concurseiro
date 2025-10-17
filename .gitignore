@@ -1,0 +1,41 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+.claude/
+.clauderc
+
+# Build outputs
+dist/
+.output/
+.nuxt/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.tmp
+nul_
+temp/
+
+# Scripts auxiliares
+fix-imports.py
+update-validations.js
+run-sql.mjs
+setup-affiliates.mjs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (opcional - incluído no commit)
+# docs/
