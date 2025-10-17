@@ -202,7 +202,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- To Do Column -->
-          <div class="bg-dark-900/50 border border-dark-700 rounded-claude-md p-4">
+          <div class="bg-[#f5f5ed] dark:bg-dark-900/50 border border-[#E5E5E5] dark:border-dark-700 rounded-claude-md p-4">
             <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
               <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
               A Fazer ({{ todoTasks.length }})
@@ -211,7 +211,7 @@
               <div
                 v-for="task in todoTasks"
                 :key="task.id"
-                class="bg-dark-800 p-4 rounded-claude-md border border-dark-700 cursor-pointer hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition"
+                class="bg-[#f5e4dd] dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition"
                 @click="editTask(task)"
               >
                 <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
