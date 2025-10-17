@@ -68,19 +68,19 @@
       </div>
 
       <!-- AI Quick Start Section -->
-      <div class="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-xl p-6 mb-8">
+      <div class="bg-[#f5f5ed] dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-pink-900/30 border border-[#E5E5E5] dark:border-purple-500/30 rounded-xl p-6 mb-8">
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+            <h3 class="text-xl font-bold text-[#2C2C2C] dark:text-white mb-2 flex items-center gap-2">
               <span>🤖</span>
               <span>Recursos de IA</span>
               <span class="px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded uppercase">PRO</span>
             </h3>
-            <p class="text-gray-300 text-sm">Potencialize seus estudos com Inteligência Artificial</p>
+            <p class="text-[#6B6B6B] dark:text-gray-300 text-sm">Potencialize seus estudos com Inteligência Artificial</p>
           </div>
           <button
             data-tour="ai-welcome"
-            class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm"
+            class="px-4 py-2 bg-[#f0e8e1] hover:bg-[#e8ddd3] dark:bg-white/10 dark:hover:bg-white/20 text-[#2C2C2C] dark:text-white rounded-lg transition-colors text-sm"
             @click="startAITour"
           >
             📖 Ver Tour
@@ -92,75 +92,75 @@
           <NuxtLink
             to="/notebook"
             data-tour="ai-chat"
-            class="p-4 bg-dark-800/50 border border-purple-500/30 rounded-lg hover:border-purple-500 hover:bg-purple-500/10 transition-all group"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">💬</div>
-              <svg class="w-5 h-5 text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h4 class="font-semibold text-white mb-1">Tutor de IA</h4>
-            <p class="text-sm text-gray-400">Tire dúvidas em tempo real</p>
+            <h4 class="font-semibold text-[#2C2C2C] dark:text-white mb-1">Tutor de IA</h4>
+            <p class="text-sm text-[#6B6B6B] dark:text-gray-400">Tire dúvidas em tempo real</p>
           </NuxtLink>
 
           <!-- AI Exercises -->
           <button
             data-tour="ai-exercises"
-            class="p-4 bg-dark-800/50 border border-pink-500/30 rounded-lg hover:border-pink-500 hover:bg-pink-500/10 transition-all group text-left"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-pink-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-pink-500 hover:bg-[#eeddd4] dark:hover:bg-pink-500/10 transition-all group text-left"
             @click="openAIExercises"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">📝</div>
-              <svg class="w-5 h-5 text-pink-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-pink-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h4 class="font-semibold text-white mb-1">Gerar Exercícios</h4>
-            <p class="text-sm text-gray-400">Crie questões personalizadas</p>
+            <h4 class="font-semibold text-[#2C2C2C] dark:text-white mb-1">Gerar Exercícios</h4>
+            <p class="text-sm text-[#6B6B6B] dark:text-gray-400">Crie questões personalizadas</p>
           </button>
 
           <!-- Mind Maps -->
           <NuxtLink
             to="/mapa-mental"
             data-tour="mind-maps"
-            class="p-4 bg-dark-800/50 border border-blue-500/30 rounded-lg hover:border-blue-500 hover:bg-blue-500/10 transition-all group"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-blue-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-blue-500 hover:bg-[#eeddd4] dark:hover:bg-blue-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">🧠</div>
-              <svg class="w-5 h-5 text-blue-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-blue-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h4 class="font-semibold text-white mb-1">Mapas Mentais</h4>
-            <p class="text-sm text-gray-400">Crie mapas automáticos</p>
+            <h4 class="font-semibold text-[#2C2C2C] dark:text-white mb-1">Mapas Mentais</h4>
+            <p class="text-sm text-[#6B6B6B] dark:text-gray-400">Crie mapas automáticos</p>
           </NuxtLink>
 
           <!-- AI Flashcards -->
           <NuxtLink
             to="/flashcards"
             data-tour="ai-flashcards"
-            class="p-4 bg-dark-800/50 border border-green-500/30 rounded-lg hover:border-green-500 hover:bg-green-500/10 transition-all group"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-green-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-green-500 hover:bg-[#eeddd4] dark:hover:bg-green-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">🎴</div>
-              <svg class="w-5 h-5 text-green-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-green-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h4 class="font-semibold text-white mb-1">Flashcards IA</h4>
-            <p class="text-sm text-gray-400">Gere cards automaticamente</p>
+            <h4 class="font-semibold text-[#2C2C2C] dark:text-white mb-1">Flashcards IA</h4>
+            <p class="text-sm text-[#6B6B6B] dark:text-gray-400">Gere cards automaticamente</p>
           </NuxtLink>
         </div>
 
         <!-- AI Usage Tips -->
-        <div class="mt-4 p-3 bg-dark-900/50 rounded-lg border border-purple-500/20">
+        <div class="mt-4 p-3 bg-[#eeddd4] dark:bg-dark-900/50 rounded-lg border border-[#E5E5E5] dark:border-purple-500/20">
           <div class="flex items-start gap-2">
-            <svg class="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div class="text-sm">
-              <p class="text-gray-300"><strong class="text-white">Dica:</strong> Use o Tutor de IA diretamente no Caderno Virtual ou gere exercícios a partir de qualquer tema!</p>
+              <p class="text-[#6B6B6B] dark:text-gray-300"><strong class="text-[#2C2C2C] dark:text-white">Dica:</strong> Use o Tutor de IA diretamente no Caderno Virtual ou gere exercícios a partir de qualquer tema!</p>
             </div>
           </div>
         </div>
