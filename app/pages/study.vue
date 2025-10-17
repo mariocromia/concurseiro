@@ -29,7 +29,7 @@
             </div>
 
             <!-- Timer Display -->
-            <div class="p-12 text-center bg-[#cb785b] dark:bg-gradient-to-br dark:from-dark-900 dark:to-dark-800 relative overflow-hidden">
+            <div class="p-12 text-center bg-[#e4f3e6] dark:bg-gradient-to-br dark:from-dark-900 dark:to-dark-800 relative overflow-hidden">
               <!-- Background decoration -->
               <div class="absolute inset-0 opacity-5">
                 <div class="absolute top-0 left-0 w-64 h-64 bg-primary-500 rounded-full filter blur-3xl"></div>
@@ -39,7 +39,7 @@
               <div class="relative z-10">
                 <!-- Timer -->
                 <div class="mb-8">
-                  <div class="text-7xl md:text-8xl font-mono font-bold text-claude-text dark:text-white mb-4 tracking-tight">
+                  <div class="text-7xl md:text-8xl font-mono font-bold text-[#2C2C2C] dark:text-white mb-4 tracking-tight">
                     {{ formattedTime }}
                   </div>
 
