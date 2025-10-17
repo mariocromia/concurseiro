@@ -1,13 +1,79 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { asaasWebhookSchema, validateBody } from '~/server/utils/validation-schemas'
+import {
+  verifyAsaasWebhookSignature,
+  isAsaasWhitelistedIP,
+  logWebhookSecurityEvent
+} from '~/server/utils/webhook-security'
+import { webhookRateLimit, checkRateLimit } from '~/server/utils/rate-limit'
 
 // POST /api/webhooks/asaas - Receber webhooks do Asaas
 export default defineEventHandler(async (event) => {
-  const supabase = await serverSupabaseClient(event)
-  const rawBody = await readBody(event)
-  const body = validateBody(asaasWebhookSchema, rawBody)
+  const startTime = Date.now()
 
-  console.log('Webhook Asaas recebido:', JSON.stringify(body, null, 2))
+  // 1. Get client IP
+  const forwarded = getRequestHeader(event, 'x-forwarded-for')
+  const clientIP = forwarded ? forwarded.split(',')[0] :
+                   getRequestHeader(event, 'x-real-ip') || '127.0.0.1'
+
+  // 2. IP Whitelist Check
+  if (!isAsaasWhitelistedIP(clientIP)) {
+    logWebhookSecurityEvent('ip_blocked', {
+      ip: clientIP,
+      endpoint: '/api/webhooks/asaas'
+    })
+
+    throw createError({
+      statusCode: 403,
+      message: 'Forbidden: IP not whitelisted'
+    })
+  }
+
+  logWebhookSecurityEvent('ip_allowed', { ip: clientIP })
+
+  // 3. Rate Limiting (1000 req/min)
+  await checkRateLimit(
+    clientIP,
+    webhookRateLimit,
+    'Webhook rate limit exceeded'
+  )
+
+  // 4. Get raw body and signature
+  const rawBody = await readBody<string>(event)
+  const signature = getRequestHeader(event, 'x-asaas-signature')
+
+  // 5. Verify HMAC Signature
+  const config = useRuntimeConfig()
+  const webhookSecret = config.asaasWebhookSecret || process.env.ASAAS_WEBHOOK_SECRET || ''
+
+  const isValidSignature = verifyAsaasWebhookSignature(rawBody, signature, webhookSecret)
+
+  if (!isValidSignature) {
+    logWebhookSecurityEvent('signature_invalid', {
+      ip: clientIP,
+      hasSignature: !!signature,
+      hasSecret: !!webhookSecret
+    })
+
+    throw createError({
+      statusCode: 401,
+      message: 'Unauthorized: Invalid webhook signature'
+    })
+  }
+
+  logWebhookSecurityEvent('signature_valid', { ip: clientIP })
+
+  // 6. Validate body schema
+  const body = validateBody(asaasWebhookSchema, typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody)
+
+  console.log('[WEBHOOK-ASAAS] Webhook recebido e validado:', {
+    event: body.event,
+    paymentId: body.payment?.id,
+    ip: clientIP,
+    processingTime: Date.now() - startTime
+  })
+
+  const supabase = await serverSupabaseClient(event)
 
   try {
     // Salvar webhook no banco
