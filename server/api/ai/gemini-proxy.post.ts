@@ -1,19 +1,21 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { geminiProxySchema, validateBody } from '~/server/utils/validation-schemas'
-import { aiRateLimit, checkRateLimit } from '~/server/utils/rate-limit'
+import { geminiProxySchema, validateBody } from '../../utils/validation-schemas'
+import { aiRateLimit, checkRateLimit } from '../../utils/rate-limit'
+import { getCachedResponse, setCachedResponse, isCacheable } from '../../utils/ai-cache'
 
 /**
  * Gemini AI Proxy Endpoint
  *
  * Security: Google AI API key is kept server-side only
  * Rate Limiting: 20 requests per hour per user (Redis distributed)
+ * Caching: Frequently asked questions cached for 24 hours (Redis)
  * Authentication: Required
  * Authorization: Pro plan required for AI features
  * Validation: Zod schema validation
  *
  * @author Claude Code
- * @date 2025-10-17 (Updated with Redis rate limiting)
+ * @date 2025-10-17 (Updated with caching + rate limiting)
  */
 
 export default defineEventHandler(async (event) => {
@@ -64,41 +66,64 @@ export default defineEventHandler(async (event) => {
       systemInstruction
     } = validateBody(geminiProxySchema, body)
 
-    // 5. Call Google Gemini API (server-side only)
-    const config = useRuntimeConfig()
-    const genAI = new GoogleGenerativeAI(config.googleAiApiKey)
+    // 5. Check Cache (if cacheable)
+    let text: string
+    let fromCache = false
 
-    const geminiModel = genAI.getGenerativeModel({
-      model,
-      generationConfig: {
-        temperature,
-        maxOutputTokens: maxTokens,
-      },
-      systemInstruction: systemInstruction || undefined
-    })
+    if (isCacheable(prompt)) {
+      const cached = await getCachedResponse(prompt, systemInstruction)
+      if (cached) {
+        text = cached
+        fromCache = true
+        console.log('[GEMINI-PROXY] Cache hit for prompt')
+      }
+    }
 
-    // Generate content
-    const result = await geminiModel.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
+    // 6. Call Google Gemini API (server-side only) if not cached
+    if (!fromCache) {
+      const config = useRuntimeConfig()
+      const genAI = new GoogleGenerativeAI(config.googleAiApiKey)
 
-    // 6. Log AI usage for analytics
-    await supabase
-      .from('ai_usage_logs')
-      .insert({
-        user_id: user.id,
+      const geminiModel = genAI.getGenerativeModel({
         model,
-        prompt_tokens: prompt.length, // Approximate
-        completion_tokens: text.length, // Approximate
-        total_cost: 0, // TODO: calculate actual cost
-        endpoint: 'gemini-proxy',
-        status: 'success',
-        response_time_ms: Date.now() - startTime
+        generationConfig: {
+          temperature,
+          maxOutputTokens: maxTokens,
+        },
+        systemInstruction: systemInstruction || undefined
       })
-      .then(() => {}) // Ignore errors in logging
-      .catch(() => {})
 
-    // 7. Return response
+      // Generate content
+      const result = await geminiModel.generateContent(prompt)
+      const response = await result.response
+      text = response.text()
+
+      // Cache response if cacheable
+      if (isCacheable(prompt)) {
+        await setCachedResponse(prompt, text, systemInstruction)
+        console.log('[GEMINI-PROXY] Response cached for future use')
+      }
+    }
+
+    // 7. Log AI usage for analytics (skip logging if from cache)
+    if (!fromCache) {
+      await supabase
+        .from('ai_usage_logs')
+        .insert({
+          user_id: user.id,
+          model,
+          prompt_tokens: prompt.length, // Approximate
+          completion_tokens: text.length, // Approximate
+          total_cost: 0, // TODO: calculate actual cost
+          endpoint: 'gemini-proxy',
+          status: 'success',
+          response_time_ms: Date.now() - startTime
+        })
+        .then(() => {}) // Ignore errors in logging
+        .catch(() => {})
+    }
+
+    // 8. Return response
     return {
       success: true,
       data: {
@@ -108,7 +133,8 @@ export default defineEventHandler(async (event) => {
           promptTokens: prompt.length,
           completionTokens: text.length,
           totalTokens: prompt.length + text.length
-        }
+        },
+        cached: fromCache
       },
       rateLimit: {
         remaining: rateLimitInfo.remaining,
