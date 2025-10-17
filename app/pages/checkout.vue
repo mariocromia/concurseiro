@@ -3,8 +3,8 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="text-center mb-12">
-        <NuxtLink to="/" class="inline-block text-3xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent mb-6">
-          Concurseiro
+        <NuxtLink to="/" class="inline-flex items-center justify-center mb-6">
+          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-12 w-auto">
         </NuxtLink>
         <h1 class="text-4xl font-bold text-claude-text dark:text-white mb-2">Finalizar Assinatura</h1>
         <p class="text-claude-text-secondary dark:text-gray-400">Complete seus dados para começar</p>

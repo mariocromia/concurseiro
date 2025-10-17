@@ -3,8 +3,8 @@
     <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
       <!-- Header -->
       <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-claude-text dark:text-white p-6">
-        <div class="flex items-center justify-center gap-2 mb-2">
-          <div class="w-8 h-8 bg-white/20 rounded-claude-md"></div>
+        <div class="flex flex-col items-center justify-center mb-2">
+          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-12 w-auto mb-3">
           <h1 class="text-3xl font-bold">Bem-vindo ao PraPassar!</h1>
         </div>
         <p class="text-center text-primary-100 mt-2">Configure sua meta de estudo e suas primeiras matérias</p>

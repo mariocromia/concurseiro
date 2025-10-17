@@ -2,9 +2,8 @@
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-md shadow-xl p-8">
       <div class="text-center mb-8">
-        <div class="flex items-center justify-center gap-2 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-claude-md"></div>
-          <span class="text-2xl font-bold text-claude-text dark:text-white">PraPassar</span>
+        <div class="flex items-center justify-center mb-6">
+          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-16 w-auto">
         </div>
         <h1 class="text-3xl font-bold text-claude-text dark:text-white mb-2">Criar conta grátis</h1>
         <p class="text-claude-text-secondary dark:text-gray-400">Comece a estudar de forma inteligente</p>

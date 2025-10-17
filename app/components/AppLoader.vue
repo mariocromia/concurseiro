@@ -3,18 +3,13 @@
     <div v-if="isLoading" class="fixed inset-0 z-[9999] bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 flex items-center justify-center">
       <div class="text-center">
         <!-- Logo/Icon -->
-        <div class="mb-8 animate-pulse">
-          <div class="w-20 h-20 mx-auto bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+        <div class="mb-8">
+          <div class="w-32 h-32 mx-auto flex items-center justify-center">
+            <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="w-full h-full object-contain animate-pulse">
           </div>
         </div>
 
-        <!-- Loading Text -->
-        <h2 class="text-2xl font-bold text-white mb-3">
-          PraPassar
-        </h2>
+        <!-- Loading Text (removed title, logo is self-explanatory) -->
         <p class="text-white/80 mb-8">
           {{ loadingMessage }}
         </p>

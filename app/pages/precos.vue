@@ -3,8 +3,8 @@
     <!-- Header/Navigation -->
     <nav class="border-b border-dark-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <NuxtLink to="/" class="text-2xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-          PraPassar
+        <NuxtLink to="/" class="flex items-center">
+          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-10 w-auto">
         </NuxtLink>
         <div class="flex gap-4">
           <NuxtLink

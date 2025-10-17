@@ -4,7 +4,7 @@
       <div class="grid md:grid-cols-4 gap-8 mb-8">
         <!-- Brand -->
         <div>
-          <h3 class="text-2xl font-bold text-white mb-4">PraPassar</h3>
+          <img src="/img/prapassar_logo1.png" alt="PraPassar Logo" class="h-10 w-auto mb-4">
           <p class="text-gray-400 mb-4">
             A plataforma completa para sua aprovação em concursos e vestibulares.
           </p>
