@@ -8,6 +8,7 @@
       <ModernNav v-if="showNav" />
       <FloatingTimer />
       <WhatsAppButton />
+      <ToastContainer />
     </ClientOnly>
     <div :class="{ 'pt-16': showNav }">
       <NuxtPage />
