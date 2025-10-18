@@ -1821,6 +1821,12 @@ const commentInsertRange = ref<Range | null>(null)
 const handleEditorClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement
 
+  // Check if clicking on a link - allow default behavior (open in new tab)
+  if (target.tagName === 'A' || target.closest('a')) {
+    // Link click - allow default browser behavior (will open in new tab due to target="_blank")
+    return
+  }
+
   // Check if clicking on comment dot
   if (target.classList.contains('comment-dot')) {
     event.preventDefault()
@@ -2517,11 +2523,18 @@ onUnmounted(() => {
   text-decoration: underline !important;
   cursor: pointer !important;
   transition: color 0.2s;
+  pointer-events: auto !important;
 }
 
 .rich-content-editor .prose a:hover {
   color: #2563eb !important;
   text-decoration: underline !important;
+}
+
+/* Garantir que links em contenteditable sejam clicáveis */
+.rich-content-editor [contenteditable="true"] a {
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
 }
 
 .rich-content-editor .prose ul,
