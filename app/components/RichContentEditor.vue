@@ -418,6 +418,25 @@
       </div>
 
       <div class="ml-auto flex items-center gap-2">
+        <!-- AI Assistant Button -->
+        <button
+          v-if="isPro"
+          @click="aiAssistantMode = !aiAssistantMode"
+          :class="[
+            'px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 font-medium text-sm',
+            aiAssistantMode
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30'
+              : 'bg-dark-700/70 text-gray-300 hover:bg-dark-600/70'
+          ]"
+          title="Assistente de IA"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+          </svg>
+          <span class="font-bold">IA</span>
+        </button>
+
         <!-- Calculator Button -->
         <button
           @click="showCalculator = true"
@@ -1215,32 +1234,8 @@ const updateActiveFormats = () => {
 
   activeFormats.value = newFormats
 
-  // Update highlight state APENAS se houver texto selecionado
-  // Caso contrário, mantém o estado atual (para modo toggle)
-  const selection = window.getSelection()
-  const hasSelection = selection && selection.toString()
-
-  console.log('📋 updateActiveFormats | Tem seleção?', !!hasSelection, '| isHighlightActive atual:', isHighlightActive.value)
-
-  if (hasSelection && selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0)
-    const container = range.commonAncestorContainer
-    const element = container.nodeType === 3 ? container.parentElement : container as HTMLElement
-
-    if (element) {
-      const bgColor = window.getComputedStyle(element).backgroundColor
-      const wasYellow = bgColor === 'rgb(254, 240, 138)' ||
-                        bgColor === 'rgb(255, 255, 0)' ||
-                        element.style.backgroundColor === 'yellow' ||
-                        element.tagName === 'MARK'
-
-      console.log('📋 Texto selecionado está marcado?', wasYellow, '| Background:', bgColor)
-      isHighlightActive.value = wasYellow
-    }
-  } else {
-    console.log('📋 Sem seleção - mantendo isHighlightActive:', isHighlightActive.value)
-  }
-  // Se não há seleção, mantém o estado atual de isHighlightActive
+  // NÃO atualiza o isHighlightActive aqui para evitar sobrescrever o estado do toggle
+  // O estado é controlado apenas pelo toggleHighlight()
 }
 
 const changeFontSize = (size: string) => {
@@ -1259,20 +1254,16 @@ const toggleHighlight = () => {
   const selection = window.getSelection()
   const hasSelection = selection && selection.toString()
 
-  console.log('🖍️ toggleHighlight | Tem seleção?', !!hasSelection, '| isHighlightActive antes:', isHighlightActive.value)
-
   // Se há texto selecionado, aplica/remove marcação
   if (hasSelection) {
     if (isHighlightActive.value) {
       // Remove highlight do texto selecionado
-      console.log('🖍️ Removendo marcação do texto selecionado')
       document.execCommand('hiliteColor', false, 'transparent')
       document.execCommand('removeFormat')
       // Desativa a ferramenta após remover marcação
       isHighlightActive.value = false
     } else {
       // Add highlight ao texto selecionado
-      console.log('🖍️ Adicionando marcação ao texto selecionado')
       document.execCommand('hiliteColor', false, 'yellow')
       // Ativa a ferramenta após marcar
       isHighlightActive.value = true
@@ -1280,11 +1271,9 @@ const toggleHighlight = () => {
   } else {
     // Se NÃO há seleção, apenas toggle o estado da ferramenta
     // Para usar ao digitar novo texto
-    console.log('🖍️ Toggle sem seleção - mudando de', isHighlightActive.value, 'para', !isHighlightActive.value)
     isHighlightActive.value = !isHighlightActive.value
   }
 
-  console.log('🖍️ toggleHighlight | isHighlightActive depois:', isHighlightActive.value)
   editorRef.value?.focus()
 }
 
@@ -2061,8 +2050,6 @@ const handleKeyDown = (event: KeyboardEvent) => {
   const isCharacterKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
 
   if (isCharacterKey) {
-    console.log('🔑 Tecla pressionada:', event.key, '| isHighlightActive:', isHighlightActive.value)
-
     const selection = window.getSelection()
 
     // Se a ferramenta de marcação NÃO estiver ativa, precisamos evitar herdar o background amarelo
@@ -2079,11 +2066,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
                           element.style.backgroundColor === 'yellow' ||
                           element.tagName === 'MARK'
 
-        console.log('🎨 Background detectado:', bgColor, '| É amarelo?', isYellowBg)
-
         if (isYellowBg) {
           // Cria um novo span sem background para inserir o texto
-          console.log('✨ Criando span sem background')
           event.preventDefault()
 
           const span = document.createElement('span')
@@ -2117,10 +2101,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
     // Aplica a marcação (highlight) se a ferramenta estiver ativa
     if (isHighlightActive.value) {
-      console.log('💛 Aplicando marcação amarela')
       document.execCommand('hiliteColor', false, 'yellow')
     } else {
-      console.log('⚪ Aplicando marcação transparente')
       // Se não estiver ativa, garante que não há marcação
       document.execCommand('hiliteColor', false, 'transparent')
     }
