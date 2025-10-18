@@ -14,25 +14,37 @@
         @click.self="skipTour"
       >
         <!-- Backdrop with spotlight effect -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm pointer-events-none"></div>
 
-        <!-- Spotlight highlight -->
+        <!-- Spotlight highlight with cutout -->
         <div
           v-if="spotlightPosition"
-          class="absolute rounded-lg ring-4 ring-primary-500/50 transition-all duration-500 pointer-events-none"
+          class="absolute rounded-lg ring-4 ring-primary-500 shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] transition-all duration-500 pointer-events-none z-[101]"
+          :style="{
+            top: `${spotlightPosition.top}px`,
+            left: `${spotlightPosition.left}px`,
+            width: `${spotlightPosition.width}px`,
+            height: `${spotlightPosition.height}px`
+          }"
+        ></div>
+
+        <!-- Clickable overlay to make highlighted element accessible -->
+        <div
+          v-if="spotlightPosition"
+          class="absolute rounded-lg transition-all duration-500 z-[102]"
           :style="{
             top: `${spotlightPosition.top}px`,
             left: `${spotlightPosition.left}px`,
             width: `${spotlightPosition.width}px`,
             height: `${spotlightPosition.height}px`,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.7)'
+            pointerEvents: 'auto'
           }"
         ></div>
 
         <!-- Tour Card -->
         <div
           v-if="currentStepData"
-          class="absolute bg-dark-800 border border-primary-500/30 rounded-2xl shadow-2xl max-w-md transition-all duration-500"
+          class="absolute bg-dark-800 border border-primary-500/30 rounded-2xl shadow-2xl max-w-md transition-all duration-500 z-[103]"
           :style="{
             top: `${cardPosition.top}px`,
             left: `${cardPosition.left}px`
