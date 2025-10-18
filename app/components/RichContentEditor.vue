@@ -25,69 +25,6 @@
 
         <div class="w-px h-6 bg-dark-700 mx-1"></div>
 
-        <!-- Font Family -->
-        <div class="flex items-center gap-1">
-          <select
-            v-model="currentFontFamily"
-            @change="changeFontFamily"
-            class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[140px]"
-            title="Tipo de fonte"
-          >
-            <option value="">Fonte Padrão</option>
-            <option v-for="font in googleFonts" :key="font.value" :value="font.value" :style="{ fontFamily: font.value }">
-              {{ font.label }}
-            </option>
-          </select>
-          <button
-            v-if="currentFontFamily"
-            @click="resetFontFamily"
-            title="Resetar fonte padrão"
-            class="p-1 text-gray-400 hover:text-gray-300 hover:bg-dark-700 rounded transition-colors"
-            type="button"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Font Size -->
-        <div class="flex items-center gap-1">
-          <select
-            v-model="currentFontSize"
-            @change="changeFontSizeNew"
-            class="px-3 py-1 bg-dark-700 border border-dark-700 text-gray-300 rounded text-sm hover:bg-dark-700/50 focus:ring-2 focus:ring-primary-500 focus:border-claude-primary dark:border-primary-500 min-w-[80px]"
-            title="Tamanho da fonte"
-          >
-            <option value="">Tamanho Padrão</option>
-            <option value="10px">10</option>
-            <option value="12px">12</option>
-            <option value="14px">14</option>
-            <option value="16px">16</option>
-            <option value="18px">18</option>
-            <option value="20px">20</option>
-            <option value="24px">24</option>
-            <option value="28px">28</option>
-            <option value="32px">32</option>
-            <option value="36px">36</option>
-            <option value="42px">42</option>
-            <option value="48px">48</option>
-          </select>
-          <button
-            v-if="currentFontSize"
-            @click="resetFontSize"
-            title="Resetar tamanho padrão"
-            class="p-1 text-gray-400 hover:text-gray-300 hover:bg-dark-700 rounded transition-colors"
-            type="button"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="w-px h-6 bg-dark-700 mx-1"></div>
-
         <!-- Font Color -->
         <div class="relative">
           <button
@@ -1030,32 +967,7 @@ const fontColors = [
 // AI Assistant mode
 const aiAssistantMode = ref(false)
 
-// Font family and size
-const currentFontFamily = ref('')
-const currentFontSize = ref('')
-
-// Google Fonts list - popular fonts for study notes
-const googleFonts = [
-  { label: 'Arial', value: 'Arial, sans-serif' },
-  { label: 'Helvetica', value: 'Helvetica, sans-serif' },
-  { label: 'Times New Roman', value: '"Times New Roman", serif' },
-  { label: 'Georgia', value: 'Georgia, serif' },
-  { label: 'Courier New', value: '"Courier New", monospace' },
-  { label: 'Verdana', value: 'Verdana, sans-serif' },
-  { label: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
-  { label: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
-  { label: 'Roboto', value: 'Roboto, sans-serif' },
-  { label: 'Open Sans', value: '"Open Sans", sans-serif' },
-  { label: 'Lato', value: 'Lato, sans-serif' },
-  { label: 'Montserrat', value: 'Montserrat, sans-serif' },
-  { label: 'Poppins', value: 'Poppins, sans-serif' },
-  { label: 'Raleway', value: 'Raleway, sans-serif' },
-  { label: 'Merriweather', value: 'Merriweather, serif' },
-  { label: 'Playfair Display', value: '"Playfair Display", serif' },
-  { label: 'Source Code Pro', value: '"Source Code Pro", monospace' },
-  { label: 'Indie Flower', value: '"Indie Flower", cursive' }
-]
-
+// Ferramentas de formatação (fonte e tamanho removidos)
 const formatTools = [
   {
     command: 'bold',
@@ -1202,89 +1114,7 @@ const extractTextContent = (fragment: DocumentFragment): string => {
   return temp.textContent || ''
 }
 
-// Função para alterar a família da fonte
-const changeFontFamily = () => {
-  if (!currentFontFamily.value || !editorRef.value) {
-    return
-  }
-
-  const selection = window.getSelection()
-
-  if (selection && !selection.isCollapsed) {
-    const range = selection.getRangeAt(0)
-    const selectedContent = range.cloneContents()
-
-    // Extrai apenas o texto puro
-    const textContent = extractTextContent(selectedContent)
-
-    // Remove o conteúdo selecionado
-    range.deleteContents()
-
-    // Cria um span com a fonte desejada e o texto puro
-    const span = document.createElement('span')
-    span.style.fontFamily = currentFontFamily.value
-    span.textContent = textContent
-
-    // Insere o span no lugar do texto selecionado
-    range.insertNode(span)
-
-    // Reseleciona o texto formatado
-    range.selectNodeContents(span)
-    selection.removeAllRanges()
-    selection.addRange(range)
-
-    handleInput()
-  }
-
-  // Sempre foca o editor
-  editorRef.value.focus()
-}
-
-const changeFontSizeNew = () => {
-  if (!currentFontSize.value || !editorRef.value) {
-    return
-  }
-
-  const selection = window.getSelection()
-
-  if (selection && !selection.isCollapsed) {
-    const range = selection.getRangeAt(0)
-    const selectedContent = range.cloneContents()
-
-    // Extrai apenas o texto puro
-    const textContent = extractTextContent(selectedContent)
-
-    // Remove o conteúdo selecionado
-    range.deleteContents()
-
-    // Cria um span com o tamanho desejado e o texto puro
-    const span = document.createElement('span')
-    span.style.fontSize = currentFontSize.value
-    span.textContent = textContent
-
-    // Insere o span no lugar do texto selecionado
-    range.insertNode(span)
-
-    // Reseleciona o texto formatado
-    range.selectNodeContents(span)
-    selection.removeAllRanges()
-    selection.addRange(range)
-
-    handleInput()
-  }
-
-  editorRef.value.focus()
-}
-
-const resetFontFamily = () => {
-  currentFontFamily.value = ''
-  editorRef.value?.focus()
-}
-
-const resetFontSize = () => {
-  currentFontSize.value = ''
-  editorRef.value?.focus()
-}
+// Funções de fonte e tamanho removidas - feature não mais necessária
 
 const toggleAIAssistantMode = () => {
   aiAssistantMode.value = !aiAssistantMode.value
