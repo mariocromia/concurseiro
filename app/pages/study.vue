@@ -348,7 +348,7 @@ import type { Database } from '~/types/database.types'
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
-const { timer, formattedTime, startTimer, pauseTimer, resumeTimer, stopTimer } = useStudyTimer()
+const { timer, formattedTime, startTimer, pauseTimer, resumeTimer, stopTimer, restoreTimer } = useStudyTimer()
 
 const subjects = ref<Array<{ id: string, name: string }>>([])
 const selectedSubjectId = ref<string>('')
@@ -395,6 +395,9 @@ const statusDotClass = computed(() => {
 
 // Methods
 onMounted(async () => {
+  // Restore timer if exists
+  await restoreTimer()
+
   // Obter userId da sessão
   const { data: sessionData } = await supabase.auth.getSession()
   const userId = user.value?.id || sessionData?.session?.user?.id

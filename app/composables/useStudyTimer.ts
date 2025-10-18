@@ -1,244 +1,310 @@
 import type { Database } from '~/types/database.types'
 
-// Variável global compartilhada (não reativa, apenas para controle do interval)
-let globalInterval: any = null
+// Server-controlled persistent timer
+// Time is calculated server-side, client only displays
+
+interface TimerState {
+  id: string | null
+  isRunning: boolean
+  displaySeconds: number // Local counter for UI (incremented every 1s)
+  subjectId: string | null
+  subjectName: string | null
+  subjectColor: string | null
+  subjectIcon: string | null
+  studyType: 'conteudo' | 'questoes' | 'revisao'
+  plannedQuestions: number | null
+  startedAt: Date | null
+}
+
+// Display interval (1s for UI updates)
+let displayInterval: any = null
+
+// Sync interval (60s to fetch from server)
+let syncInterval: any = null
 
 export const useStudyTimer = () => {
   const supabase = useSupabaseClient<Database>()
   const user = useSupabaseUser()
 
-  // Estado global compartilhado - useState DENTRO da função
-  const timer = useState('study-timer-state', () => ({
+  // Global state for timer (display only)
+  const timer = useState<TimerState>('study-timer-state', () => ({
+    id: null,
     isRunning: false,
-    isPaused: false,
-    startTime: 0,
-    elapsed: 0,
-    subjectId: '' as string,
-    startedAt: null as Date | null,
-    studyType: 'conteudo' as 'conteudo' | 'questoes' | 'revisao',
-    plannedQuestions: null as number | null,
+    displaySeconds: 0,
+    subjectId: null,
+    subjectName: null,
+    subjectColor: null,
+    subjectIcon: null,
+    studyType: 'conteudo',
+    plannedQuestions: null,
+    startedAt: null,
   }))
 
-  const now = useState('study-timer-now', () => Date.now())
-
+  // Formatted time (HH:MM:SS)
   const formattedTime = computed(() => {
-    const total = timer.value.isRunning && !timer.value.isPaused
-      ? Math.floor((now.value - timer.value.startTime) / 1000) + timer.value.elapsed
-      : timer.value.elapsed
+    const total = timer.value.displaySeconds
     const h = Math.floor(total / 3600)
     const m = Math.floor((total % 3600) / 60)
     const s = total % 60
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   })
 
-  const startTimer = async (subjectId: string, studyType: 'conteudo' | 'questoes' | 'revisao' = 'conteudo', plannedQuestions?: number) => {
-    if (timer.value.isRunning) return
-    console.log('⏱️ Iniciando timer para subject:', subjectId, 'tipo:', studyType)
-    timer.value.subjectId = subjectId
-    timer.value.studyType = studyType
-    timer.value.plannedQuestions = plannedQuestions || null
-    timer.value.isRunning = true
-    timer.value.isPaused = false
-    timer.value.startTime = Date.now()
-    timer.value.startedAt = new Date()
-    now.value = Date.now()
-    if (globalInterval) clearInterval(globalInterval)
-    globalInterval = setInterval(() => { now.value = Date.now() }, 1000)
+  // Start display interval (increments UI counter)
+  const startDisplayInterval = () => {
+    if (displayInterval) clearInterval(displayInterval)
+    displayInterval = setInterval(() => {
+      timer.value.displaySeconds++
+    }, 1000)
+  }
 
-    // Enviar sessão para extensão Chrome via postMessage (não depende de ID)
+  // Stop display interval
+  const stopDisplayInterval = () => {
+    if (displayInterval) {
+      clearInterval(displayInterval)
+      displayInterval = null
+    }
+  }
+
+  // Start sync interval (fetches from server every 60s)
+  const startSyncInterval = () => {
+    if (syncInterval) clearInterval(syncInterval)
+    syncInterval = setInterval(async () => {
+      if (timer.value.isRunning) {
+        await fetchCurrentTimer()
+      }
+    }, 60000) // 60 seconds
+  }
+
+  // Stop sync interval
+  const stopSyncInterval = () => {
+    if (syncInterval) {
+      clearInterval(syncInterval)
+      syncInterval = null
+    }
+  }
+
+  // Fetch current timer from server (sync)
+  const fetchCurrentTimer = async (): Promise<boolean> => {
     try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      if (sessionData?.session) {
-        // Enviar autenticação
-        window.postMessage({
-          source: 'concurseiro-app',
-          type: 'AUTH_SESSION',
-          session: {
-            access_token: sessionData.session.access_token,
-            refresh_token: sessionData.session.refresh_token
-          }
-        }, '*')
+      const response = await $fetch('/api/study-timer/active', {
+        method: 'GET',
+      })
 
-        // Enviar informação de que timer foi iniciado
-        window.postMessage({
-          source: 'concurseiro-app',
-          type: 'STUDY_SESSION_STARTED',
-          data: {
-            subjectId: subjectId,
-            studyType: studyType,
-            plannedQuestions: plannedQuestions,
-            startedAt: new Date().toISOString()
-          }
-        }, '*')
+      if (response.hasActiveTimer && response.timer) {
+        // Update state with server data
+        timer.value.id = response.timer.id
+        timer.value.isRunning = true
+        timer.value.displaySeconds = response.timer.elapsedSeconds
+        timer.value.subjectId = response.timer.subjectId
+        timer.value.subjectName = response.timer.subject?.name || null
+        timer.value.subjectColor = response.timer.subject?.color || null
+        timer.value.subjectIcon = response.timer.subject?.icon || null
+        timer.value.studyType = response.timer.studyType
+        timer.value.plannedQuestions = response.timer.plannedQuestions
+        timer.value.startedAt = new Date(response.timer.startTime)
 
-        console.log('✅ Timer iniciado - sessão e dados enviados para extensão')
+        // If not running display interval, start it
+        if (!displayInterval) {
+          startDisplayInterval()
+        }
+
+        return true
+      } else {
+        // No active timer
+        return false
       }
     } catch (error) {
-      console.log('⚠️ Erro ao comunicar com extensão:', error)
+      console.error('❌ Erro ao buscar timer do servidor:', error)
+      return false
     }
   }
 
-  const pauseTimer = () => {
-    if (!timer.value.isRunning || timer.value.isPaused) return
-    const timeToAdd = Math.floor((Date.now() - timer.value.startTime) / 1000)
-    console.log('⏱️ Pausando timer. Adicionando', timeToAdd, 'segundos ao elapsed atual:', timer.value.elapsed)
-    timer.value.isPaused = true
-    timer.value.elapsed += timeToAdd
-    console.log('⏱️ Elapsed após pausar:', timer.value.elapsed)
-    if (globalInterval) {
-      clearInterval(globalInterval)
-      globalInterval = null
-    }
+  // Restore timer on mount (manual call, not automatic)
+  const restoreTimer = async () => {
+    if (!process.client) return
 
-    // Notificar extensão
-    if (process.client) {
-      window.postMessage({
-        source: 'concurseiro-app',
-        type: 'STUDY_SESSION_PAUSED'
-      }, '*')
+    const hasTimer = await fetchCurrentTimer()
+    if (hasTimer) {
+      startSyncInterval()
     }
   }
 
-  const resumeTimer = () => {
-    if (!timer.value.isPaused) return
-    console.log('⏱️ Retomando timer. Elapsed atual:', timer.value.elapsed)
-    timer.value.isPaused = false
-    timer.value.startTime = Date.now()
-    now.value = Date.now()
-    console.log('⏱️ Novo startTime:', timer.value.startTime)
-    if (globalInterval) clearInterval(globalInterval)
-    globalInterval = setInterval(() => { now.value = Date.now() }, 1000)
-
-    // Notificar extensão
-    if (process.client) {
-      window.postMessage({
-        source: 'concurseiro-app',
-        type: 'STUDY_SESSION_RESUMED'
-      }, '*')
-    }
-  }
-
-  const stopTimer = async (completionData?: { notes?: string, completedQuestions?: number, correctQuestions?: number }) => {
-    if (!timer.value.isRunning && !timer.value.isPaused) return null
-    console.log('⏱️ Encerrando timer. Estado:', {
-      isRunning: timer.value.isRunning,
-      isPaused: timer.value.isPaused,
-      elapsed: timer.value.elapsed,
-      startTime: timer.value.startTime,
-      now: Date.now()
-    })
-    const duration = timer.value.elapsed + (timer.value.isRunning && !timer.value.isPaused ? Math.floor((Date.now() - timer.value.startTime) / 1000) : 0)
-    console.log('⏱️ Duração calculada:', duration, 'segundos')
-    const startedAt = timer.value.startedAt || new Date()
-    const endedAt = new Date()
-
-    // Salvar dados antes de resetar
-    const studyType = timer.value.studyType
-    const plannedQuestions = timer.value.plannedQuestions
-    const subjectId = timer.value.subjectId
-
-    // Notificar extensão antes de resetar
-    if (process.client) {
-      window.postMessage({
-        source: 'concurseiro-app',
-        type: 'STUDY_SESSION_STOPPED',
-        data: {
-          duration,
-          completedQuestions: completionData?.completedQuestions,
-          correctQuestions: completionData?.correctQuestions
-        }
-      }, '*')
-    }
-
-    // Reset state
-    timer.value.isRunning = false
-    timer.value.isPaused = false
-    timer.value.startTime = 0
-    timer.value.elapsed = 0
-    timer.value.studyType = 'conteudo'
-    timer.value.plannedQuestions = null
-    if (globalInterval) {
-      clearInterval(globalInterval)
-      globalInterval = null
-    }
-
-    if (!user.value) return { duration }
-
-    // Obter userId da sessão
-    const { data: sessionData } = await supabase.auth.getSession()
-    const userId = user.value?.id || sessionData?.session?.user?.id
-
-    if (!userId) return { duration }
-
-    // Persist session in study_sessions
-    const { error } = await supabase.from('study_sessions').insert({
-      user_id: userId,
-      subject_id: subjectId || null,
-      started_at: startedAt.toISOString(),
-      ended_at: endedAt.toISOString(),
-      duration,
-      notes: completionData?.notes || null,
-    })
-    if (error) throw error
-
-    // Persist in study_schedules for calendar
-    const scheduleData: any = {
-      user_id: userId,
-      subject_id: subjectId || null,
-      scheduled_date: startedAt.toISOString().split('T')[0],
-      scheduled_time: startedAt.toTimeString().split(' ')[0].substring(0, 5),
-      planned_duration: Math.floor(duration / 60),
-      study_type: studyType,
-      planned_questions: plannedQuestions,
-      status: 'completed',
-      completed_at: endedAt.toISOString(),
-      actual_duration: Math.floor(duration / 60),
-      completed_questions: completionData?.completedQuestions || null,
-      correct_questions: completionData?.correctQuestions || null,
-      notes: completionData?.notes || null,
-      is_recurring: false
-    }
-
-    console.log('📅 Salvando no calendário:', scheduleData)
-    const { data: scheduleResult, error: scheduleError } = await supabase.from('study_schedules').insert(scheduleData).select()
-    if (scheduleError) {
-      console.error('❌ Erro ao salvar no calendário:', scheduleError)
-    } else {
-      console.log('✅ Sessão salva no calendário:', scheduleResult)
-    }
-
-    // Agendar revisões R1→R7 baseadas na data de término
+  // Start new timer
+  const startTimer = async (
+    subjectId: string,
+    studyType: 'conteudo' | 'questoes' | 'revisao' = 'conteudo',
+    plannedQuestions?: number
+  ) => {
     try {
-      if (subjectId) {
-        const base = new Date(endedAt)
-        const dayOffsets = [1, 7, 14, 30, 60, 120, 240]
-        const rows = dayOffsets.map((days, idx) => {
-          const dt = new Date(base)
-          dt.setDate(dt.getDate() + days)
-          return {
-            user_id: userId,
-            subject_id: subjectId!,
-            page_id: null,
-            revision_number: idx + 1,
-            scheduled_date: dt.toISOString(),
-            status: 'pending' as const,
+      // Call API to start timer
+      const response = await $fetch('/api/study-timer/start', {
+        method: 'POST',
+        body: {
+          subject_id: subjectId,
+          study_type: studyType,
+          planned_questions: plannedQuestions,
+        },
+      })
+
+      if (response.success && response.timer) {
+        // Update local state
+        timer.value.id = response.timer.id
+        timer.value.isRunning = true
+        timer.value.displaySeconds = response.timer.elapsedSeconds
+        timer.value.subjectId = response.timer.subjectId
+        timer.value.studyType = response.timer.studyType
+        timer.value.plannedQuestions = plannedQuestions || null
+        timer.value.startedAt = new Date(response.timer.startTime)
+
+        // Fetch subject info
+        if (subjectId) {
+          const { data: subject } = await supabase
+            .from('subjects')
+            .select('name, color, icon')
+            .eq('id', subjectId)
+            .single()
+
+          if (subject) {
+            timer.value.subjectName = subject.name
+            timer.value.subjectColor = subject.color
+            timer.value.subjectIcon = subject.icon
           }
-        })
-        await supabase.from('revisions').insert(rows)
+        }
+
+        // Start intervals
+        startDisplayInterval()
+        startSyncInterval()
+
+        // Send message to extension (if exists)
+        if (process.client) {
+          try {
+            const { data: sessionData } = await supabase.auth.getSession()
+            if (sessionData?.session) {
+              window.postMessage({
+                source: 'concurseiro-app',
+                type: 'AUTH_SESSION',
+                session: {
+                  access_token: sessionData.session.access_token,
+                  refresh_token: sessionData.session.refresh_token,
+                },
+              }, '*')
+
+              window.postMessage({
+                source: 'concurseiro-app',
+                type: 'STUDY_SESSION_STARTED',
+                data: {
+                  subjectId,
+                  studyType,
+                  plannedQuestions,
+                  startedAt: new Date().toISOString(),
+                },
+              }, '*')
+            }
+          } catch (error) {
+            console.log('⚠️ Erro ao comunicar com extensão:', error)
+          }
+        }
+
+        console.log('✅ Timer iniciado:', response.alreadyExists ? '(já existente)' : '(novo)')
       }
-    } catch (e) {
-      console.warn('Falha ao agendar revisões:', e)
+    } catch (error: any) {
+      console.error('❌ Erro ao iniciar timer:', error)
+      throw error
     }
-
-    // Update subject total time
-    if (subjectId) {
-      const { data } = await supabase.from('subjects').select('total_study_time').eq('id', subjectId).single()
-      const current = data?.total_study_time || 0
-      await supabase.from('subjects').update({ total_study_time: current + duration }).eq('id', subjectId)
-    }
-
-    return { duration }
   }
 
-  return { timer, formattedTime, startTimer, pauseTimer, resumeTimer, stopTimer }
+  // Stop timer
+  const stopTimer = async (completionData?: {
+    notes?: string
+    completedQuestions?: number
+    correctQuestions?: number
+  }) => {
+    if (!timer.value.isRunning || !timer.value.id) {
+      console.warn('⚠️ Nenhum timer ativo para parar')
+      return null
+    }
+
+    try {
+      // Stop intervals immediately
+      stopDisplayInterval()
+      stopSyncInterval()
+
+      // Call API to stop timer
+      const response = await $fetch('/api/study-timer/stop', {
+        method: 'POST',
+        body: {
+          timer_id: timer.value.id,
+          notes: completionData?.notes,
+          completed_questions: completionData?.completedQuestions,
+          correct_questions: completionData?.correctQuestions,
+        },
+      })
+
+      // Send message to extension
+      if (process.client) {
+        window.postMessage({
+          source: 'concurseiro-app',
+          type: 'STUDY_SESSION_STOPPED',
+          data: {
+            duration: response.timer.totalSeconds,
+            completedQuestions: completionData?.completedQuestions,
+            correctQuestions: completionData?.correctQuestions,
+          },
+        }, '*')
+      }
+
+      // Reset state
+      timer.value = {
+        id: null,
+        isRunning: false,
+        displaySeconds: 0,
+        subjectId: null,
+        subjectName: null,
+        subjectColor: null,
+        subjectIcon: null,
+        studyType: 'conteudo',
+        plannedQuestions: null,
+        startedAt: null,
+      }
+
+      console.log('✅ Timer encerrado:', response.timer.totalFormatted)
+
+      return {
+        duration: response.timer.totalSeconds,
+        formatted: response.timer.totalFormatted,
+      }
+    } catch (error: any) {
+      console.error('❌ Erro ao parar timer:', error)
+      throw error
+    }
+  }
+
+  // Pause timer (not implemented in API yet, but keeping for compatibility)
+  const pauseTimer = () => {
+    console.warn('⚠️ Pause não implementado no modo servidor')
+  }
+
+  // Resume timer (not implemented in API yet, but keeping for compatibility)
+  const resumeTimer = () => {
+    console.warn('⚠️ Resume não implementado no modo servidor')
+  }
+
+  // Cleanup on unmount
+  if (process.client) {
+    onBeforeUnmount(() => {
+      stopDisplayInterval()
+      stopSyncInterval()
+    })
+  }
+
+  return {
+    timer: readonly(timer),
+    formattedTime,
+    startTimer,
+    stopTimer,
+    pauseTimer,
+    resumeTimer,
+    restoreTimer,
+    fetchCurrentTimer,
+  }
 }
