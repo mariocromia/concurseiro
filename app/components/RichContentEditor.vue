@@ -315,7 +315,7 @@
     </div>
 
     <!-- Geometry Tools Bar -->
-    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-4 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 sticky z-49 -mx-8 px-8 shadow-lg" style="top: 68px;">
+    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-4 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 sticky -mx-8 px-8 shadow-lg" style="top: 60px; z-index: 49;">
       <div class="text-sm font-medium text-gray-300 mr-2">Ferramentas de Geometria:</div>
       <button
         @click="activateGeometryTool('line')"
