@@ -3,8 +3,8 @@
     <!-- Toolbar removida conforme solicitado -->
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
-    <!-- Toolbar de Ferramentas -->
-    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-12 z-10 shadow-sm">
+    <!-- Toolbar de Ferramentas - Fixada no topo -->
+    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-0 z-50 shadow-sm">
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
