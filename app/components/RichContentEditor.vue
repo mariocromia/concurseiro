@@ -2034,6 +2034,16 @@ const handleInput = () => {
 }
 
 const handleKeyDown = (event: KeyboardEvent) => {
+  // Se for uma tecla de caractere (não é control, alt, etc)
+  const isCharacterKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
+
+  if (isCharacterKey) {
+    // Aplica a cor selecionada antes de digitar o caractere
+    if (currentFontColor.value && currentFontColor.value !== '#ffffff') {
+      document.execCommand('foreColor', false, currentFontColor.value)
+    }
+  }
+
   // Update formats on keyboard shortcuts
   setTimeout(() => updateActiveFormats(), 10)
 }
