@@ -298,7 +298,7 @@ export const useStudyTimer = () => {
   }
 
   return {
-    timer: readonly(timer),
+    timer,
     formattedTime,
     startTimer,
     stopTimer,
