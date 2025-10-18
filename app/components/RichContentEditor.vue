@@ -751,15 +751,50 @@
                 Excluir
               </button>
             </div>
-            <div class="bg-gray-50 rounded-claude-md p-4 text-gray-700 whitespace-pre-wrap">
+
+            <!-- View Mode -->
+            <div v-if="!isEditingComment" class="bg-gray-50 rounded-claude-md p-4 text-gray-700 whitespace-pre-wrap">
               {{ currentCommentText }}
             </div>
-            <div class="mt-4">
+
+            <!-- Edit Mode -->
+            <textarea
+              v-else
+              v-model="editCommentText"
+              class="w-full px-4 py-3 border border-gray-300 rounded-claude-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 resize-none"
+              rows="4"
+              placeholder="Digite seu comentário aqui..."
+            ></textarea>
+
+            <div class="mt-4 flex gap-2">
               <button
+                v-if="!isEditingComment"
+                @click="startEditingComment"
+                class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-claude-md hover:bg-primary-600 font-medium"
+              >
+                Editar
+              </button>
+              <button
+                v-if="!isEditingComment"
                 @click="showCommentView = false"
-                class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-claude-md hover:bg-gray-200 font-medium"
+                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-claude-md hover:bg-gray-200 font-medium"
               >
                 Fechar
+              </button>
+
+              <button
+                v-if="isEditingComment"
+                @click="cancelEditComment"
+                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-claude-md hover:bg-gray-50 font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                v-if="isEditingComment"
+                @click="saveEditedComment"
+                class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-claude-md hover:bg-primary-600 font-medium"
+              >
+                Salvar
               </button>
             </div>
           </div>
@@ -1064,6 +1099,8 @@ const showCommentView = ref(false)
 const commentText = ref('')
 const currentCommentText = ref('')
 const currentCommentId = ref('')
+const isEditingComment = ref(false)
+const editCommentText = ref('')
 const commentMode = ref(false)
 const commentCursorPosition = ref<{ x: number, y: number } | null>(null)
 const isHighlightActive = ref(false)
@@ -2041,6 +2078,31 @@ const handleEditorClick = (event: MouseEvent) => {
   }
 }
 
+const startEditingComment = () => {
+  isEditingComment.value = true
+  editCommentText.value = currentCommentText.value
+}
+
+const cancelEditComment = () => {
+  isEditingComment.value = false
+  editCommentText.value = ''
+}
+
+const saveEditedComment = () => {
+  if (!editCommentText.value.trim()) return
+
+  // Atualizar o atributo data-comment-text do comentário
+  const commentDot = editorRef.value?.querySelector(`[data-comment-id="${currentCommentId.value}"]`)
+  if (commentDot) {
+    commentDot.setAttribute('data-comment-text', editCommentText.value)
+    currentCommentText.value = editCommentText.value
+    handleInput()
+  }
+
+  isEditingComment.value = false
+  showCommentView.value = false
+}
+
 const deleteComment = () => {
   const commentDot = editorRef.value?.querySelector(`[data-comment-id="${currentCommentId.value}"]`)
   if (commentDot) {
@@ -2048,6 +2110,7 @@ const deleteComment = () => {
     handleInput()
   }
   showCommentView.value = false
+  isEditingComment.value = false
 }
 
 const handleInput = () => {
@@ -2670,11 +2733,59 @@ onUnmounted(() => {
   margin: 0 2px;
   transition: transform 0.2s;
   user-select: none;
+  position: relative;
 }
 
 .rich-content-editor .comment-dot:hover {
   transform: scale(1.3);
   filter: brightness(1.2);
+}
+
+/* Tooltip do comentário */
+.rich-content-editor .comment-dot::after {
+  content: attr(data-comment-text);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background-color: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  max-width: 250px;
+  width: max-content;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Seta do tooltip */
+.rich-content-editor .comment-dot::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1001;
+}
+
+.rich-content-editor .comment-dot:hover::after,
+.rich-content-editor .comment-dot:hover::before {
+  opacity: 1;
+}
+
+.rich-content-editor .comment-dot:hover::after {
+  transform: translateX(-50%) translateY(-4px);
 }
 
 /* Highlight styling */
