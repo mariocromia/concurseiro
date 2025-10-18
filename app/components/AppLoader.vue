@@ -4,8 +4,8 @@
       <div class="text-center">
         <!-- Logo/Icon -->
         <div class="mb-8">
-          <div class="w-32 h-32 mx-auto flex items-center justify-center">
-            <Logo size="xl" class-name="animate-pulse" />
+          <div class="w-[230px] h-[230px] mx-auto flex items-center justify-center">
+            <Logo size="xl" class-name="animate-pulse scale-[1.8]" />
           </div>
         </div>
 
