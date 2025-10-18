@@ -550,7 +550,7 @@
           </div>
 
           <!-- Scrollable Editor Area -->
-          <div class="flex-1 overflow-y-auto px-8 pb-8">
+          <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
             <div class="max-w-7xl ml-0 mr-auto">
               <!-- Rich Content Editor -->
               <RichContentEditor
@@ -2377,5 +2377,37 @@ const formatDateInline = (date: string | Date): string => {
 <style scoped>
 .rotate-90 {
   transform: rotate(90deg);
+}
+
+/* Custom scrollbar - only shows when hovering or scrolling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.custom-scrollbar:hover {
+  scrollbar-color: rgba(51, 65, 85, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(51, 65, 85, 0.7);
 }
 </style>
