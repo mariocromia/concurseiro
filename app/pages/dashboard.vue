@@ -6,7 +6,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Stats Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition">
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 hover:border-orange-500/50 transition">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Tempo Hoje</p>
@@ -36,7 +36,7 @@
           </div>
         </div>
 
-        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition">
+        <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 hover:border-orange-500/50 transition">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Matérias Ativas</p>
