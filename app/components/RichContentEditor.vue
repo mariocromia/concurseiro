@@ -1,5 +1,5 @@
 <template>
-  <div class="rich-content-editor">
+  <div class="rich-content-editor relative">
     <!-- Toolbar removida conforme solicitado -->
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
@@ -7,7 +7,7 @@
     <div
       :class="[
         'flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 px-4 py-3 sticky top-0 z-50 shadow-lg -mx-8 px-8',
-        showGeometryTools ? 'rounded-t-claude-md' : 'rounded-claude-md mb-4'
+        showGeometryTools ? 'rounded-t-claude-md' : 'rounded-claude-md'
       ]"
     >
       <div class="flex items-center gap-1">
@@ -315,7 +315,7 @@
     </div>
 
     <!-- Geometry Tools Bar -->
-    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-4 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 sticky -mx-8 px-8 shadow-lg" style="top: 60px; z-index: 49;">
+    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 sticky -mx-8 px-8 shadow-lg" style="top: 60px; z-index: 49;">
       <div class="text-sm font-medium text-gray-300 mr-2">Ferramentas de Geometria:</div>
       <button
         @click="activateGeometryTool('line')"
@@ -443,12 +443,14 @@
       @click="handleEditorClick"
       @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
       @focus="updateActiveFormats"
-      class="min-h-[500px] w-full p-8 mt-2 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
+      class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
         'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode && !pageBreakMode,
         'cursor-crosshair': commentMode || geometryTool || screenshotMode,
         'page-break-cursor': pageBreakMode,
-        'notebook-lines': showNotebookLines
+        'notebook-lines': showNotebookLines,
+        'mt-4': !showGeometryTools,
+        'mt-2': showGeometryTools
       }"
       @paste="handlePaste"
       @mouseup.capture="handleEditorMouseUp"
