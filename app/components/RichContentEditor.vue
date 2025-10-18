@@ -1390,15 +1390,19 @@ const confirmLinkInsert = () => {
     // Focar no editor antes de inserir
     editorRef.value.focus()
 
+    let link = ''
     if (linkText.value) {
       // Se houver texto, cria um link com o texto
-      const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">${linkText.value}</a>`
-      document.execCommand('insertHTML', false, link)
+      link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6 !important; text-decoration: underline !important; cursor: pointer;">${linkText.value}</a>`
     } else {
       // Se não houver texto, usa a URL como texto
-      const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">${linkUrl.value}</a>`
-      document.execCommand('insertHTML', false, link)
+      link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6 !important; text-decoration: underline !important; cursor: pointer;">${linkUrl.value}</a>`
     }
+
+    document.execCommand('insertHTML', false, link)
+
+    // Emitir evento de mudança
+    emit('update:modelValue', editorRef.value.innerHTML)
   }
 
   closeLinkModal()
@@ -2506,6 +2510,18 @@ onUnmounted(() => {
   margin-top: 1em;
   margin-bottom: 1em;
   color: #111827;
+}
+
+.rich-content-editor .prose a {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  transition: color 0.2s;
+}
+
+.rich-content-editor .prose a:hover {
+  color: #2563eb !important;
+  text-decoration: underline !important;
 }
 
 .rich-content-editor .prose ul,
