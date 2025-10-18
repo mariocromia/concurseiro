@@ -14,9 +14,9 @@
         @click.self="skipTour"
       >
         <!-- Backdrop with SVG cutout for spotlight -->
-        <svg class="absolute inset-0 w-full h-full pointer-events-none">
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" :key="`spotlight-${currentStep}`">
           <defs>
-            <mask id="spotlight-mask">
+            <mask :id="`spotlight-mask-${currentStep}`">
               <!-- White background (visible) -->
               <rect x="0" y="0" width="100%" height="100%" fill="white"/>
               <!-- Black cutout (transparent) where spotlight is -->
@@ -26,15 +26,10 @@
                 :y="spotlightPosition.top"
                 :width="spotlightPosition.width"
                 :height="spotlightPosition.height"
-                :rx="8"
-                :ry="8"
+                rx="8"
+                ry="8"
                 fill="black"
-              >
-                <animate attributeName="x" :to="spotlightPosition.left" dur="0.5s" fill="freeze" />
-                <animate attributeName="y" :to="spotlightPosition.top" dur="0.5s" fill="freeze" />
-                <animate attributeName="width" :to="spotlightPosition.width" dur="0.5s" fill="freeze" />
-                <animate attributeName="height" :to="spotlightPosition.height" dur="0.5s" fill="freeze" />
-              </rect>
+              />
             </mask>
           </defs>
           <!-- Dark overlay with cutout -->
@@ -44,7 +39,7 @@
             width="100%"
             height="100%"
             fill="rgba(0, 0, 0, 0.75)"
-            mask="url(#spotlight-mask)"
+            :mask="`url(#spotlight-mask-${currentStep})`"
           />
         </svg>
 
