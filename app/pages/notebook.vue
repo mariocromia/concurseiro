@@ -143,7 +143,7 @@
 
     <div class="flex h-[calc(100vh-73px)]">
       <!-- Modern Compact Sidebar -->
-      <aside class="w-80 bg-dark-900/50 border-r border-dark-700/50 overflow-y-auto flex-shrink-0">
+      <aside class="w-80 bg-dark-900/50 border-r border-dark-700/50 overflow-y-auto flex-shrink-0 custom-scrollbar">
         <!-- Sidebar Header -->
         <div class="p-4 border-b border-dark-700/50 bg-dark-800/30">
           <div class="flex items-center justify-between mb-2">
