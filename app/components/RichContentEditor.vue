@@ -1215,9 +1215,12 @@ const updateActiveFormats = () => {
 
   activeFormats.value = newFormats
 
-  // Update highlight state
+  // Update highlight state APENAS se houver texto selecionado
+  // Caso contrário, mantém o estado atual (para modo toggle)
   const selection = window.getSelection()
-  if (selection && selection.rangeCount > 0) {
+  const hasSelection = selection && selection.toString()
+
+  if (hasSelection && selection.rangeCount > 0) {
     const range = selection.getRangeAt(0)
     const container = range.commonAncestorContainer
     const element = container.nodeType === 3 ? container.parentElement : container as HTMLElement
@@ -1230,6 +1233,7 @@ const updateActiveFormats = () => {
                                 element.tagName === 'MARK'
     }
   }
+  // Se não há seleção, mantém o estado atual de isHighlightActive
 }
 
 const changeFontSize = (size: string) => {
