@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 md:h-20">
         <!-- Logo -->
-        <NuxtLink to="/" class="flex-shrink-0">
+        <NuxtLink to="/" class="flex-shrink-0 -translate-y-[20%]">
           <Logo size="sm" class-name="transition-transform hover:scale-105" />
         </NuxtLink>
 
