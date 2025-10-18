@@ -1254,15 +1254,14 @@ const toggleHighlight = () => {
       // Remove highlight do texto selecionado
       document.execCommand('hiliteColor', false, 'transparent')
       document.execCommand('removeFormat')
+      // Desativa a ferramenta após remover marcação
+      isHighlightActive.value = false
     } else {
       // Add highlight ao texto selecionado
       document.execCommand('hiliteColor', false, 'yellow')
+      // Ativa a ferramenta após marcar
+      isHighlightActive.value = true
     }
-
-    // Update state after a delay to ensure DOM updated
-    setTimeout(() => {
-      updateActiveFormats()
-    }, 100)
   } else {
     // Se NÃO há seleção, apenas toggle o estado da ferramenta
     // Para usar ao digitar novo texto
