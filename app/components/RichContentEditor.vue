@@ -244,30 +244,6 @@
           </svg>
         </button>
 
-        <div class="w-px h-6 bg-dark-700 mx-1"></div>
-
-        <!-- AI Assistant Tool -->
-        <button
-          @click="toggleAIAssistantMode"
-          title="Assistente IA - Ative e selecione texto para usar"
-          :class="[
-            'p-2 rounded transition-colors relative',
-            aiAssistantMode
-              ? 'bg-purple-500/20 text-purple-400 ring-2 ring-purple-500/50'
-              : 'text-gray-400 hover:bg-dark-700/50'
-          ]"
-          type="button"
-        >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            <circle cx="12" cy="8" r="1.5" fill="currentColor"/>
-          </svg>
-          <div
-            v-if="aiAssistantMode"
-            class="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full animate-pulse"
-          ></div>
-        </button>
-
         <!-- Insert Link -->
         <button
           @click="showLinkModal = true"
