@@ -246,7 +246,7 @@
 
         <!-- Insert Link -->
         <button
-          @click="showLinkModal = true"
+          @click="insertLink"
           title="Inserir link"
           class="p-2 hover:bg-dark-700/50 rounded transition-colors text-gray-400"
           type="button"
@@ -1106,6 +1106,7 @@ const youtubeEndTime = ref('')
 const showLinkModal = ref(false)
 const linkUrl = ref('')
 const linkText = ref('')
+const linkInsertRange = ref<Range | null>(null)
 
 // Font color
 const showColorPicker = ref(false)
@@ -1361,24 +1362,43 @@ const clearFormatting = () => {
 }
 
 const insertLink = () => {
+  // Salvar a posição do cursor/seleção
   const selection = window.getSelection()
-  if (selection && selection.toString()) {
-    linkText.value = selection.toString()
+  if (selection && selection.rangeCount > 0) {
+    linkInsertRange.value = selection.getRangeAt(0).cloneRange()
+
+    // Se houver texto selecionado, usar como texto do link
+    if (selection.toString()) {
+      linkText.value = selection.toString()
+    }
   }
+
   showLinkModal.value = true
 }
 
 const confirmLinkInsert = () => {
   if (!linkUrl.value) return
 
-  if (linkText.value) {
-    // Se houver texto, cria um link com o texto
-    const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer">${linkText.value}</a>`
-    document.execCommand('insertHTML', false, link)
-  } else {
-    // Se não houver texto, usa a URL como texto
-    const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer">${linkUrl.value}</a>`
-    document.execCommand('insertHTML', false, link)
+  // Restaurar a seleção/posição do cursor
+  if (linkInsertRange.value && editorRef.value) {
+    const selection = window.getSelection()
+    if (selection) {
+      selection.removeAllRanges()
+      selection.addRange(linkInsertRange.value)
+    }
+
+    // Focar no editor antes de inserir
+    editorRef.value.focus()
+
+    if (linkText.value) {
+      // Se houver texto, cria um link com o texto
+      const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">${linkText.value}</a>`
+      document.execCommand('insertHTML', false, link)
+    } else {
+      // Se não houver texto, usa a URL como texto
+      const link = `<a href="${linkUrl.value}" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">${linkUrl.value}</a>`
+      document.execCommand('insertHTML', false, link)
+    }
   }
 
   closeLinkModal()
@@ -1389,6 +1409,7 @@ const closeLinkModal = () => {
   showLinkModal.value = false
   linkUrl.value = ''
   linkText.value = ''
+  linkInsertRange.value = null
 }
 
 const toggleCommentMode = () => {
