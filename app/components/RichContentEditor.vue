@@ -1821,9 +1821,15 @@ const commentInsertRange = ref<Range | null>(null)
 const handleEditorClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement
 
-  // Check if clicking on a link - allow default behavior (open in new tab)
-  if (target.tagName === 'A' || target.closest('a')) {
-    // Link click - allow default browser behavior (will open in new tab due to target="_blank")
+  // Check if clicking on a link - open in new tab
+  const linkElement = target.tagName === 'A' ? target : target.closest('a')
+  if (linkElement) {
+    event.preventDefault()
+    event.stopPropagation()
+    const href = (linkElement as HTMLAnchorElement).href
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer')
+    }
     return
   }
 
