@@ -4,7 +4,7 @@
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
     <!-- Toolbars Container - Fixo no topo -->
-    <div class="flex-shrink-0">
+    <div class="flex-shrink-0 relative z-[100]">
       <!-- Toolbar de Ferramentas Principal -->
       <div
         :class="[
