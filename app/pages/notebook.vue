@@ -392,7 +392,7 @@
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 overflow-y-auto">
+      <main class="flex-1 overflow-hidden">
         <!-- Debug Info -->
         <div v-if="false" class="p-4 bg-red-900 text-claude-text dark:text-white text-xs font-mono">
           <div>✅ selectedChapter: {{ selectedChapter?.title || 'NULL' }}</div>
@@ -550,7 +550,7 @@
           </div>
 
           <!-- Scrollable Editor Area -->
-          <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
+          <div class="flex-1 overflow-y-auto px-8 pb-8">
             <div class="max-w-7xl ml-0 mr-auto">
               <!-- Rich Content Editor -->
               <RichContentEditor
