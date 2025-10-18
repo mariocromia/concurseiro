@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
+  <div class="h-screen overflow-hidden bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
 
 
     <!-- Overlay for search (clicável para fechar) -->
