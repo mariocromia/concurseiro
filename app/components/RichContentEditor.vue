@@ -38,7 +38,7 @@
             @click="showColorPicker = !showColorPicker"
             title="Cor da fonte"
             :class="[
-              'p-2 rounded transition-all relative group',
+              'p-2 rounded transition-colors relative',
               showColorPicker
                 ? 'bg-primary-500/20 text-primary-400'
                 : 'text-gray-400 hover:bg-dark-700/50'
@@ -49,8 +49,8 @@
               <path d="M9.62 12L12 5.67 14.38 12H9.62zM11 3L5.5 17h2.25l1.12-3h6.25l1.12 3h2.25L13 3h-2z"/>
             </svg>
             <div
-              class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded-full shadow-lg transition-all group-hover:h-1.5"
-              :style="{ backgroundColor: currentFontColor, boxShadow: `0 0 8px ${currentFontColor}` }"
+              class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded"
+              :style="{ backgroundColor: currentFontColor }"
             ></div>
           </button>
 
@@ -65,7 +65,7 @@
           >
             <div
               v-if="showColorPicker"
-              class="absolute top-full mt-2 z-20 bg-dark-900/98 backdrop-blur-xl border border-primary-500/30 rounded-lg p-4 shadow-2xl shadow-primary-500/20 min-w-[280px]"
+              class="absolute top-full mt-2 z-[9999] bg-dark-900/98 backdrop-blur-xl border border-dark-700 rounded-lg p-4 shadow-2xl min-w-[280px]"
               @click.stop
             >
               <!-- Header -->
@@ -91,11 +91,8 @@
               <div class="mb-3 p-3 bg-dark-800/50 rounded-lg border border-dark-700">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-10 h-10 rounded-lg border-2 border-white/20 shadow-lg flex-shrink-0"
-                    :style="{
-                      backgroundColor: currentFontColor,
-                      boxShadow: `0 0 20px ${currentFontColor}40`
-                    }"
+                    class="w-10 h-10 rounded-lg border-2 border-white/20 flex-shrink-0"
+                    :style="{ backgroundColor: currentFontColor }"
                   ></div>
                   <div class="flex-1 min-w-0">
                     <div class="text-xs text-gray-400 mb-1">Cor Atual</div>
