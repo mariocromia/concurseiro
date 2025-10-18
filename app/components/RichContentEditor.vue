@@ -418,6 +418,25 @@
       </div>
 
       <div class="ml-auto flex items-center gap-2">
+        <!-- AI Assistant Button -->
+        <button
+          v-if="isPro"
+          @click="aiAssistantMode = !aiAssistantMode"
+          :class="[
+            'px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 font-medium text-sm',
+            aiAssistantMode
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30'
+              : 'bg-dark-700/70 text-gray-300 hover:bg-dark-600/70'
+          ]"
+          title="Assistente de IA"
+          type="button"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+          </svg>
+          <span class="font-bold">IA</span>
+        </button>
+
         <!-- Calculator Button -->
         <button
           @click="showCalculator = true"
