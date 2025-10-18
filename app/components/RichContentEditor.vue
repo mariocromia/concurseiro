@@ -2060,10 +2060,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
       // Se não estiver ativa, garante que não há marcação
       document.execCommand('hiliteColor', false, 'transparent')
     }
+  } else {
+    // Update formats apenas para atalhos (Ctrl+B, etc), não para caracteres
+    setTimeout(() => updateActiveFormats(), 10)
   }
-
-  // Update formats on keyboard shortcuts
-  setTimeout(() => updateActiveFormats(), 10)
 }
 
 const handleTextSelection = () => {
