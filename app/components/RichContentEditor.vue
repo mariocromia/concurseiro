@@ -1246,21 +1246,28 @@ const changeFontSize = (size: string) => {
 
 const toggleHighlight = () => {
   const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0) return
+  const hasSelection = selection && selection.toString()
 
-  if (isHighlightActive.value) {
-    // Remove highlight
-    document.execCommand('hiliteColor', false, 'transparent')
-    document.execCommand('removeFormat')
+  // Se há texto selecionado, aplica/remove marcação
+  if (hasSelection) {
+    if (isHighlightActive.value) {
+      // Remove highlight do texto selecionado
+      document.execCommand('hiliteColor', false, 'transparent')
+      document.execCommand('removeFormat')
+    } else {
+      // Add highlight ao texto selecionado
+      document.execCommand('hiliteColor', false, 'yellow')
+    }
+
+    // Update state after a delay to ensure DOM updated
+    setTimeout(() => {
+      updateActiveFormats()
+    }, 100)
   } else {
-    // Add highlight
-    document.execCommand('hiliteColor', false, 'yellow')
+    // Se NÃO há seleção, apenas toggle o estado da ferramenta
+    // Para usar ao digitar novo texto
+    isHighlightActive.value = !isHighlightActive.value
   }
-
-  // Update state after a delay to ensure DOM updated
-  setTimeout(() => {
-    updateActiveFormats()
-  }, 100)
 
   editorRef.value?.focus()
 }
@@ -2041,6 +2048,14 @@ const handleKeyDown = (event: KeyboardEvent) => {
     // Aplica a cor selecionada antes de digitar o caractere
     if (currentFontColor.value && currentFontColor.value !== '#ffffff') {
       document.execCommand('foreColor', false, currentFontColor.value)
+    }
+
+    // Aplica a marcação (highlight) se a ferramenta estiver ativa
+    if (isHighlightActive.value) {
+      document.execCommand('hiliteColor', false, 'yellow')
+    } else {
+      // Se não estiver ativa, garante que não há marcação
+      document.execCommand('hiliteColor', false, 'transparent')
     }
   }
 
