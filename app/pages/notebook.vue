@@ -484,8 +484,8 @@
         <!-- Chapter Content -->
         <div v-else-if="selectedChapter" class="flex flex-col h-full">
           <!-- Fixed Header Area -->
-          <div class="flex-shrink-0 px-8 pt-8 pb-4 bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
-            <div class="mb-6 flex items-start justify-between max-w-7xl ml-0 mr-auto">
+          <div class="flex-shrink-0 px-8 pt-4 pb-2 bg-[#faf9f5] dark:bg-gradient-to-br dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
+            <div class="mb-3 flex items-start justify-between max-w-7xl ml-0 mr-auto">
               <div>
                 <div class="text-sm text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors font-medium mb-1">{{ selectedSubject?.name }}</div>
                 <h2 class="text-3xl font-bold text-claude-text dark:text-white mb-2">{{ selectedChapter.title }}</h2>
@@ -494,7 +494,7 @@
             </div>
 
             <!-- Action Buttons (Buscar, Autosave, Salvar, Exportar PDF) -->
-            <div class="mb-4 flex items-center justify-end space-x-2 max-w-7xl ml-0 mr-auto">
+            <div class="mb-2 flex items-center justify-end space-x-2 max-w-7xl ml-0 mr-auto">
             <!-- Search Button -->
             <button
               @click="showInlineSearch = true"
