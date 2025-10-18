@@ -4,7 +4,7 @@
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
     <!-- Toolbar de Ferramentas - Fixada no topo -->
-    <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-0 z-50 shadow-sm">
+    <div class="flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-0 z-50 shadow-lg -mx-8 px-8 mb-4">
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
@@ -501,7 +501,7 @@
       @click="handleEditorClick"
       @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
       @focus="updateActiveFormats"
-      class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
+      class="min-h-[500px] w-full p-8 mt-2 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
       :class="{
         'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode && !pageBreakMode,
         'cursor-crosshair': commentMode || geometryTool || screenshotMode,
