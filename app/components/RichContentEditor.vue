@@ -2048,6 +2048,25 @@ const handleKeyDown = (event: KeyboardEvent) => {
   const isCharacterKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
 
   if (isCharacterKey) {
+    // Se a ferramenta de marcação NÃO estiver ativa, remove qualquer marcação herdada
+    if (!isHighlightActive.value) {
+      // Remove formatação de background antes de digitar
+      const selection = window.getSelection()
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0)
+        const container = range.commonAncestorContainer
+        const element = container.nodeType === 3 ? container.parentElement : container as HTMLElement
+
+        // Se estamos dentro de um elemento com background amarelo, precisamos sair dele
+        if (element && element.style.backgroundColor) {
+          // Remove a marcação definindo como transparente
+          document.execCommand('hiliteColor', false, 'transparent')
+          // Força a remoção do background com removeFormat
+          document.execCommand('removeFormat', false, undefined)
+        }
+      }
+    }
+
     // Aplica a cor selecionada antes de digitar o caractere
     if (currentFontColor.value && currentFontColor.value !== '#ffffff') {
       document.execCommand('foreColor', false, currentFontColor.value)
