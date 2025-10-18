@@ -1,15 +1,17 @@
 <template>
-  <div class="rich-content-editor relative">
+  <div class="rich-content-editor flex flex-col h-full">
     <!-- Toolbar removida conforme solicitado -->
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
-    <!-- Toolbar de Ferramentas - Fixada no topo -->
-    <div
-      :class="[
-        'flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 px-4 py-3 sticky top-0 z-50 shadow-lg -mx-8 px-8',
-        showGeometryTools ? 'rounded-t-claude-md' : 'rounded-claude-md'
-      ]"
-    >
+    <!-- Toolbars Container - Fixo no topo -->
+    <div class="flex-shrink-0">
+      <!-- Toolbar de Ferramentas Principal -->
+      <div
+        :class="[
+          'flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 px-4 py-3 shadow-lg',
+          showGeometryTools ? 'rounded-t-claude-md' : 'rounded-claude-md'
+        ]"
+      >
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
@@ -312,10 +314,10 @@
         </button>
 
       </div>
-    </div>
+      </div>
 
-    <!-- Geometry Tools Bar -->
-    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 sticky -mx-8 px-8 shadow-lg" style="top: 60px; z-index: 49;">
+      <!-- Geometry Tools Bar -->
+      <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 shadow-lg">
       <div class="text-sm font-medium text-gray-300 mr-2">Ferramentas de Geometria:</div>
       <button
         @click="activateGeometryTool('line')"
@@ -429,32 +431,33 @@
           OK
         </button>
       </div>
+      </div>
     </div>
 
-    <!-- Editor Area -->
-    <div
-      ref="editorRef"
-      contenteditable="true"
-      @input="handleInput"
-      @mouseup="handleTextSelection"
-      @mousedown="handleEditorMouseDown"
-      @keyup="handleTextSelection"
-      @keydown="handleKeyDown"
-      @click="handleEditorClick"
-      @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
-      @focus="updateActiveFormats"
-      class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
-      :class="{
-        'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode && !pageBreakMode,
-        'cursor-crosshair': commentMode || geometryTool || screenshotMode,
-        'page-break-cursor': pageBreakMode,
-        'notebook-lines': showNotebookLines,
-        'mt-4': !showGeometryTools,
-        'mt-2': showGeometryTools
-      }"
-      @paste="handlePaste"
-      @mouseup.capture="handleEditorMouseUp"
-    >
+    <!-- Editor Container com Scroll -->
+    <div class="flex-1 overflow-y-auto mt-4">
+      <!-- Editor Area -->
+      <div
+        ref="editorRef"
+        contenteditable="true"
+        @input="handleInput"
+        @mouseup="handleTextSelection"
+        @mousedown="handleEditorMouseDown"
+        @keyup="handleTextSelection"
+        @keydown="handleKeyDown"
+        @click="handleEditorClick"
+        @mousemove="(e) => { handleMouseMove(e); handleEditorMouseMove(e) }"
+        @focus="updateActiveFormats"
+        class="min-h-[500px] w-full p-8 bg-white border border-gray-200 rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 prose prose-sm max-w-none text-gray-900 shadow-sm relative"
+        :class="{
+          'cursor-text': !isSelecting && !commentMode && !geometryTool && !screenshotMode && !pageBreakMode,
+          'cursor-crosshair': commentMode || geometryTool || screenshotMode,
+          'page-break-cursor': pageBreakMode,
+          'notebook-lines': showNotebookLines
+        }"
+        @paste="handlePaste"
+        @mouseup.capture="handleEditorMouseUp"
+      >
       <!-- Screenshot Selection Overlay -->
       <div
         v-if="screenshotSelection && isDrawingSelection"
@@ -486,6 +489,7 @@
         v-if="screenshotMode && !isDrawingSelection"
         class="fixed inset-0 bg-black/40 pointer-events-none z-40"
       ></div>
+      </div>
     </div>
 
     <!-- Screenshot Mode Indicator -->
