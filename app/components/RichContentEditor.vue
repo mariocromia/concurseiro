@@ -65,20 +65,20 @@
           >
             <div
               v-if="showColorPicker"
-              class="absolute top-full mt-2 z-[9999] bg-dark-900/98 backdrop-blur-xl border border-dark-700 rounded-lg p-4 shadow-2xl min-w-[280px]"
+              class="absolute top-full mt-2 z-[9999] bg-white border border-gray-300 rounded-lg p-4 shadow-2xl min-w-[280px]"
               @click.stop
             >
               <!-- Header -->
-              <div class="flex items-center justify-between mb-3 pb-2 border-b border-dark-700">
-                <span class="text-sm font-semibold text-white flex items-center gap-2">
-                  <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+                <span class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
                   </svg>
                   Cor da Fonte
                 </span>
                 <button
                   @click="showColorPicker = false"
-                  class="text-gray-500 hover:text-white transition-colors p-1 hover:bg-dark-700 rounded"
+                  class="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-gray-100 rounded"
                   type="button"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,15 +88,15 @@
               </div>
 
               <!-- Current Color Preview -->
-              <div class="mb-3 p-3 bg-dark-800/50 rounded-lg border border-dark-700">
+              <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-10 h-10 rounded-lg border-2 border-white/20 flex-shrink-0"
+                    class="w-10 h-10 rounded-lg border-2 border-gray-300 flex-shrink-0"
                     :style="{ backgroundColor: currentFontColor }"
                   ></div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-xs text-gray-400 mb-1">Cor Atual</div>
-                    <div class="text-sm font-mono text-white">{{ currentFontColor.toUpperCase() }}</div>
+                    <div class="text-xs text-gray-500 mb-1">Cor Atual</div>
+                    <div class="text-sm font-mono text-gray-800 font-semibold">{{ currentFontColor.toUpperCase() }}</div>
                   </div>
                 </div>
               </div>
@@ -105,7 +105,7 @@
               <div class="space-y-3 mb-3">
                 <!-- Basic Colors -->
                 <div>
-                  <div class="text-xs font-medium text-gray-400 mb-2">Básicas</div>
+                  <div class="text-xs font-medium text-gray-600 mb-2">Básicas</div>
                   <div class="grid grid-cols-8 gap-1.5">
                     <button
                       v-for="color in basicColors"
@@ -131,7 +131,7 @@
 
                 <!-- Vibrant Colors -->
                 <div>
-                  <div class="text-xs font-medium text-gray-400 mb-2">Vibrantes</div>
+                  <div class="text-xs font-medium text-gray-600 mb-2">Vibrantes</div>
                   <div class="grid grid-cols-8 gap-1.5">
                     <button
                       v-for="color in vibrantColors"
@@ -157,7 +157,7 @@
 
                 <!-- Pastel Colors -->
                 <div>
-                  <div class="text-xs font-medium text-gray-400 mb-2">Pastéis</div>
+                  <div class="text-xs font-medium text-gray-600 mb-2">Pastéis</div>
                   <div class="grid grid-cols-8 gap-1.5">
                     <button
                       v-for="color in pastelColors"
@@ -183,27 +183,27 @@
               </div>
 
               <!-- Custom Color Input -->
-              <div class="pt-3 border-t border-dark-700">
-                <label class="text-xs font-medium text-gray-400 mb-2 block">Cor Personalizada</label>
+              <div class="pt-3 border-t border-gray-200">
+                <label class="text-xs font-medium text-gray-600 mb-2 block">Cor Personalizada</label>
                 <div class="flex items-center gap-2">
                   <div class="relative flex-1">
                     <input
                       v-model="customColor"
                       type="text"
                       placeholder="#FF5733"
-                      class="w-full px-3 py-2 pl-8 bg-dark-800 border border-dark-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono"
+                      class="w-full px-3 py-2 pl-8 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono"
                       maxlength="7"
                       @keyup.enter="changeFontColor(customColor)"
                     />
                     <div
-                      class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded border border-dark-600"
-                      :style="{ backgroundColor: isValidHexColor(customColor) ? customColor : '#333' }"
+                      class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded border border-gray-300"
+                      :style="{ backgroundColor: isValidHexColor(customColor) ? customColor : '#f3f4f6' }"
                     ></div>
                   </div>
                   <button
                     @click="changeFontColor(customColor)"
                     :disabled="!isValidHexColor(customColor)"
-                    class="px-3 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-dark-700 disabled:text-gray-600 text-white text-sm rounded-lg transition-colors font-medium"
+                    class="px-3 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm rounded-lg transition-colors font-medium"
                     type="button"
                   >
                     Aplicar
@@ -1272,14 +1272,33 @@ const changeFontColor = (color: string) => {
     return
   }
 
+  currentFontColor.value = color.toUpperCase()
+
   const selection = window.getSelection()
-  if (!selection || !selection.toString()) {
-    alert('Selecione o texto para alterar a cor')
-    return
+
+  // Se há texto selecionado, aplica a cor nele
+  if (selection && selection.toString()) {
+    document.execCommand('foreColor', false, color)
+  } else {
+    // Se não há seleção, aplica a cor para o próximo texto digitado
+    // Coloca o foco no editor e aplica o estilo
+    if (editorRef.value) {
+      editorRef.value.focus()
+
+      // Salva a posição do cursor
+      const range = selection?.getRangeAt(0)
+
+      // Aplica a cor usando execCommand (ela será aplicada ao próximo texto digitado)
+      document.execCommand('foreColor', false, color)
+
+      // Restaura a posição do cursor se houver
+      if (range && selection) {
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+    }
   }
 
-  currentFontColor.value = color.toUpperCase()
-  document.execCommand('foreColor', false, color)
   showColorPicker.value = false
   customColor.value = '' // Clear custom input
   editorRef.value?.focus()
