@@ -397,14 +397,14 @@
         <!-- AI Assistant Button -->
         <button
           v-if="isPro"
-          @click="aiAssistantMode = !aiAssistantMode"
+          @click="toggleAIAssistantMode"
           :class="[
             'px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 font-medium text-sm',
             aiAssistantMode
               ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/30'
               : 'bg-dark-700/70 text-gray-300 hover:bg-dark-600/70'
           ]"
-          title="Assistente de IA"
+          title="Assistente de IA - Selecione texto para usar"
           type="button"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
