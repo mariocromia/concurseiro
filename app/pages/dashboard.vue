@@ -68,7 +68,7 @@
       </div>
 
       <!-- AI Quick Start Section -->
-      <div class="bg-[#f5f5ed] dark:bg-gradient-to-r dark:from-purple-900/30 dark:to-pink-900/30 border border-[#E5E5E5] dark:border-purple-500/30 rounded-xl p-6 mb-8">
+      <div class="bg-[#f5f5ed] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-dark-700 rounded-xl p-6 mb-8">
         <div class="flex items-start justify-between mb-4">
           <div>
             <h3 class="text-xl font-bold text-[#2C2C2C] dark:text-white mb-2 flex items-center gap-2">
@@ -154,7 +154,7 @@
         </div>
 
         <!-- AI Usage Tips -->
-        <div class="mt-4 p-3 bg-[#eeddd4] dark:bg-dark-900/50 rounded-lg border border-[#E5E5E5] dark:border-purple-500/20">
+        <div class="mt-4 p-3 bg-[#eeddd4] dark:bg-dark-900/50 rounded-lg border border-[#E5E5E5] dark:border-dark-700">
           <div class="flex items-start gap-2">
             <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
