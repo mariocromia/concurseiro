@@ -1,5 +1,8 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <!-- Header -->
+    <LandingHeader />
+
     <!-- Hero Section -->
     <LandingHero />
 
@@ -78,11 +81,7 @@ watchEffect(() => {
 })
 
 // Track page view for analytics (ready for future integration)
-onMounted(() => {
-  if (process.client) {
-    console.log('🎯 Landing page loaded - Conversion optimized')
-  }
-})
+// Analytics integration can be added here in the future
 </script>
 
 <style scoped>
