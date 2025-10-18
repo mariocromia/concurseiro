@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between h-16">
 
         <!-- Logo -->
-        <NuxtLink to="/dashboard" class="flex items-center gap-3 group">
+        <NuxtLink to="/dashboard" class="flex items-center gap-3 group -translate-y-[20%]">
           <Logo size="sm" class-name="group-hover:opacity-80" />
         </NuxtLink>
 
