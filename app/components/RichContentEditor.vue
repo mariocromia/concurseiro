@@ -1,53 +1,9 @@
 <template>
   <div class="rich-content-editor">
-    <!-- Quill Professional Toolbar -->
-    <ClientOnly>
-      <div id="quill-toolbar" class="bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-2 mb-2 sticky top-0 z-11 shadow-sm">
-        <!-- Font Family -->
-        <select class="ql-font" title="Tipo de fonte">
-          <option value="">Sans Serif</option>
-          <option value="serif">Serif</option>
-          <option value="monospace">Monospace</option>
-        </select>
+    <!-- Toolbar removida conforme solicitado -->
+    <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
-        <!-- Font Size -->
-        <select class="ql-size" title="Tamanho da fonte">
-          <option value="small">Pequeno</option>
-          <option value="" selected>Normal</option>
-          <option value="large">Grande</option>
-          <option value="huge">Enorme</option>
-        </select>
-
-        <!-- Formatting -->
-        <button class="ql-bold" title="Negrito"><strong>B</strong></button>
-        <button class="ql-italic" title="Itálico"><em>I</em></button>
-        <button class="ql-underline" title="Sublinhado"><u>U</u></button>
-        <button class="ql-strike" title="Tachado"><s>S</s></button>
-
-        <!-- Colors -->
-        <select class="ql-color" title="Cor da fonte">
-          <option value="">Cor</option>
-        </select>
-        <select class="ql-background" title="Marcador">
-          <option value="">Marcador</option>
-        </select>
-
-        <!-- Lists -->
-        <button class="ql-list" value="ordered" title="Lista numerada">1.</button>
-        <button class="ql-list" value="bullet" title="Lista com marcadores">•</button>
-
-        <!-- Alignment -->
-        <button class="ql-align" value="" title="Alinhar esquerda">⬅</button>
-        <button class="ql-align" value="center" title="Centralizar">↔</button>
-        <button class="ql-align" value="right" title="Alinhar direita">➡</button>
-        <button class="ql-align" value="justify" title="Justificar">⬌</button>
-
-        <!-- Clean -->
-        <button class="ql-clean" title="Limpar formatação">✕</button>
-      </div>
-    </ClientOnly>
-
-    <!-- Original Toolbar -->
+    <!-- Toolbar de Ferramentas -->
     <div class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-12 z-10 shadow-sm">
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
@@ -2381,73 +2337,8 @@ onMounted(async () => {
     editorRef.value.innerHTML = props.modelValue
   }
 
-  // Initialize Quill toolbar handlers (client-side only)
-  if (process.client && editorRef.value) {
-    setTimeout(() => {
-      const toolbar = document.getElementById('quill-toolbar')
-      if (toolbar) {
-        // Bold
-        toolbar.querySelector('.ql-bold')?.addEventListener('click', () => {
-          document.execCommand('bold', false)
-          editorRef.value?.focus()
-        })
-
-        // Italic
-        toolbar.querySelector('.ql-italic')?.addEventListener('click', () => {
-          document.execCommand('italic', false)
-          editorRef.value?.focus()
-        })
-
-        // Underline
-        toolbar.querySelector('.ql-underline')?.addEventListener('click', () => {
-          document.execCommand('underline', false)
-          editorRef.value?.focus()
-        })
-
-        // Strike
-        toolbar.querySelector('.ql-strike')?.addEventListener('click', () => {
-          document.execCommand('strikeThrough', false)
-          editorRef.value?.focus()
-        })
-
-        // Lists
-        toolbar.querySelectorAll('.ql-list').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const type = (e.currentTarget as HTMLElement).getAttribute('value')
-            if (type === 'ordered') {
-              document.execCommand('insertOrderedList', false)
-            } else if (type === 'bullet') {
-              document.execCommand('insertUnorderedList', false)
-            }
-            editorRef.value?.focus()
-          })
-        })
-
-        // Alignment
-        toolbar.querySelectorAll('.ql-align').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const align = (e.currentTarget as HTMLElement).getAttribute('value') || 'left'
-            if (align === '') {
-              document.execCommand('justifyLeft', false)
-            } else if (align === 'center') {
-              document.execCommand('justifyCenter', false)
-            } else if (align === 'right') {
-              document.execCommand('justifyRight', false)
-            } else if (align === 'justify') {
-              document.execCommand('justifyFull', false)
-            }
-            editorRef.value?.focus()
-          })
-        })
-
-        // Clean formatting
-        toolbar.querySelector('.ql-clean')?.addEventListener('click', () => {
-          document.execCommand('removeFormat', false)
-          editorRef.value?.focus()
-        })
-      }
-    }, 100)
-  }
+  // Toolbar de formatação de texto (Quill) foi removida
+  // Mantém apenas funcionalidades de caderno e geometria
 
   // Add global selection change listener
   document.addEventListener('selectionchange', updateActiveFormats)
@@ -2474,50 +2365,7 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* Quill Toolbar Styling */
-#quill-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-#quill-toolbar select,
-#quill-toolbar button {
-  background: #374151;
-  border: 1px solid #4b5563;
-  color: #d1d5db;
-  padding: 0.375rem 0.5rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.875rem;
-}
-
-#quill-toolbar button {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#quill-toolbar select:hover,
-#quill-toolbar button:hover {
-  background: #4b5563;
-}
-
-#quill-toolbar select:focus,
-#quill-toolbar button:focus {
-  outline: 2px solid #6366f1;
-  outline-offset: 2px;
-}
-
-#quill-toolbar button.ql-active {
-  background: #6366f1;
-  border-color: #6366f1;
-  color: white;
-}
+/* Toolbar de formatação de texto (Quill) removida - CSS limpo */
 
 .rich-content-editor .prose {
   max-width: none;

@@ -719,8 +719,10 @@ const { news: concursosNews, loading: loadingNews, fetchNews, getRelativeTime } 
 const loading = ref(false)
 const saving = ref(false)
 const isPro = ref(false)
-// Carregar estado do autosave do localStorage
-const autoSaveEnabled = ref(localStorage.getItem('autosave-enabled') === 'true')
+
+// Carregar estado do autosave do localStorage (SSR-safe)
+// IMPORTANTE: localStorage só existe no browser, não no servidor (SSR)
+const autoSaveEnabled = ref(false)
 let autoSaveInterval: NodeJS.Timeout | null = null
 
 // Subjects & Chapters
@@ -854,7 +856,17 @@ const checkSubscription = async () => {
 onMounted(async () => {
   console.log('🚀 ===== NOTEBOOK MONTADO =====')
   console.log('🚀 User inicial:', user.value?.email || 'null')
-  console.log('🚀 URL:', window.location.href)
+
+  // SSR-safe: window/localStorage só existem no cliente
+  if (process.client && typeof window !== 'undefined') {
+    console.log('🚀 URL:', window.location.href)
+
+    // Restaurar estado do autosave do localStorage
+    const savedAutosave = localStorage.getItem('autosave-enabled')
+    if (savedAutosave !== null) {
+      autoSaveEnabled.value = savedAutosave === 'true'
+    }
+  }
 
   // Esperar o usuário estar disponível
   if (!user.value) {
@@ -1522,8 +1534,10 @@ const handleUpgrade = () => {
 const toggleAutosave = () => {
   autoSaveEnabled.value = !autoSaveEnabled.value
 
-  // Salvar estado no localStorage
-  localStorage.setItem('autosave-enabled', autoSaveEnabled.value.toString())
+  // Salvar estado no localStorage (SSR-safe)
+  if (process.client && typeof window !== 'undefined') {
+    localStorage.setItem('autosave-enabled', autoSaveEnabled.value.toString())
+  }
 
   if (autoSaveEnabled.value) {
     // Salvar imediatamente
@@ -2173,7 +2187,10 @@ const performInlineSearch = async () => {
 
     // Search reminders (if 'all' or 'reminders' is active)
     if (activeInlineFilters.value.includes('all') || isRemindersOnly) {
-      const allReminders = JSON.parse(localStorage.getItem('study-reminders') || '[]')
+      // SSR-safe: localStorage só existe no cliente
+      const allReminders = process.client && typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('study-reminders') || '[]')
+        : []
       for (const reminder of allReminders) {
         // For multiple terms, check proximity
         if (hasMultipleTerms) {
