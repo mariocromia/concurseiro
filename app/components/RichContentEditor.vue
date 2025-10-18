@@ -2048,21 +2048,46 @@ const handleKeyDown = (event: KeyboardEvent) => {
   const isCharacterKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
 
   if (isCharacterKey) {
-    // Se a ferramenta de marcação NÃO estiver ativa, remove qualquer marcação herdada
-    if (!isHighlightActive.value) {
-      // Remove formatação de background antes de digitar
-      const selection = window.getSelection()
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0)
-        const container = range.commonAncestorContainer
-        const element = container.nodeType === 3 ? container.parentElement : container as HTMLElement
+    const selection = window.getSelection()
 
-        // Se estamos dentro de um elemento com background amarelo, precisamos sair dele
-        if (element && element.style.backgroundColor) {
-          // Remove a marcação definindo como transparente
-          document.execCommand('hiliteColor', false, 'transparent')
-          // Força a remoção do background com removeFormat
-          document.execCommand('removeFormat', false, undefined)
+    // Se a ferramenta de marcação NÃO estiver ativa, precisamos evitar herdar o background amarelo
+    if (!isHighlightActive.value && selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0)
+      const container = range.commonAncestorContainer
+      const element = container.nodeType === 3 ? container.parentElement : container as HTMLElement
+
+      // Verifica se estamos dentro de um elemento com background amarelo
+      if (element) {
+        const bgColor = window.getComputedStyle(element).backgroundColor
+        const isYellowBg = bgColor === 'rgb(255, 255, 0)' ||
+                          bgColor === 'rgb(254, 240, 138)' ||
+                          element.style.backgroundColor === 'yellow' ||
+                          element.tagName === 'MARK'
+
+        if (isYellowBg) {
+          // Cria um novo span sem background para inserir o texto
+          event.preventDefault()
+
+          const span = document.createElement('span')
+          span.style.backgroundColor = 'transparent'
+
+          // Mantém a cor da fonte se houver uma selecionada
+          if (currentFontColor.value && currentFontColor.value !== '#ffffff') {
+            span.style.color = currentFontColor.value
+          }
+
+          span.textContent = event.key
+
+          range.deleteContents()
+          range.insertNode(span)
+
+          // Move o cursor para depois do span
+          range.setStartAfter(span)
+          range.setEndAfter(span)
+          selection.removeAllRanges()
+          selection.addRange(range)
+
+          return
         }
       }
     }
