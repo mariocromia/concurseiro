@@ -550,8 +550,8 @@
           </div>
 
           <!-- Scrollable Editor Area -->
-          <div class="flex-1 overflow-y-auto px-8 pb-8">
-            <div class="max-w-7xl ml-0 mr-auto">
+          <div class="flex-1 px-8">
+            <div class="max-w-7xl ml-0 mr-auto h-full overflow-y-auto pb-8">
               <!-- Rich Content Editor -->
               <RichContentEditor
                 v-model="chapterContent"
