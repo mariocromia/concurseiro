@@ -37,35 +37,184 @@
           <button
             @click="showColorPicker = !showColorPicker"
             title="Cor da fonte"
-            class="p-2 rounded transition-colors text-gray-400 hover:bg-dark-700/50 relative"
+            :class="[
+              'p-2 rounded transition-all relative group',
+              showColorPicker
+                ? 'bg-primary-500/20 text-primary-400'
+                : 'text-gray-400 hover:bg-dark-700/50'
+            ]"
             type="button"
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9.62 12L12 5.67 14.38 12H9.62zM11 3L5.5 17h2.25l1.12-3h6.25l1.12 3h2.25L13 3h-2z"/>
             </svg>
             <div
-              class="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded"
-              :style="{ backgroundColor: currentFontColor }"
+              class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded-full shadow-lg transition-all group-hover:h-1.5"
+              :style="{ backgroundColor: currentFontColor, boxShadow: `0 0 8px ${currentFontColor}` }"
             ></div>
           </button>
-          <div
-            v-if="showColorPicker"
-            class="absolute top-full mt-2 z-20 bg-dark-800 border border-dark-700 rounded-claude-md p-2 shadow-xl"
-            @click.stop
+
+          <!-- Color Picker Dropdown -->
+          <Transition
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="opacity-0 scale-95 -translate-y-2"
+            enter-to-class="opacity-100 scale-100 translate-y-0"
+            leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 -translate-y-2"
           >
-            <div class="grid grid-cols-6 gap-1">
-              <button
-                v-for="color in fontColors"
-                :key="color"
-                @click="changeFontColor(color)"
-                :title="color"
-                class="w-6 h-6 rounded border-2 hover:scale-110 transition-transform"
-                :class="currentFontColor === color ? 'border-white' : 'border-dark-600'"
-                :style="{ backgroundColor: color }"
-                type="button"
-              />
+            <div
+              v-if="showColorPicker"
+              class="absolute top-full mt-2 z-20 bg-dark-900/98 backdrop-blur-xl border border-primary-500/30 rounded-lg p-4 shadow-2xl shadow-primary-500/20 min-w-[280px]"
+              @click.stop
+            >
+              <!-- Header -->
+              <div class="flex items-center justify-between mb-3 pb-2 border-b border-dark-700">
+                <span class="text-sm font-semibold text-white flex items-center gap-2">
+                  <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                  </svg>
+                  Cor da Fonte
+                </span>
+                <button
+                  @click="showColorPicker = false"
+                  class="text-gray-500 hover:text-white transition-colors p-1 hover:bg-dark-700 rounded"
+                  type="button"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Current Color Preview -->
+              <div class="mb-3 p-3 bg-dark-800/50 rounded-lg border border-dark-700">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-lg border-2 border-white/20 shadow-lg flex-shrink-0"
+                    :style="{
+                      backgroundColor: currentFontColor,
+                      boxShadow: `0 0 20px ${currentFontColor}40`
+                    }"
+                  ></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs text-gray-400 mb-1">Cor Atual</div>
+                    <div class="text-sm font-mono text-white">{{ currentFontColor.toUpperCase() }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color Palette -->
+              <div class="space-y-3 mb-3">
+                <!-- Basic Colors -->
+                <div>
+                  <div class="text-xs font-medium text-gray-400 mb-2">Básicas</div>
+                  <div class="grid grid-cols-8 gap-1.5">
+                    <button
+                      v-for="color in basicColors"
+                      :key="color"
+                      @click="changeFontColor(color)"
+                      :title="color"
+                      class="w-7 h-7 rounded-lg border-2 hover:scale-110 transition-all relative group"
+                      :class="currentFontColor === color ? 'border-primary-400 ring-2 ring-primary-500/50' : 'border-dark-600 hover:border-white/30'"
+                      :style="{ backgroundColor: color }"
+                      type="button"
+                    >
+                      <svg
+                        v-if="currentFontColor === color"
+                        class="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow-lg"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Vibrant Colors -->
+                <div>
+                  <div class="text-xs font-medium text-gray-400 mb-2">Vibrantes</div>
+                  <div class="grid grid-cols-8 gap-1.5">
+                    <button
+                      v-for="color in vibrantColors"
+                      :key="color"
+                      @click="changeFontColor(color)"
+                      :title="color"
+                      class="w-7 h-7 rounded-lg border-2 hover:scale-110 transition-all relative group"
+                      :class="currentFontColor === color ? 'border-primary-400 ring-2 ring-primary-500/50' : 'border-dark-600 hover:border-white/30'"
+                      :style="{ backgroundColor: color }"
+                      type="button"
+                    >
+                      <svg
+                        v-if="currentFontColor === color"
+                        class="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow-lg"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Pastel Colors -->
+                <div>
+                  <div class="text-xs font-medium text-gray-400 mb-2">Pastéis</div>
+                  <div class="grid grid-cols-8 gap-1.5">
+                    <button
+                      v-for="color in pastelColors"
+                      :key="color"
+                      @click="changeFontColor(color)"
+                      :title="color"
+                      class="w-7 h-7 rounded-lg border-2 hover:scale-110 transition-all relative group"
+                      :class="currentFontColor === color ? 'border-primary-400 ring-2 ring-primary-500/50' : 'border-dark-600 hover:border-white/30'"
+                      :style="{ backgroundColor: color }"
+                      type="button"
+                    >
+                      <svg
+                        v-if="currentFontColor === color"
+                        class="absolute inset-0 m-auto w-4 h-4 text-gray-700 drop-shadow-lg"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Custom Color Input -->
+              <div class="pt-3 border-t border-dark-700">
+                <label class="text-xs font-medium text-gray-400 mb-2 block">Cor Personalizada</label>
+                <div class="flex items-center gap-2">
+                  <div class="relative flex-1">
+                    <input
+                      v-model="customColor"
+                      type="text"
+                      placeholder="#FF5733"
+                      class="w-full px-3 py-2 pl-8 bg-dark-800 border border-dark-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono"
+                      maxlength="7"
+                      @keyup.enter="changeFontColor(customColor)"
+                    />
+                    <div
+                      class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded border border-dark-600"
+                      :style="{ backgroundColor: isValidHexColor(customColor) ? customColor : '#333' }"
+                    ></div>
+                  </div>
+                  <button
+                    @click="changeFontColor(customColor)"
+                    :disabled="!isValidHexColor(customColor)"
+                    class="px-3 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-dark-700 disabled:text-gray-600 text-white text-sm rounded-lg transition-colors font-medium"
+                    type="button"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          </Transition>
         </div>
 
         <!-- Highlight -->
@@ -969,11 +1118,32 @@ const linkText = ref('')
 // Font color
 const showColorPicker = ref(false)
 const currentFontColor = ref('#ffffff')
-const fontColors = [
-  '#ffffff', '#000000', '#ef4444', '#f97316', '#f59e0b', '#eab308',
-  '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
-  '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
+const customColor = ref('')
+
+// Organized color palettes
+const basicColors = [
+  '#000000', '#424242', '#666666', '#999999',
+  '#CCCCCC', '#EEEEEE', '#F5F5F5', '#FFFFFF'
 ]
+
+const vibrantColors = [
+  '#EF4444', '#F97316', '#F59E0B', '#EAB308',
+  '#84CC16', '#22C55E', '#10B981', '#14B8A6',
+  '#06B6D4', '#0EA5E9', '#3B82F6', '#6366F1',
+  '#8B5CF6', '#A855F7', '#D946EF', '#EC4899'
+]
+
+const pastelColors = [
+  '#FCA5A5', '#FDBA74', '#FCD34D', '#FDE047',
+  '#BEF264', '#86EFAC', '#6EE7B7', '#5EEAD4',
+  '#7DD3FC', '#93C5FD', '#A5B4FC', '#C4B5FD',
+  '#D8B4FE', '#F0ABFC', '#F9A8D4', '#FBCFE8'
+]
+
+// Validate hex color
+const isValidHexColor = (color: string): boolean => {
+  return /^#[0-9A-F]{6}$/i.test(color)
+}
 
 // AI Assistant mode
 const aiAssistantMode = ref(false)
@@ -1099,15 +1269,22 @@ const toggleHighlight = () => {
 }
 
 const changeFontColor = (color: string) => {
+  // Validate hex color format
+  if (!isValidHexColor(color)) {
+    alert('Cor inválida! Use o formato #RRGGBB (ex: #FF5733)')
+    return
+  }
+
   const selection = window.getSelection()
   if (!selection || !selection.toString()) {
     alert('Selecione o texto para alterar a cor')
     return
   }
 
-  currentFontColor.value = color
+  currentFontColor.value = color.toUpperCase()
   document.execCommand('foreColor', false, color)
   showColorPicker.value = false
+  customColor.value = '' // Clear custom input
   editorRef.value?.focus()
 }
 
