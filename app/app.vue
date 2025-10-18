@@ -1,13 +1,18 @@
 <template>
   <div>
+    <!-- Instance Blocked Modal - Highest priority -->
+    <ClientOnly>
+      <InstanceBlockedModal :show="isInstanceBlocked" />
+    </ClientOnly>
+
     <!-- App Loader - Shows during initialization -->
     <AppLoader
       :is-loading="!isAppReady"
       :stage="loadingStage"
     />
 
-    <!-- Main App - Only shown when ready -->
-    <div v-show="isAppReady" class="min-h-screen theme-gradient">
+    <!-- Main App - Only shown when ready and not blocked -->
+    <div v-show="isAppReady && !isInstanceBlocked" class="min-h-screen theme-gradient">
       <ClientOnly>
         <template #fallback>
           <!-- Placeholder do menu para evitar flash -->
@@ -36,9 +41,12 @@ const showNav = ref(true)
 const isAppReady = useState('app-ready', () => false)
 const loadingStage = useState<'init' | 'auth' | 'theme' | 'ready'>('loading-stage', () => 'init')
 
-// Hide nav on login/register pages
+// Instance lock system - prevents multiple tabs/windows
+const { isBlocked: isInstanceBlocked } = useInstanceLock()
+
+// Hide nav on login/register/landing pages
 watch(() => route.path, (newPath) => {
-  const hiddenPaths = ['/login', '/register', '/forgot-password', '/confirm']
+  const hiddenPaths = ['/', '/login', '/register', '/forgot-password', '/confirm']
   showNav.value = !hiddenPaths.includes(newPath)
 }, { immediate: true })
 </script>
