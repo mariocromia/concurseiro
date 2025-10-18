@@ -13,31 +13,50 @@
         class="fixed inset-0 z-[100]"
         @click.self="skipTour"
       >
-        <!-- Backdrop with spotlight effect -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm pointer-events-none"></div>
+        <!-- Backdrop with SVG cutout for spotlight -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none">
+          <defs>
+            <mask id="spotlight-mask">
+              <!-- White background (visible) -->
+              <rect x="0" y="0" width="100%" height="100%" fill="white"/>
+              <!-- Black cutout (transparent) where spotlight is -->
+              <rect
+                v-if="spotlightPosition"
+                :x="spotlightPosition.left"
+                :y="spotlightPosition.top"
+                :width="spotlightPosition.width"
+                :height="spotlightPosition.height"
+                :rx="8"
+                :ry="8"
+                fill="black"
+              >
+                <animate attributeName="x" :to="spotlightPosition.left" dur="0.5s" fill="freeze" />
+                <animate attributeName="y" :to="spotlightPosition.top" dur="0.5s" fill="freeze" />
+                <animate attributeName="width" :to="spotlightPosition.width" dur="0.5s" fill="freeze" />
+                <animate attributeName="height" :to="spotlightPosition.height" dur="0.5s" fill="freeze" />
+              </rect>
+            </mask>
+          </defs>
+          <!-- Dark overlay with cutout -->
+          <rect
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            fill="rgba(0, 0, 0, 0.75)"
+            mask="url(#spotlight-mask)"
+          />
+        </svg>
 
-        <!-- Spotlight highlight with cutout -->
+        <!-- Spotlight ring highlight -->
         <div
           v-if="spotlightPosition"
-          class="absolute rounded-lg ring-4 ring-primary-500 shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] transition-all duration-500 pointer-events-none z-[101]"
+          class="absolute rounded-lg ring-4 ring-primary-500 transition-all duration-500 pointer-events-none z-[101]"
           :style="{
             top: `${spotlightPosition.top}px`,
             left: `${spotlightPosition.left}px`,
             width: `${spotlightPosition.width}px`,
             height: `${spotlightPosition.height}px`
-          }"
-        ></div>
-
-        <!-- Clickable overlay to make highlighted element accessible -->
-        <div
-          v-if="spotlightPosition"
-          class="absolute rounded-lg transition-all duration-500 z-[102]"
-          :style="{
-            top: `${spotlightPosition.top}px`,
-            left: `${spotlightPosition.left}px`,
-            width: `${spotlightPosition.width}px`,
-            height: `${spotlightPosition.height}px`,
-            pointerEvents: 'auto'
           }"
         ></div>
 
