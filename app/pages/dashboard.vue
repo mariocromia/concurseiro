@@ -107,12 +107,12 @@
           <!-- AI Exercises -->
           <button
             data-tour="ai-exercises"
-            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-pink-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-pink-500 hover:bg-[#eeddd4] dark:hover:bg-pink-500/10 transition-all group text-left"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group text-left"
             @click="openAIExercises"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">📝</div>
-              <svg class="w-5 h-5 text-[#ca643f] dark:text-pink-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
@@ -124,11 +124,11 @@
           <NuxtLink
             to="/mapa-mental"
             data-tour="mind-maps"
-            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-blue-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-blue-500 hover:bg-[#eeddd4] dark:hover:bg-blue-500/10 transition-all group"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">🧠</div>
-              <svg class="w-5 h-5 text-[#ca643f] dark:text-blue-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
@@ -140,11 +140,11 @@
           <NuxtLink
             to="/flashcards"
             data-tour="ai-flashcards"
-            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-green-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-green-500 hover:bg-[#eeddd4] dark:hover:bg-green-500/10 transition-all group"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="text-3xl">🎴</div>
-              <svg class="w-5 h-5 text-[#ca643f] dark:text-green-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
