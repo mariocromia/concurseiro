@@ -4,7 +4,12 @@
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
     <!-- Toolbar de Ferramentas - Fixada no topo -->
-    <div class="flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3 sticky top-0 z-50 shadow-lg -mx-8 px-8 mb-4">
+    <div
+      :class="[
+        'flex flex-wrap items-center gap-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 px-4 py-3 sticky top-0 z-50 shadow-lg -mx-8 px-8',
+        showGeometryTools ? 'rounded-t-claude-md' : 'rounded-claude-md mb-4'
+      ]"
+    >
       <div class="flex items-center gap-1">
         <!-- Basic Formatting -->
         <button
@@ -310,7 +315,7 @@
     </div>
 
     <!-- Geometry Tools Bar -->
-    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-2 bg-dark-800/95 backdrop-blur-sm border border-dark-700 rounded-claude-md px-4 py-3">
+    <div v-if="showGeometryTools" class="flex flex-wrap items-center gap-2 mb-4 bg-dark-800/95 backdrop-blur-sm border border-dark-700 border-t-0 rounded-b-claude-md px-4 py-3 sticky z-49 -mx-8 px-8 shadow-lg" style="top: 68px;">
       <div class="text-sm font-medium text-gray-300 mr-2">Ferramentas de Geometria:</div>
       <button
         @click="activateGeometryTool('line')"
