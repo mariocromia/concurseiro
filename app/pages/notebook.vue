@@ -141,7 +141,7 @@
     </Transition>
 
 
-    <div class="flex h-[calc(100vh-73px)]">
+    <div class="flex h-[calc(100vh-73px)] overflow-x-hidden">
       <!-- Modern Compact Sidebar -->
       <aside class="w-80 bg-dark-900/50 border-r border-dark-700/50 overflow-y-auto flex-shrink-0 custom-scrollbar">
         <!-- Sidebar Header -->
@@ -550,8 +550,8 @@
           </div>
 
           <!-- Scrollable Editor Area -->
-          <div class="flex-1 px-8">
-            <div class="max-w-7xl ml-0 mr-auto h-full overflow-y-auto pb-8">
+          <div class="flex-1 px-8 overflow-x-hidden">
+            <div class="max-w-7xl ml-0 mr-auto h-full overflow-y-auto overflow-x-hidden pb-8">
               <!-- Rich Content Editor -->
               <RichContentEditor
                 v-model="chapterContent"
