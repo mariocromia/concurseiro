@@ -348,16 +348,40 @@ const generateExercises = async () => {
   error.value = ''
 
   try {
+    // Validate content
+    if (!props.content || props.content.trim().length < 50) {
+      throw new Error('O conteúdo selecionado é muito curto. Selecione um texto maior para gerar exercícios.')
+    }
+
     const result = await generateExercisesAPI(
       props.content,
       config.value.quantity,
       config.value.difficulty,
       props.chapterTitle
     )
+
+    // Validate result
+    if (!result || !Array.isArray(result) || result.length === 0) {
+      throw new Error('Nenhum exercício foi gerado. Tente novamente com um conteúdo diferente.')
+    }
+
     exercises.value = result
     generated.value = true
   } catch (err: any) {
-    error.value = err.message || 'Erro ao gerar exercícios'
+    console.error('Erro ao gerar exercícios:', err)
+
+    // User-friendly error messages
+    if (err.message) {
+      error.value = err.message
+    } else if (err.statusCode === 429 || err.status === 429) {
+      error.value = 'Você atingiu o limite de requisições de IA. Aguarde alguns minutos e tente novamente.'
+    } else if (err.statusCode === 401 || err.status === 401) {
+      error.value = 'Você precisa estar logado para usar recursos de IA.'
+    } else if (err.statusCode === 403 || err.status === 403) {
+      error.value = 'Recursos de IA disponíveis apenas no plano Pro. Faça upgrade para desbloquear.'
+    } else {
+      error.value = 'Erro ao gerar exercícios. Verifique sua conexão e tente novamente.'
+    }
   } finally {
     loading.value = false
   }

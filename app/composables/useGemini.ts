@@ -1,13 +1,64 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+/**
+ * Gemini AI Composable - Legacy wrapper for backward compatibility
+ *
+ * Security: All AI calls go through server-side proxy
+ * No API keys exposed to client
+ *
+ * @author Claude Code
+ * @date 2025-10-18 (Security Fix)
+ */
 
 export const useGemini = () => {
-  const config = useRuntimeConfig()
-  const genAI = new GoogleGenerativeAI(config.public.googleAiApiKey || 'AIzaSyCVcAEYOXDRa9P1E0sqK52PiVOPnmU0CdE')
+  /**
+   * Internal: Call Gemini proxy with proper error handling
+   */
+  const callProxy = async (prompt: string, options: {
+    model?: string
+    temperature?: number
+    maxTokens?: number
+    systemInstruction?: string
+  } = {}) => {
+    try {
+      const response: any = await $fetch('/api/ai/gemini-proxy', {
+        method: 'POST',
+        body: {
+          prompt,
+          model: options.model || 'gemini-2.0-flash-exp',
+          temperature: options.temperature || 0.7,
+          maxTokens: options.maxTokens || 2048,
+          systemInstruction: options.systemInstruction
+        }
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to generate AI response')
+      }
+
+      return response.data.text
+    } catch (error: any) {
+      // Handle rate limiting
+      if (error.statusCode === 429 || error.status === 429) {
+        throw new Error('Você atingiu o limite de requisições de IA. Aguarde alguns minutos e tente novamente.')
+      }
+
+      // Handle auth errors
+      if (error.statusCode === 401 || error.status === 401) {
+        throw new Error('Você precisa estar logado para usar a IA.')
+      }
+
+      // Handle subscription errors
+      if (error.statusCode === 403 || error.status === 403) {
+        throw new Error('Recurso disponível apenas no plano Pro. Faça upgrade para desbloquear recursos de IA.')
+      }
+
+      // Generic error
+      console.error('Erro ao chamar IA:', error)
+      throw new Error(error.data?.message || error.message || 'Erro ao gerar resposta da IA. Tente novamente.')
+    }
+  }
 
   const generateSummary = async (content: string, chapterTitle?: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-
       const prompt = `Você é um assistente educacional especializado em criar resumos de estudo.
 
 ${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
@@ -21,9 +72,7 @@ Por favor, crie um resumo estruturado e completo deste conteúdo, destacando:
 
 Formate o resumo de forma clara e organizada.`
 
-      const result = await model.generateContent(prompt)
-      const response = await result.response
-      return response.text()
+      return await callProxy(prompt)
     } catch (error) {
       console.error('Erro ao gerar resumo:', error)
       throw error
@@ -37,8 +86,6 @@ Formate o resumo de forma clara e organizada.`
     chapterTitle?: string
   ) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-
       const difficultyMap = {
         easy: 'fácil (conceitos básicos)',
         medium: 'médio (aplicação de conceitos)',
@@ -79,9 +126,7 @@ Formate a resposta como um JSON válido com a seguinte estrutura:
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
-      const result = await model.generateContent(prompt)
-      const response = await result.response
-      const text = response.text()
+      const text = await callProxy(prompt, { temperature: 0.8 })
 
       // Extrair JSON do texto
       const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -103,8 +148,6 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
     chapterTitle?: string
   ) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-
       const prompt = `Você é um especialista em criar flashcards para estudo efetivo.
 
 ${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
@@ -131,9 +174,7 @@ Formate a resposta como um JSON válido com a seguinte estrutura:
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
-      const result = await model.generateContent(prompt)
-      const response = await result.response
-      const text = response.text()
+      const text = await callProxy(prompt)
 
       // Extrair JSON do texto
       const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -151,8 +192,6 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
   const chat = async (messages: Array<{ role: string; content: string }>, context?: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-
       // Construir histórico de chat
       let prompt = ''
 
@@ -169,9 +208,7 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
       prompt += 'Responda como um assistente educacional prestativo e didático.'
 
-      const result = await model.generateContent(prompt)
-      const response = await result.response
-      return response.text()
+      return await callProxy(prompt)
     } catch (error) {
       console.error('Erro no chat com IA:', error)
       throw error
@@ -180,8 +217,6 @@ IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
   const explainSelection = async (selectedText: string, fullContext: string) => {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-
       const prompt = `Você é um professor especializado em explicar conceitos de forma didática.
 
 Contexto completo:
@@ -197,9 +232,7 @@ Inclua:
 3. Como isso se relaciona com o tema maior
 4. Dicas para memorização`
 
-      const result = await model.generateContent(prompt)
-      const response = await result.response
-      return response.text()
+      return await callProxy(prompt)
     } catch (error) {
       console.error('Erro ao explicar seleção:', error)
       throw error
