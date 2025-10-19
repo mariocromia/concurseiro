@@ -18,69 +18,59 @@ export const useGemini = () => {
     maxTokens?: number
     systemInstruction?: string
   } = {}) => {
-    try {
-      // Get the baseURL from window.location for client-side requests
-      const baseURL = typeof window !== 'undefined'
-        ? window.location.origin
-        : 'http://localhost:3000'
+    const baseURL = typeof window !== 'undefined'
+      ? window.location.origin
+      : 'http://localhost:3000'
 
-      const url = `${baseURL}/api/ai/gemini-proxy`
+    const url = `${baseURL}/api/ai/gemini-proxy`
 
-      const response: any = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt,
-          model: options.model || 'gemini-2.0-flash-exp',
-          temperature: options.temperature || 0.7,
-          maxTokens: options.maxTokens || 2048,
-          systemInstruction: options.systemInstruction
-        })
+    console.log('[useGemini] Calling proxy:', url)
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt,
+        model: options.model || 'gemini-2.0-flash-exp',
+        temperature: options.temperature || 0.7,
+        maxTokens: options.maxTokens || 2048,
+        systemInstruction: options.systemInstruction
       })
+    })
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        const error: any = new Error(errorData.message || `HTTP error! status: ${response.status}`)
-        error.statusCode = response.status
-        error.status = response.status
-        error.data = errorData
-        throw error
+    console.log('[useGemini] Response status:', response.status)
+
+    if (!response.ok) {
+      let errorMessage = `HTTP error! status: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+        console.error('[useGemini] Error data:', errorData)
+      } catch (e) {
+        console.error('[useGemini] Could not parse error response')
       }
 
-      const data = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to generate AI response')
-      }
-
-      return data.data.text
-    } catch (error: any) {
-      // Handle rate limiting
-      if (error.statusCode === 429 || error.status === 429) {
-        throw new Error('Você atingiu o limite de requisições de IA. Aguarde alguns minutos e tente novamente.')
-      }
-
-      // Handle auth errors
-      if (error.statusCode === 401 || error.status === 401) {
-        throw new Error('Você precisa estar logado para usar a IA.')
-      }
-
-      // Handle subscription errors
-      if (error.statusCode === 403 || error.status === 403) {
-        throw new Error('Recurso disponível apenas no plano Pro. Faça upgrade para desbloquear recursos de IA.')
-      }
-
-      // Generic error
-      console.error('Erro ao chamar IA:', error)
-      throw new Error(error.data?.message || error.message || 'Erro ao gerar resposta da IA. Tente novamente.')
+      // Create typed error
+      const error: any = new Error(errorMessage)
+      error.statusCode = response.status
+      error.status = response.status
+      throw error
     }
+
+    const data = await response.json()
+    console.log('[useGemini] Response data:', data)
+
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to generate AI response')
+    }
+
+    return data.data.text
   }
 
   const generateSummary = async (content: string, chapterTitle?: string) => {
-    try {
-      const prompt = `Você é um assistente educacional especializado em criar resumos de estudo.
+    const prompt = `Você é um assistente educacional especializado em criar resumos de estudo.
 
 ${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
 Conteúdo:
@@ -93,11 +83,7 @@ Por favor, crie um resumo estruturado e completo deste conteúdo, destacando:
 
 Formate o resumo de forma clara e organizada.`
 
-      return await callProxy(prompt)
-    } catch (error) {
-      console.error('Erro ao gerar resumo:', error)
-      throw error
-    }
+    return await callProxy(prompt)
   }
 
   const generateExercises = async (
@@ -106,14 +92,15 @@ Formate o resumo de forma clara e organizada.`
     difficulty: 'easy' | 'medium' | 'hard' = 'medium',
     chapterTitle?: string
   ) => {
-    try {
-      const difficultyMap = {
-        easy: 'fácil (conceitos básicos)',
-        medium: 'médio (aplicação de conceitos)',
-        hard: 'difícil (análise crítica e síntese)'
-      }
+    console.log('[generateExercises] Starting with:', { quantity, difficulty, contentLength: content.length })
 
-      const prompt = `Você é um professor especializado em criar questões de concurso e vestibular.
+    const difficultyMap = {
+      easy: 'fácil (conceitos básicos)',
+      medium: 'médio (aplicação de conceitos)',
+      hard: 'difícil (análise crítica e síntese)'
+    }
+
+    const prompt = `Você é um professor especializado em criar questões de concurso e vestibular.
 
 ${chapterTitle ? `Título do capítulo: ${chapterTitle}\n` : ''}
 Conteúdo:
@@ -147,20 +134,18 @@ Formate a resposta como um JSON válido com a seguinte estrutura:
 
 IMPORTANTE: Retorne APENAS o JSON, sem texto adicional antes ou depois.`
 
-      const text = await callProxy(prompt, { temperature: 0.8 })
+    const text = await callProxy(prompt, { temperature: 0.8 })
+    console.log('[generateExercises] Received text:', text?.substring(0, 200))
 
-      // Extrair JSON do texto
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) {
-        throw new Error('Resposta da IA não está no formato JSON esperado')
-      }
-
-      const parsed = JSON.parse(jsonMatch[0])
-      return parsed.exercises
-    } catch (error) {
-      console.error('Erro ao gerar exercícios:', error)
-      throw error
+    // Extrair JSON do texto
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error('Resposta da IA não está no formato JSON esperado')
     }
+
+    const parsed = JSON.parse(jsonMatch[0])
+    console.log('[generateExercises] Parsed exercises:', parsed.exercises?.length)
+    return parsed.exercises
   }
 
   const generateFlashcards = async (
