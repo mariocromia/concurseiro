@@ -64,7 +64,7 @@
               leave-from-class="transform scale-100 opacity-100"
               leave-to-class="transform scale-95 opacity-0"
             >
-              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 bg-white dark:bg-dark-800 border border-[#E5E5E5] dark:border-dark-700 rounded-claude-md shadow-xl overflow-hidden">
+              <div v-if="userMenuOpen" ref="dropdownRef" class="absolute right-0 mt-2 w-56 bg-white dark:bg-dark-800 border border-[#E5E5E5] dark:border-dark-700 rounded-claude-md shadow-xl overflow-hidden z-[99999]">
                 <div class="px-4 py-3 border-b border-[#E5E5E5] dark:border-dark-700">
                   <p class="text-sm font-medium text-[#2C2C2C] dark:text-white">{{ userName }}</p>
                   <p class="text-xs text-[#999999] dark:text-gray-400 truncate mt-0.5">{{ userEmail }}</p>

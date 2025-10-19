@@ -1,0 +1,148 @@
+/**
+ * Z-Index Layer System - PraPassar
+ *
+ * Sistema padronizado de camadas z-index para garantir hierarquia visual consistente
+ * em toda a aplicação.
+ *
+ * @author Claude Code
+ * @version 1.0
+ * @date 2025-10-19
+ */
+
+/* ============================================
+   HIERARQUIA DE Z-INDEX
+   ============================================
+
+   Camada 0-9: Base
+   ├─ 0: Conteúdo normal da página
+   ├─ 1: Elementos levemente elevados
+   └─ 5: Cards, botões com sombra
+
+   Camada 10-99: Navegação e Estrutura
+   ├─ 10: Sidebars, navegação lateral
+   ├─ 50: Headers, barras de navegação
+   └─ 100: Toolbars, barras de ferramentas
+
+   Camada 100-999: Elementos Flutuantes
+   ├─ 200: Tooltips básicos
+   ├─ 300: Dropdowns de formulário
+   ├─ 500: Popovers, menus contextuais
+   └─ 900: Notificações, toasts
+
+   Camada 1000-9999: Overlays
+   ├─ 1000: Modais regulares
+   ├─ 5000: Modais críticos
+   └─ 9999: Dropdowns de navegação global
+
+   Camada 10000+: Crítico
+   ├─ 99999: Modais de IA, elementos sempre visíveis
+   └─ 999999: Debug overlays (apenas desenvolvimento)
+
+============================================ */
+
+/* BASE LAYERS (0-9) */
+.z-base { z-index: 0; }
+.z-raised { z-index: 1; }
+.z-card { z-index: 5; }
+
+/* NAVIGATION & STRUCTURE (10-99) */
+.z-sidebar { z-index: 10; }
+.z-header { z-index: 50; }
+.z-toolbar { z-index: 100; }
+
+/* FLOATING ELEMENTS (100-999) */
+.z-tooltip { z-index: 200; }
+.z-dropdown { z-index: 300; }
+.z-popover { z-index: 500; }
+.z-toast { z-index: 900; }
+
+/* OVERLAYS (1000-9999) */
+.z-modal { z-index: 1000; }
+.z-modal-critical { z-index: 5000; }
+.z-nav-dropdown { z-index: 9999; }
+
+/* CRITICAL (10000+) */
+.z-ai-modal { z-index: 99999; }
+.z-debug { z-index: 999999; }
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Posicionamento relativo para contexto de z-index */
+.z-context { position: relative; }
+
+/* Garantir que elemento fique acima de tudo */
+.z-top { z-index: 99999 !important; }
+
+/* Garantir que elemento fique abaixo de tudo */
+.z-bottom { z-index: -1 !important; }
+
+/* ============================================
+   TAILWIND CUSTOM Z-INDEX VALUES
+   ============================================
+
+   Para uso direto em classes Tailwind:
+   z-[0]      = base
+   z-[10]     = sidebar
+   z-[50]     = header
+   z-[100]    = toolbar
+   z-[200]    = tooltip
+   z-[300]    = dropdown
+   z-[500]    = popover
+   z-[900]    = toast
+   z-[1000]   = modal
+   z-[5000]   = modal-critical
+   z-[9999]   = nav-dropdown
+   z-[99999]  = ai-modal, always-on-top
+
+============================================ */
+
+/* ============================================
+   COMPONENTE-SPECIFIC OVERWRITES
+   ============================================ */
+
+/* ModernNav - Dropdown do Usuário */
+.modern-nav-dropdown {
+  z-index: 9999;
+}
+
+/* RichContentEditor - Toolbar */
+.editor-toolbar {
+  z-index: 100;
+}
+
+/* AI Modals - Sempre no topo */
+.ai-modal-overlay {
+  z-index: 99999;
+}
+
+/* ============================================
+   NOTAS DE DESENVOLVIMENTO
+   ============================================
+
+   1. SEMPRE use estas camadas predefinidas
+   2. NUNCA use valores arbitrários de z-index
+   3. Se precisar de novo valor, adicione aqui primeiro
+   4. Documente o motivo da mudança
+   5. Teste em todas as páginas após mudanças
+
+   PROBLEMAS COMUNS:
+   - Dropdown atrás de toolbar: use z-nav-dropdown (9999)
+   - Modal atrás de header: use z-modal (1000)
+   - Tooltip não visível: use z-tooltip (200)
+
+   HIERARQUIA VISUAL:
+   AI Modals (99999)
+      ↓
+   Nav Dropdowns (9999)
+      ↓
+   Modals (1000-5000)
+      ↓
+   Floating (100-900)
+      ↓
+   Structure (10-100)
+      ↓
+   Base (0-9)
+
+============================================ */

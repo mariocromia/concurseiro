@@ -4,7 +4,7 @@
     <!-- A toolbar de formatação de texto (Sans Serif, Bold, Italic, etc.) foi removida -->
 
     <!-- Toolbars Container - Fixo no topo -->
-    <div class="flex-shrink-0 relative z-[100]">
+    <div class="flex-shrink-0 relative z-10">
       <!-- Toolbar de Ferramentas Principal -->
       <div
         :class="[
@@ -65,7 +65,7 @@
           >
             <div
               v-if="showColorPicker"
-              class="absolute top-full mt-2 z-[9999] bg-white border border-gray-300 rounded-lg p-4 shadow-2xl min-w-[280px]"
+              class="absolute top-full mt-2 z-50 bg-white border border-gray-300 rounded-lg p-4 shadow-2xl min-w-[280px]"
               @click.stop
             >
               <!-- Header -->
@@ -825,7 +825,7 @@
       >
         <div
           v-if="showYouTubeModal"
-          class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           @click.self="closeYouTubeModal"
         >
           <Transition
@@ -959,7 +959,7 @@
       >
         <div
           v-if="showLinkModal"
-          class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           @click.self="closeLinkModal"
         >
           <Transition
