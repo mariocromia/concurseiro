@@ -19,7 +19,8 @@ export const useGemini = () => {
     systemInstruction?: string
   } = {}) => {
     try {
-      const response: any = await $fetch('/api/ai/gemini-proxy', {
+      // Use useFetch for proper Nuxt integration with automatic baseURL resolution
+      const { data, error } = await useFetch('/api/ai/gemini-proxy', {
         method: 'POST',
         body: {
           prompt,
@@ -29,6 +30,12 @@ export const useGemini = () => {
           systemInstruction: options.systemInstruction
         }
       })
+
+      if (error.value) {
+        throw error.value
+      }
+
+      const response: any = data.value
 
       if (!response.success) {
         throw new Error(response.message || 'Failed to generate AI response')
