@@ -109,24 +109,22 @@ export const useReports = () => {
     return await withLoading(async () => {
       const { startDate, endDate, previousStartDate, previousEndDate } = getDateRange(period)
 
-      // Buscar sessões do período atual
+      // Buscar sessões do período atual (da tabela study_sessions)
       const { data: sessions } = await supabase
-        .from('study_schedules')
+        .from('study_sessions')
         .select('*, subjects(name, color)')
         .eq('user_id', user.value.id)
-        .eq('status', 'completed')
-        .gte('scheduled_date', startDate)
-        .lte('scheduled_date', endDate)
-        .order('scheduled_date', { ascending: true })
+        .gte('started_at', startDate)
+        .lte('started_at', endDate)
+        .order('started_at', { ascending: true })
 
       // Buscar sessões do período anterior para comparação
       const { data: previousSessions } = await supabase
-        .from('study_schedules')
-        .select('actual_duration, planned_duration')
+        .from('study_sessions')
+        .select('duration')
         .eq('user_id', user.value.id)
-        .eq('status', 'completed')
-        .gte('scheduled_date', previousStartDate)
-        .lt('scheduled_date', previousEndDate)
+        .gte('started_at', previousStartDate)
+        .lt('started_at', previousEndDate)
 
       // Buscar estatísticas de revisões
       const { data: revisions } = await supabase
@@ -189,21 +187,18 @@ export const useReports = () => {
 
       // Processar sessões atuais
       sessions.forEach(session => {
-        const minutes = session.actual_duration || session.planned_duration || 0
+        // Converter duração de segundos para minutos
+        const minutes = Math.floor((session.duration || 0) / 60)
         totalMinutes += minutes
 
-        // Dados diários
-        const dateKey = session.scheduled_date
+        // Dados diários (extrair data de started_at)
+        const dateKey = session.started_at.split('T')[0]
         if (!dailyMap.has(dateKey)) {
           dailyMap.set(dateKey, { date: dateKey, minutes: 0, sessions: 0 })
         }
         const dailyData = dailyMap.get(dateKey)!
         dailyData.minutes += minutes
         dailyData.sessions++
-
-        // Por tipo
-        typeMinutes[session.study_type] += minutes
-        typeSessions[session.study_type]++
 
         // Por matéria
         const subjectName = session.subjects?.name || 'Sem matéria'
@@ -221,31 +216,14 @@ export const useReports = () => {
         subjectData.minutes += minutes
         subjectData.sessions++
 
-        // Questões
-        if (session.study_type === 'questoes' && session.completed_questions) {
-          totalQuestions += session.completed_questions
-          totalCorrect += session.correct_questions || 0
-
-          if (!questionMap.has(subjectName)) {
-            questionMap.set(subjectName, {
-              subject: subjectName,
-              color: subjectColor,
-              total: 0,
-              correct: 0,
-              wrong: 0,
-              rate: 0
-            })
-          }
-          const qData = questionMap.get(subjectName)
-          qData.total += session.completed_questions
-          qData.correct += session.correct_questions || 0
-        }
+        // NOTA: study_sessions não tem campos de questões ou tipos de estudo
+        // Essas features ficam para study_schedules (calendário)
       })
 
       // Processar sessões anteriores
       if (previousSessions) {
         previousSessions.forEach(session => {
-          const minutes = session.actual_duration || session.planned_duration || 0
+          const minutes = Math.floor((session.duration || 0) / 60)
           previousTotalMinutes += minutes
         })
       }
@@ -305,12 +283,15 @@ export const useReports = () => {
           return item
         }).sort((a, b) => b.total - a.total),
         studyTypes: {
-          conteudo: typeMinutes.conteudo,
-          conteudoSessions: typeSessions.conteudo,
-          questoes: typeMinutes.questoes,
-          questoesSessions: typeSessions.questoes,
-          revisao: typeMinutes.revisao,
-          revisaoSessions: typeSessions.revisao
+          // NOTA: study_sessions não tem tipos de estudo
+          // Para ter essa funcionalidade, seria necessário adicionar um campo 'type' na tabela
+          // Por enquanto, retornamos o total em 'conteudo' já que timer não especifica tipo
+          conteudo: totalMinutes,
+          conteudoSessions: sessions.length,
+          questoes: 0,
+          questoesSessions: 0,
+          revisao: 0,
+          revisaoSessions: 0
         },
         dailyData: Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
         revisionStats: {
