@@ -11,6 +11,7 @@
 export const useGemini = () => {
   /**
    * Internal: Call Gemini proxy with proper error handling
+   * Using $fetch for automatic authentication handling
    */
   const callProxy = async (prompt: string, options: {
     model?: string
@@ -18,55 +19,38 @@ export const useGemini = () => {
     maxTokens?: number
     systemInstruction?: string
   } = {}) => {
-    const baseURL = typeof window !== 'undefined'
-      ? window.location.origin
-      : 'http://localhost:3000'
+    console.log('[useGemini] Calling proxy with $fetch')
 
-    const url = `${baseURL}/api/ai/gemini-proxy`
-
-    console.log('[useGemini] Calling proxy:', url)
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt,
-        model: options.model || 'gemini-2.0-flash-exp',
-        temperature: options.temperature || 0.7,
-        maxTokens: options.maxTokens || 2048,
-        systemInstruction: options.systemInstruction
+    try {
+      const data = await $fetch('/api/ai/gemini-proxy', {
+        method: 'POST',
+        body: {
+          prompt,
+          model: options.model || 'gemini-2.0-flash-exp',
+          temperature: options.temperature || 0.7,
+          maxTokens: options.maxTokens || 2048,
+          systemInstruction: options.systemInstruction
+        }
       })
-    })
 
-    console.log('[useGemini] Response status:', response.status)
+      console.log('[useGemini] Response data:', data)
 
-    if (!response.ok) {
-      let errorMessage = `HTTP error! status: ${response.status}`
-      try {
-        const errorData = await response.json()
-        errorMessage = errorData.message || errorMessage
-        console.error('[useGemini] Error data:', errorData)
-      } catch (e) {
-        console.error('[useGemini] Could not parse error response')
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to generate AI response')
       }
 
-      // Create typed error
-      const error: any = new Error(errorMessage)
-      error.statusCode = response.status
-      error.status = response.status
+      return data.data.text
+    } catch (error: any) {
+      console.error('[useGemini] Error:', error)
+
+      // Re-throw with proper status codes
+      if (error.data?.statusCode) {
+        error.statusCode = error.data.statusCode
+        error.status = error.data.statusCode
+      }
+
       throw error
     }
-
-    const data = await response.json()
-    console.log('[useGemini] Response data:', data)
-
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to generate AI response')
-    }
-
-    return data.data.text
   }
 
   const generateSummary = async (content: string, chapterTitle?: string) => {

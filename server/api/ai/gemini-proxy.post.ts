@@ -22,10 +22,21 @@ export default defineEventHandler(async (event) => {
   const startTime = Date.now()
   console.log('[GEMINI-PROXY] Request received')
 
+  // Debug: Log headers and cookies
+  console.log('[GEMINI-PROXY] Headers:', Object.fromEntries(
+    Object.entries(event.headers).filter(([key]) =>
+      key.toLowerCase().includes('cookie') ||
+      key.toLowerCase().includes('auth') ||
+      key.toLowerCase().includes('supabase')
+    )
+  ))
+  console.log('[GEMINI-PROXY] Event context keys:', Object.keys(event.context))
+
   try {
     // 1. Authentication Check
     const user = await serverSupabaseUser(event)
     console.log('[GEMINI-PROXY] User authenticated:', user?.id)
+    console.log('[GEMINI-PROXY] User object:', user ? { id: user.id, email: user.email } : null)
 
     if (!user) {
       throw createError({
