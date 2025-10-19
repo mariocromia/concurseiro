@@ -20,10 +20,13 @@ import { getCachedResponse, setCachedResponse, isCacheable } from '../../utils/a
 
 export default defineEventHandler(async (event) => {
   const startTime = Date.now()
+  console.log('[GEMINI-PROXY] Request received')
 
   try {
     // 1. Authentication Check
     const user = await serverSupabaseUser(event)
+    console.log('[GEMINI-PROXY] User authenticated:', user?.id)
+
     if (!user) {
       throw createError({
         statusCode: 401,
@@ -52,14 +55,19 @@ export default defineEventHandler(async (event) => {
 
     // 3. Subscription Check (Pro plan required for AI)
     const supabase = await serverSupabaseClient(event)
-    const { data: subscription } = await supabase
+    console.log('[GEMINI-PROXY] Checking subscription for user:', user.id)
+
+    const { data: subscription, error: subError } = await supabase
       .from('subscriptions')
       .select('*, subscription_plans(*)')
       .eq('user_id', user.id)
       .in('status', ['active', 'trial'])
       .single()
 
+    console.log('[GEMINI-PROXY] Subscription query result:', { subscription: !!subscription, error: subError?.message })
+
     const hasAiAccess = subscription?.subscription_plans?.ai_enabled === true
+    console.log('[GEMINI-PROXY] AI Access:', hasAiAccess)
 
     if (!hasAiAccess) {
       throw createError({
@@ -164,8 +172,13 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    // Log error
-    console.error('[GEMINI-PROXY] Error:', error.message)
+    // Log error with full details
+    console.error('[GEMINI-PROXY] Error caught:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      stack: error.stack?.split('\n')[0],
+      data: error.data
+    })
 
     // Return appropriate error
     if (error.statusCode) {
@@ -173,8 +186,9 @@ export default defineEventHandler(async (event) => {
     }
 
     throw createError({
-      statusCode: 500,
-      message: 'Failed to generate AI response. Please try again.'
+      statusCode: 503,
+      message: error.message || 'Failed to generate AI response. Please try again.',
+      data: { originalError: error.message }
     })
   }
 })
