@@ -19,8 +19,14 @@ export const useGemini = () => {
     systemInstruction?: string
   } = {}) => {
     try {
-      // Use fetch API directly to avoid Nuxt composable context issues
-      const response: any = await fetch('/api/ai/gemini-proxy', {
+      // Get the baseURL from window.location for client-side requests
+      const baseURL = typeof window !== 'undefined'
+        ? window.location.origin
+        : 'http://localhost:3000'
+
+      const url = `${baseURL}/api/ai/gemini-proxy`
+
+      const response: any = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
