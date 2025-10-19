@@ -11,70 +11,90 @@
 import { Redis } from '@upstash/redis'
 import { Ratelimit } from '@upstash/ratelimit'
 
-// Initialize Redis client (uses UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN from env)
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || ''
-})
+// Initialize Redis client only if configured
+let redis: Redis | null = null
+
+try {
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN
+    })
+    console.log('[RATE-LIMIT] Redis initialized successfully')
+  } else {
+    console.warn('[RATE-LIMIT] Redis not configured - rate limiting will be disabled')
+  }
+} catch (error) {
+  console.error('[RATE-LIMIT] Failed to initialize Redis:', error)
+  redis = null
+}
 
 // ============================================
 // RATE LIMITERS
 // ============================================
 
+// Create a dummy Redis object that always allows requests when Redis is not configured
+const dummyRedis = redis || ({} as Redis)
+
 /**
  * Global API Rate Limiter
  * 100 requests per 15 minutes per IP
+ * Disabled if Redis not configured
  */
-export const globalRateLimit = new Ratelimit({
-  redis,
+export const globalRateLimit = redis ? new Ratelimit({
+  redis: dummyRedis,
   limiter: Ratelimit.slidingWindow(100, '15 m'),
   analytics: true,
   prefix: 'ratelimit:global'
-})
+}) : null
 
 /**
  * AI Features Rate Limiter
  * 20 requests per hour per user
+ * Disabled if Redis not configured
  */
-export const aiRateLimit = new Ratelimit({
-  redis,
+export const aiRateLimit = redis ? new Ratelimit({
+  redis: dummyRedis,
   limiter: Ratelimit.slidingWindow(20, '1 h'),
   analytics: true,
   prefix: 'ratelimit:ai'
-})
+}) : null
 
 /**
  * Auth Rate Limiter (Login/Register)
  * 5 requests per 15 minutes per IP
+ * Disabled if Redis not configured
  */
-export const authRateLimit = new Ratelimit({
-  redis,
+export const authRateLimit = redis ? new Ratelimit({
+  redis: dummyRedis,
   limiter: Ratelimit.slidingWindow(5, '15 m'),
   analytics: true,
   prefix: 'ratelimit:auth'
-})
+}) : null
 
 /**
  * Webhook Rate Limiter
  * 1000 requests per minute (for payment webhooks)
+ * Disabled if Redis not configured
  */
-export const webhookRateLimit = new Ratelimit({
-  redis,
+export const webhookRateLimit = redis ? new Ratelimit({
+  redis: dummyRedis,
   limiter: Ratelimit.slidingWindow(1000, '1 m'),
   analytics: true,
   prefix: 'ratelimit:webhook'
-})
+}) : null
 
 /**
  * Write Operations Rate Limiter
  * 50 requests per minute per user
+ * Disabled if Redis not configured
  */
-export const writeRateLimit = new Ratelimit({
-  redis,
+export const writeRateLimit = redis ? new Ratelimit({
+  redis: dummyRedis,
   limiter: Ratelimit.slidingWindow(50, '1 m'),
   analytics: true,
   prefix: 'ratelimit:write'
-})
+}) : null
 
 // ============================================
 // HELPER FUNCTIONS
@@ -88,9 +108,14 @@ export const writeRateLimit = new Ratelimit({
  */
 export async function checkRateLimit(
   identifier: string,
-  limiter: Ratelimit,
+  limiter: Ratelimit | null,
   errorMessage = 'Too many requests. Please try again later.'
 ) {
+  // If limiter is null (Redis not configured), always allow
+  if (!limiter) {
+    return { limit: 999999, remaining: 999999, reset: Date.now() + 3600000 }
+  }
+
   const { success, limit, reset, remaining } = await limiter.limit(identifier)
 
   if (!success) {

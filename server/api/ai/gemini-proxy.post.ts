@@ -35,23 +35,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // 2. Rate Limiting with Redis (20 requests/hour per user)
-    // Skip if Redis is not configured
-    let rateLimitInfo = { limit: 20, remaining: 20, reset: Date.now() + 3600000 }
-
-    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-      try {
-        rateLimitInfo = await checkRateLimit(
-          user.id,
-          aiRateLimit,
-          'AI rate limit exceeded. You can make 20 AI requests per hour.'
-        )
-      } catch (error: any) {
-        // If Redis fails, log and continue without rate limiting
-        console.warn('[GEMINI-PROXY] Rate limiting failed, continuing without it:', error.message)
-      }
-    } else {
-      console.log('[GEMINI-PROXY] Redis not configured, skipping rate limit')
-    }
+    // checkRateLimit handles null limiter gracefully
+    const rateLimitInfo = await checkRateLimit(
+      user.id,
+      aiRateLimit,
+      'AI rate limit exceeded. You can make 20 AI requests per hour.'
+    )
 
     // 3. Subscription Check (Pro plan required for AI)
     const supabase = await serverSupabaseClient(event)
