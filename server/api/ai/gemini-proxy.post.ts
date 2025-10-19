@@ -223,18 +223,35 @@ export default defineEventHandler(async (event) => {
       message: error.message,
       statusCode: error.statusCode,
       stack: error.stack?.split('\n')[0],
-      data: error.data
+      data: error.data,
+      type: error.constructor?.name
     })
 
-    // Return appropriate error
-    if (error.statusCode) {
-      throw error // Re-throw HTTP errors
+    // ALWAYS create a new error using createError
+    // Never re-throw the original error as it may have read-only properties
+    const statusCode = error.statusCode || error.status || 503
+    const message = error.message || 'Failed to generate AI response. Please try again.'
+
+    // Check if it's already a H3Error (created by createError)
+    if (error.__h3_error__ === true) {
+      // It's already properly formatted, but we still create a new one to avoid property issues
+      throw createError({
+        statusCode: statusCode,
+        statusMessage: error.statusMessage || undefined,
+        message: message,
+        data: error.data || { originalError: error.message }
+      })
     }
 
+    // Create a new error for any other type of error
     throw createError({
-      statusCode: 503,
-      message: error.message || 'Failed to generate AI response. Please try again.',
-      data: { originalError: error.message }
+      statusCode: statusCode,
+      statusMessage: statusCode === 503 ? 'Service Unavailable' : undefined,
+      message: message,
+      data: {
+        originalError: error.message,
+        errorType: error.constructor?.name
+      }
     })
   }
 })

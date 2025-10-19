@@ -43,13 +43,17 @@ export const useGemini = () => {
     } catch (error: any) {
       console.error('[useGemini] Error:', error)
 
-      // Re-throw with proper status codes
-      if (error.data?.statusCode) {
-        error.statusCode = error.data.statusCode
-        error.status = error.data.statusCode
-      }
+      // Create a new error object with proper status codes
+      // Never modify the original error object as it may be read-only
+      const statusCode = error.data?.statusCode || error.statusCode || 500
 
-      throw error
+      // Create a new error with the status code
+      const newError = new Error(error.message || 'Failed to call AI proxy')
+      ;(newError as any).statusCode = statusCode
+      ;(newError as any).status = statusCode
+      ;(newError as any).data = error.data
+
+      throw newError
     }
   }
 
