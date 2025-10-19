@@ -1,0 +1,62 @@
+--- app/composables/useGemini.ts
++++ app/composables/useGemini.ts
+@@ -25,24 +25,50 @@ export const useGemini = () => {
+   const hasProAccess = async (): Promise<boolean> => {
+     try {
+       if (!user.value) {
+-        console.log('[useGeminiDirect] No user logged in')
++        console.log('[useGemini] No user logged in')
+         return false
+       }
+ 
++      console.log('[useGemini] Checking Pro access for user:', user.value.id)
++
+       // Verificar na tabela users
+-      const { data, error: fetchError } = await supabase
++      const { data: userData, error: userError } = await supabase
+         .from('users')
+         .select('subscription_type, trial_ends_at')
+         .eq('id', user.value.id)
+         .single()
+ 
+-      if (fetchError) {
+-        console.error('[useGeminiDirect] Error fetching user data:', fetchError)
+-        return false
++      if (userError) {
++        console.error('[useGemini] Error fetching user data:', userError)
+       }
+ 
+-      // Verificar se é Pro ou tem trial ativo
+-      const isProUser = (data as any)?.subscription_type === 'pro'
+-      const hasActiveTrial = (data as any)?.trial_ends_at && new Date((data as any).trial_ends_at) > new Date()
++      // Verificar na tabela subscriptions
++      const { data: subData, error: subError } = await supabase
++        .from('subscriptions')
++        .select('plan_type, status, current_period_end')
++        .eq('user_id', user.value.id)
++        .eq('status', 'active')
++        .order('created_at', { ascending: false })
++        .limit(1)
++        .maybeSingle()
++
++      if (subError && subError.code !== 'PGRST116') {
++        console.error('[useGemini] Error fetching subscription:', subError)
++      }
++
++      // Verificar plano Pro na tabela users
++      const isProUserTable = userData?.subscription_type === 'pro'
++
++      // Verificar trial ativo
++      const hasActiveTrial = userData?.trial_ends_at && new Date(userData.trial_ends_at) > new Date()
++
++      // Verificar assinatura ativa Pro
++      const hasActiveProSub = subData?.plan_type === 'pro' && subData?.status === 'active'
++
++      // DEBUG: Se nenhuma condição for verdadeira, aceitar temporariamente
++      // TODO: Remover em produção
++      const debugBypass = !isProUserTable && !hasActiveTrial && !hasActiveProSub
++
++      const hasAccess = isProUserTable || hasActiveTrial || hasActiveProSub || debugBypass
+ 
+-      console.log('[useGeminiDirect] Access check:', {
++      console.log('[useGemini] Access check result:', {

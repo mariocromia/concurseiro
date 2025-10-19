@@ -34,60 +34,33 @@ export const useGemini = () => {
         return false
       }
 
-      console.log('[useGemini] Checking Pro access for user:', user.value.id)
-
       // Verificar na tabela users
-      const { data: userData, error: userError } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('users')
         .select('subscription_type, trial_ends_at')
         .eq('id', user.value.id)
         .single()
 
-      if (userError) {
-        console.error('[useGemini] Error fetching user data:', userError)
+      if (fetchError) {
+        console.error('[useGemini] Error fetching user data:', fetchError)
+        return false
       }
 
-      // Verificar na tabela subscriptions
-      const { data: subData, error: subError } = await supabase
-        .from('subscriptions')
-        .select('plan_type, status')
-        .eq('user_id', user.value.id)
-        .eq('status', 'active')
-        .maybeSingle()
-
-      if (subError && subError.code !== 'PGRST116') {
-        console.error('[useGemini] Error fetching subscription:', subError)
-      }
-
-      // Verificações
-      const isProUserTable = userData?.subscription_type === 'pro'
-      const hasActiveTrial = userData?.trial_ends_at && new Date(userData.trial_ends_at) > new Date()
-      const hasActiveProSub = subData?.plan_type === 'pro' && subData?.status === 'active'
-
-      const hasAccess = isProUserTable || hasActiveTrial || hasActiveProSub
+      // Verificar se é Pro ou tem trial ativo
+      const isProUser = (data as any)?.subscription_type === 'pro'
+      const hasActiveTrial = (data as any)?.trial_ends_at && new Date((data as any).trial_ends_at) > new Date()
 
       console.log('[useGemini] Access check:', {
         userId: user.value.id,
-        subscription_type: userData?.subscription_type,
-        trial_ends_at: userData?.trial_ends_at,
-        active_subscription: subData?.plan_type,
-        isProUserTable,
+        isProUser,
         hasActiveTrial,
-        hasActiveProSub,
-        FINAL_ACCESS: hasAccess
+        hasAccess: isProUser || hasActiveTrial
       })
 
-      // DEBUG: Permitir acesso temporariamente se não encontrou dados
-      if (!hasAccess) {
-        console.warn('[useGemini] ⚠️ DEBUG MODE: Bypassing Pro check - REMOVE IN PRODUCTION')
-        return true
-      }
-
-      return hasAccess
+      return isProUser || hasActiveTrial || false
     } catch (err) {
       console.error('[useGemini] Error checking Pro access:', err)
-      console.warn('[useGemini] ⚠️ DEBUG MODE: Bypassing due to error - REMOVE IN PRODUCTION')
-      return true
+      return false
     }
   }
 
@@ -430,3 +403,5 @@ Use linguagem acessível em português brasileiro.`
   }
 }
 
+// Export alternativo para compatibilidade com código existente
+export const useGemini = useGeminiDirect

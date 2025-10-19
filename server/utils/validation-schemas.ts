@@ -185,3 +185,27 @@ export function validateBody<T>(schema: z.ZodSchema<T>, body: unknown): T {
     throw error
   }
 }
+
+// ============================================
+// USER PROFILE SCHEMAS
+// ============================================
+
+export const updateProfileSchema = z.object({
+  full_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(100, 'Nome muito longo'),
+  avatar_url: z.string().url('URL inválida').optional().nullable()
+})
+
+export const changePasswordSchema = z.object({
+  current_password: z.string().min(8, 'Senha atual deve ter no mínimo 8 caracteres'),
+  new_password: z.string().min(8, 'Nova senha deve ter no mínimo 8 caracteres'),
+  confirm_password: z.string().min(8, 'Confirmação de senha deve ter no mínimo 8 caracteres')
+}).refine(data => data.new_password === data.confirm_password, {
+  message: 'As senhas não coincidem',
+  path: ['confirm_password']
+})
+
+export const updatePreferencesSchema = z.object({
+  theme: z.enum(['light', 'dark', 'system']).optional(),
+  push_notifications_enabled: z.boolean().optional(),
+  email_notifications_enabled: z.boolean().optional()
+})

@@ -3,7 +3,7 @@
     <div
       v-if="isVisible"
       :style="{ top: `${position.y}px`, left: `${position.x}px` }"
-      class="fixed z-50 bg-dark-800 rounded-claude-lg shadow-2xl border-2 border-claude-primary dark:border-primary-500/50 overflow-hidden animate-fadeIn backdrop-blur-xl"
+      class="fixed z-[99999] bg-dark-800 rounded-claude-lg shadow-2xl border-2 border-claude-primary dark:border-primary-500/50 overflow-hidden animate-fadeIn backdrop-blur-xl"
       @click.stop
     >
       <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-2.5 border-b border-gray-700">

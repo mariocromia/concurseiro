@@ -608,7 +608,7 @@
     <Teleport to="body">
       <div
         v-if="showChapterFormModal"
-        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm"
+        class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm"
         @click.self="cancelChapterForm"
       >
         <div class="bg-dark-800 border border-dark-700 rounded-claude-lg shadow-2xl w-full max-w-md" @click.stop>
