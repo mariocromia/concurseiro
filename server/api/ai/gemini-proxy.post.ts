@@ -32,11 +32,23 @@ export default defineEventHandler(async (event) => {
     }
 
     // 2. Rate Limiting with Redis (20 requests/hour per user)
-    const rateLimitInfo = await checkRateLimit(
-      user.id,
-      aiRateLimit,
-      'AI rate limit exceeded. You can make 20 AI requests per hour.'
-    )
+    // Skip if Redis is not configured
+    let rateLimitInfo = { limit: 20, remaining: 20, reset: Date.now() + 3600000 }
+
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      try {
+        rateLimitInfo = await checkRateLimit(
+          user.id,
+          aiRateLimit,
+          'AI rate limit exceeded. You can make 20 AI requests per hour.'
+        )
+      } catch (error: any) {
+        // If Redis fails, log and continue without rate limiting
+        console.warn('[GEMINI-PROXY] Rate limiting failed, continuing without it:', error.message)
+      }
+    } else {
+      console.log('[GEMINI-PROXY] Redis not configured, skipping rate limit')
+    }
 
     // 3. Subscription Check (Pro plan required for AI)
     const supabase = await serverSupabaseClient(event)
@@ -70,12 +82,16 @@ export default defineEventHandler(async (event) => {
     let text: string
     let fromCache = false
 
-    if (isCacheable(prompt)) {
-      const cached = await getCachedResponse(prompt, systemInstruction)
-      if (cached) {
-        text = cached
-        fromCache = true
-        console.log('[GEMINI-PROXY] Cache hit for prompt')
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN && isCacheable(prompt)) {
+      try {
+        const cached = await getCachedResponse(prompt, systemInstruction)
+        if (cached) {
+          text = cached
+          fromCache = true
+          console.log('[GEMINI-PROXY] Cache hit for prompt')
+        }
+      } catch (error: any) {
+        console.warn('[GEMINI-PROXY] Cache check failed, fetching fresh:', error.message)
       }
     }
 
@@ -99,9 +115,13 @@ export default defineEventHandler(async (event) => {
       text = response.text()
 
       // Cache response if cacheable
-      if (isCacheable(prompt)) {
-        await setCachedResponse(prompt, text, systemInstruction)
-        console.log('[GEMINI-PROXY] Response cached for future use')
+      if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN && isCacheable(prompt)) {
+        try {
+          await setCachedResponse(prompt, text, systemInstruction)
+          console.log('[GEMINI-PROXY] Response cached for future use')
+        } catch (error: any) {
+          console.warn('[GEMINI-PROXY] Cache write failed:', error.message)
+        }
       }
     }
 
