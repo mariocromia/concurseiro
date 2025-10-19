@@ -1,5 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { updatePreferencesSchema, validateBody } from '~/server/utils/validation-schemas'
+import { updatePreferencesSchema, validateBody } from '../../utils/validation-schemas'
 
 /**
  * POST /api/user/update-preferences

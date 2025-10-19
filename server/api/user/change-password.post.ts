@@ -1,5 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { changePasswordSchema, validateBody } from '~/server/utils/validation-schemas'
+import { changePasswordSchema, validateBody } from '../../utils/validation-schemas'
 
 /**
  * POST /api/user/change-password

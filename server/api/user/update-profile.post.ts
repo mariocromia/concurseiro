@@ -1,5 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { updateProfileSchema, validateBody } from '~/server/utils/validation-schemas'
+import { updateProfileSchema, validateBody } from '../../utils/validation-schemas'
 
 /**
  * POST /api/user/update-profile
