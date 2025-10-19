@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { geminiProxySchema, validateBody } from '../../utils/validation-schemas'
 import { aiRateLimit, checkRateLimit } from '../../utils/rate-limit'
@@ -33,15 +33,36 @@ export default defineEventHandler(async (event) => {
   console.log('[GEMINI-PROXY] Event context keys:', Object.keys(event.context))
 
   try {
-    // 1. Authentication Check
-    const user = await serverSupabaseUser(event)
-    console.log('[GEMINI-PROXY] User authenticated:', user?.id)
-    console.log('[GEMINI-PROXY] User object:', user ? { id: user.id, email: user.email } : null)
+    // 1. Get Supabase client first
+    const supabase = await serverSupabaseClient(event)
 
-    if (!user) {
+    // 2. Authentication Check - Use supabase.auth.getUser() for complete user object
+    const { data: authData, error: authError } = await supabase.auth.getUser()
+
+    console.log('[GEMINI-PROXY] Auth response:', {
+      hasUser: !!authData?.user,
+      hasError: !!authError,
+      errorMessage: authError?.message
+    })
+
+    if (authError || !authData?.user) {
+      console.error('[GEMINI-PROXY] Auth error:', authError)
       throw createError({
         statusCode: 401,
-        message: 'Authentication required'
+        message: 'Authentication required - no valid session found'
+      })
+    }
+
+    const user = authData.user
+    console.log('[GEMINI-PROXY] User authenticated:', user.id)
+    console.log('[GEMINI-PROXY] User object:', { id: user.id, email: user.email })
+
+    // Validate user ID exists
+    if (!user.id) {
+      console.error('[GEMINI-PROXY] User ID is undefined despite having user object')
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid user session - missing user ID'
       })
     }
 
@@ -54,7 +75,6 @@ export default defineEventHandler(async (event) => {
     )
 
     // 3. Subscription Check (Pro plan required for AI)
-    const supabase = await serverSupabaseClient(event)
     console.log('[GEMINI-PROXY] Checking subscription for user:', user.id)
 
     // Check both users table (subscription_type) and subscriptions table
