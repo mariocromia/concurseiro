@@ -404,8 +404,16 @@ const loadUserData = async () => {
 }
 
 const updateProfile = async () => {
+  // Validação frontend
+  if (!profileForm.value.full_name || profileForm.value.full_name.trim().length < 3) {
+    toast.error('Nome completo deve ter no mínimo 3 caracteres')
+    return
+  }
+
   profileLoading.value = true
   try {
+    console.log('[FRONTEND] Sending profile data:', profileForm.value)
+
     await $fetch('/api/user/update-profile', {
       method: 'POST',
       body: profileForm.value
@@ -413,7 +421,9 @@ const updateProfile = async () => {
 
     toast.success('Perfil atualizado com sucesso!')
   } catch (error: any) {
-    toast.error(error.data?.message || 'Erro ao atualizar perfil')
+    console.error('[FRONTEND] Error updating profile:', error)
+    const errorMessage = error.data?.message || error.message || 'Erro ao atualizar perfil'
+    toast.error(errorMessage)
   } finally {
     profileLoading.value = false
   }
