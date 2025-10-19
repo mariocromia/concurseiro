@@ -46,17 +46,43 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient(event)
     console.log('[GEMINI-PROXY] Checking subscription for user:', user.id)
 
-    const { data: subscription, error: subError } = await supabase
-      .from('subscriptions')
-      .select('*, subscription_plans(*)')
-      .eq('user_id', user.id)
-      .in('status', ['active', 'trial'])
+    // Check both users table (subscription_type) and subscriptions table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('subscription_type, trial_ends_at')
+      .eq('id', user.id)
       .single()
 
-    console.log('[GEMINI-PROXY] Subscription query result:', { subscription: !!subscription, error: subError?.message })
+    console.log('[GEMINI-PROXY] User data:', { subscription_type: userData?.subscription_type, trial_ends_at: userData?.trial_ends_at })
 
-    const hasAiAccess = subscription?.subscription_plans?.ai_enabled === true
-    console.log('[GEMINI-PROXY] AI Access:', hasAiAccess)
+    // Check active subscription in subscriptions table
+    const { data: subscription, error: subError } = await supabase
+      .from('subscriptions')
+      .select('plan_type, status, current_period_end')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single()
+
+    console.log('[GEMINI-PROXY] Active subscription:', { plan_type: subscription?.plan_type, status: subscription?.status })
+
+    // User has AI access if:
+    // 1. Has subscription_type 'pro' in users table, OR
+    // 2. Has active 'pro' subscription in subscriptions table, OR
+    // 3. Has valid trial (trial_ends_at > now)
+    const now = new Date()
+    const trialActive = userData?.trial_ends_at && new Date(userData.trial_ends_at) > now
+
+    const hasAiAccess =
+      userData?.subscription_type === 'pro' ||
+      subscription?.plan_type === 'pro' ||
+      trialActive
+
+    console.log('[GEMINI-PROXY] AI Access:', {
+      hasAiAccess,
+      userSubscriptionType: userData?.subscription_type,
+      activeSubscription: subscription?.plan_type,
+      trialActive
+    })
 
     if (!hasAiAccess) {
       throw createError({
