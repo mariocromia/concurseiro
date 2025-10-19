@@ -151,6 +151,7 @@
               <input
                 v-model="passwordForm.current_password"
                 :type="showCurrentPassword ? 'text' : 'password'"
+                autocomplete="current-password"
                 required
                 minlength="8"
                 class="w-full px-4 py-2 pr-10 border border-[#E5E5E5] dark:border-dark-700 rounded-claude-md bg-white dark:bg-dark-900 text-[#2C2C2C] dark:text-white focus:ring-2 focus:ring-[#b85635] dark:focus:ring-primary-400 focus:border-transparent"
@@ -179,6 +180,7 @@
             <div class="relative">
               <input
                 v-model="passwordForm.new_password"
+                autocomplete="new-password"
                 :type="showNewPassword ? 'text' : 'password'"
                 required
                 minlength="8"
@@ -211,6 +213,7 @@
             <div class="relative">
               <input
                 v-model="passwordForm.confirm_password"
+                autocomplete="new-password"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 required
                 minlength="8"
@@ -403,12 +406,10 @@ const loadUserData = async () => {
 const updateProfile = async () => {
   profileLoading.value = true
   try {
-    const { data, error } = await $fetch('/api/user/update-profile', {
+    await $fetch('/api/user/update-profile', {
       method: 'POST',
       body: profileForm.value
     })
-
-    if (error) throw error
 
     toast.success('Perfil atualizado com sucesso!')
   } catch (error: any) {
@@ -426,12 +427,10 @@ const changePassword = async () => {
 
   passwordLoading.value = true
   try {
-    const { data, error } = await $fetch('/api/user/change-password', {
+    await $fetch('/api/user/change-password', {
       method: 'POST',
       body: passwordForm.value
     })
-
-    if (error) throw error
 
     toast.success('Senha alterada com sucesso!')
     passwordForm.value = {
