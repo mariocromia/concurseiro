@@ -192,6 +192,13 @@ export function validateBody<T>(schema: z.ZodSchema<T>, body: unknown): T {
 
 export const updateProfileSchema = z.object({
   full_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(100, 'Nome muito longo'),
+  phone: z.preprocess(
+    (val) => val === '' ? null : val,
+    z.string()
+      .regex(/^\(\d{2}\) \d{5}-\d{4}$/, 'Telefone inválido. Use o formato (XX) XXXXX-XXXX')
+      .nullable()
+      .optional()
+  ),
   avatar_url: z.preprocess(
     (val) => val === '' ? null : val,
     z.string().url('URL inválida').nullable().optional()
