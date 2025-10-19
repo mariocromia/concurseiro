@@ -19,29 +19,37 @@ export const useGemini = () => {
     systemInstruction?: string
   } = {}) => {
     try {
-      // Use useFetch for proper Nuxt integration with automatic baseURL resolution
-      const { data, error } = await useFetch('/api/ai/gemini-proxy', {
+      // Use fetch API directly to avoid Nuxt composable context issues
+      const response: any = await fetch('/api/ai/gemini-proxy', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           prompt,
           model: options.model || 'gemini-2.0-flash-exp',
           temperature: options.temperature || 0.7,
           maxTokens: options.maxTokens || 2048,
           systemInstruction: options.systemInstruction
-        }
+        })
       })
 
-      if (error.value) {
-        throw error.value
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        const error: any = new Error(errorData.message || `HTTP error! status: ${response.status}`)
+        error.statusCode = response.status
+        error.status = response.status
+        error.data = errorData
+        throw error
       }
 
-      const response: any = data.value
+      const data = await response.json()
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to generate AI response')
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to generate AI response')
       }
 
-      return response.data.text
+      return data.data.text
     } catch (error: any) {
       // Handle rate limiting
       if (error.statusCode === 429 || error.status === 429) {
