@@ -183,6 +183,71 @@ export const useGemini = () => {
   }
 
   /**
+   * Limpar e validar JSON da resposta do Gemini
+   */
+  const cleanAndParseJSON = (text: string): any => {
+    // Extrair JSON da resposta
+    let jsonStr = text.trim()
+
+    // Remover markdown code blocks
+    jsonStr = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
+
+    // Extrair apenas o objeto JSON
+    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      console.error('[useGemini] No JSON found in response:', text)
+      throw new Error('Resposta da IA não contém JSON válido')
+    }
+
+    let rawJson = jsonMatch[0]
+
+    // Sanitizar JSON antes do parse
+    // 1. Remove controle de caracteres inválidos mas preserva quebras de linha válidas (\n e \r)
+    rawJson = rawJson.replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g, '')
+
+    // 2. Corrige escapes duplos comuns
+    rawJson = rawJson.replace(/\\\\\\\\/g, '\\\\').replace(/\\\\/g, '\\')
+
+    // 3. Remove caracteres de controle Unicode problemáticos
+    rawJson = rawJson.replace(/\u2028/g, '').replace(/\u2029/g, '')
+
+    // 4. Corrige aspas não escapadas dentro de strings (heurística)
+    // Isto é arriscado, mas pode ajudar em alguns casos
+
+    try {
+      return JSON.parse(rawJson)
+    } catch (parseError: any) {
+      console.error('[useGemini] JSON parse error:', parseError.message)
+
+      // Pegar contexto do erro se disponível
+      const errorPos = parseError.message.match(/position (\d+)/)?.[1]
+      if (errorPos) {
+        const pos = parseInt(errorPos)
+        console.error('[useGemini] Context around error:', rawJson.substring(Math.max(0, pos - 100), Math.min(rawJson.length, pos + 100)))
+      }
+
+      // Tentar uma última sanitização mais agressiva
+      try {
+        // Remove quebras de linha e espaços extras
+        const cleanJson = rawJson
+          .replace(/\n/g, ' ')
+          .replace(/\r/g, ' ')
+          .replace(/\t/g, ' ')
+          .replace(/\s+/g, ' ')
+          .replace(/,\s*}/g, '}')
+          .replace(/,\s*]/g, ']')
+
+        const result = JSON.parse(cleanJson)
+        console.log('[useGemini] ✓ Parsed with aggressive sanitization')
+        return result
+      } catch (secondError) {
+        console.error('[useGemini] Failed even with aggressive sanitization')
+        throw new Error(`Erro ao processar resposta da IA. Por favor, tente novamente. Detalhes: ${parseError.message}`)
+      }
+    }
+  }
+
+  /**
    * Gerar exercícios
    */
   const generateExercises = async (
@@ -204,19 +269,19 @@ ${content.substring(0, 3000)}
 
 Crie EXATAMENTE ${quantity} questões de múltipla escolha de nível ${difficultyMap[difficulty] || difficulty}.
 
-IMPORTANTE: Retorne APENAS um JSON válido no seguinte formato, sem nenhum texto antes ou depois:
+Retorne um JSON com a seguinte estrutura:
 {
   "exercises": [
     {
       "question": "Pergunta completa aqui",
       "options": {
-        "A": "Primeira opção",
-        "B": "Segunda opção",
-        "C": "Terceira opção",
-        "D": "Quarta opção"
+        "A": "Primeira opcao",
+        "B": "Segunda opcao",
+        "C": "Terceira opcao",
+        "D": "Quarta opcao"
       },
       "correct_answer": "A",
-      "explanation": "Explicação da resposta correta"
+      "explanation": "Explicacao da resposta correta"
     }
   ]
 }
@@ -226,21 +291,19 @@ Requisitos:
 - Apenas uma resposta correta por questão
 - Questões devem ser relevantes ao conteúdo fornecido
 - Explicações devem ser claras e educativas
-- Retorne APENAS o JSON, sem markdown ou outros textos`
+- Evite usar aspas duplas dentro dos textos, prefira aspas simples
+- Mantenha os textos em uma única linha, sem quebras`
 
     try {
-      const text = await generateContent(prompt, { temperature: 0.8 })
+      const text = await generateContent(prompt, {
+        temperature: 0.7,
+        model: 'gemini-2.0-flash-exp' // Usando o modelo mais recente e confiável
+      })
 
-      // Extrair JSON da resposta
-      let jsonStr = text
-      jsonStr = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*/g, '')
+      console.log('[useGemini] Raw response length:', text.length)
 
-      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) {
-        throw new Error('Resposta da IA não contém JSON válido')
-      }
-
-      const parsed = JSON.parse(jsonMatch[0])
+      // Usar função auxiliar para limpar e parsear JSON
+      const parsed = cleanAndParseJSON(text)
       const exercises = parsed.exercises || parsed
 
       if (!Array.isArray(exercises)) {
@@ -315,10 +378,7 @@ Retorne APENAS um JSON válido:
     try {
       const text = await generateContent(prompt, { temperature: 0.7 })
 
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) throw new Error('Resposta inválida')
-
-      const parsed = JSON.parse(jsonMatch[0])
+      const parsed = cleanAndParseJSON(text)
       const flashcards = parsed.flashcards || parsed
 
       if (!Array.isArray(flashcards)) throw new Error('Formato inválido')
@@ -385,10 +445,7 @@ Retorne APENAS um JSON válido com a estrutura hierárquica:
     try {
       const text = await generateContent(prompt, { temperature: 0.6 })
 
-      const jsonMatch = text.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) throw new Error('Resposta inválida')
-
-      return JSON.parse(jsonMatch[0])
+      return cleanAndParseJSON(text)
     } catch (err: any) {
       console.error('[useGemini] Error generating mind map:', err)
       throw err
