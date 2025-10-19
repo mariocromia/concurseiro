@@ -213,17 +213,8 @@
             </button>
           </div>
 
-          <draggable
-            v-model="subjects"
-            @end="onSubjectDragEnd"
-            item-key="id"
-            handle=".drag-handle"
-            ghost-class="opacity-50 bg-claude-primary/20 dark:bg-primary-500/20"
-            chosen-class="shadow-lg shadow-primary-500/50 scale-105"
-            drag-class="opacity-0"
-            class="space-y-1"
-          >
-            <template #item="{ element: subject }">
+          <div ref="subjectsListRef" class="space-y-1">
+            <div v-for="subject in subjects" :key="subject.id">
               <div class="mb-0.5">
                 <div
                   class="flex items-center justify-between px-3 py-2 rounded hover:bg-dark-800/50 transition-colors group"
@@ -232,10 +223,10 @@
                   <div class="flex items-center space-x-1.5 flex-1 min-w-0">
                     <!-- Drag Handle -->
                     <svg
-                      class="w-4 h-4 text-gray-700 hover:text-gray-600 dark:text-gray-500 cursor-move drag-handle flex-shrink-0"
+                      class="w-4 h-4 text-gray-700 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400 cursor-grab active:cursor-grabbing drag-handle flex-shrink-0 transition-all hover:scale-110"
                       fill="currentColor"
                       viewBox="0 0 20 20"
-                      title="Arrastar"
+                      title="Arrastar para reordenar"
                     >
                       <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                     </svg>
@@ -274,6 +265,27 @@
                   </div>
 
                   <div class="flex items-center space-x-0.5 flex-shrink-0">
+                    <!-- Reorder Arrows -->
+                    <button
+                      v-if="subjects.indexOf(subject) > 0"
+                      @click.stop="moveSubjectUp(subject)"
+                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
+                      title="Mover para cima"
+                    >
+                      <svg class="w-4 h-4 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
+                    <button
+                      v-if="subjects.indexOf(subject) < subjects.length - 1"
+                      @click.stop="moveSubjectDown(subject)"
+                      class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
+                      title="Mover para baixo"
+                    >
+                      <svg class="w-4 h-4 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
                     <button
                       @click.stop="openChapterMenu(subject)"
                       class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-claude-primary/20 dark:bg-primary-500/20 rounded transition-all"
@@ -300,18 +312,8 @@
                   <!-- Vertical Line -->
                   <div class="absolute left-4 top-0 bottom-0 w-px bg-primary-500/30"></div>
 
-                  <draggable
-                    :model-value="getChaptersBySubject(subject.id)"
-                    @update:model-value="(newChapters) => updateChapters(subject.id, newChapters)"
-                    @end="onChapterDragEnd"
-                    item-key="id"
-                    handle=".chapter-drag-handle"
-                    ghost-class="opacity-50 bg-claude-primary/20 dark:bg-primary-500/20"
-                    chosen-class="shadow-lg shadow-primary-500/50 scale-105"
-                    drag-class="opacity-0"
-                    class="space-y-1"
-                  >
-                    <template #item="{ element: chapter }">
+                  <div :ref="(el) => setChapterListRef(subject.id, el)" :data-subject-id="subject.id" class="space-y-1">
+                    <div v-for="chapter in getChaptersBySubject(subject.id)" :key="chapter.id">
                       <div
                         class="flex items-center justify-between p-2 rounded-claude-md cursor-pointer hover:bg-dark-700/50 transition-colors group relative"
                         :class="{ 'bg-claude-primary/20 dark:bg-primary-500/20 border border-claude-primary dark:border-primary-500/50': selectedChapter?.id === chapter.id }"
@@ -319,9 +321,9 @@
                         <!-- Connection Dot / Drag Icon -->
                         <div class="absolute left-3 top-1/2 -translate-y-1/2 z-10">
                           <!-- Bolinha (visível por padrão) -->
-                          <div class="w-2 h-2 rounded-full bg-primary-400 border-2 border-dark-800 group-hover:hidden"></div>
+                          <div class="w-2 h-2 rounded-full bg-primary-400 border-2 border-dark-800 group-hover:hidden transition-all"></div>
                           <!-- Ícone de arrastar (visível no hover) -->
-                          <svg class="hidden group-hover:block chapter-drag-handle cursor-move w-4 h-4 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                          <svg class="hidden group-hover:block chapter-drag-handle cursor-grab active:cursor-grabbing w-4 h-4 text-primary-400 hover:text-primary-300 dark:text-primary-400 dark:hover:text-primary-300 transition-all hover:scale-110" fill="currentColor" viewBox="0 0 20 20" title="Arrastar para reordenar capítulo">
                             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"></path>
                           </svg>
                         </div>
@@ -349,6 +351,27 @@
                         </div>
 
                         <div class="flex items-center space-x-1">
+                          <!-- Reorder Arrows for Chapters -->
+                          <button
+                            v-if="getChaptersBySubject(subject.id).indexOf(chapter) > 0"
+                            @click.stop="moveChapterUp(chapter, subject.id)"
+                            class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
+                            title="Mover para cima"
+                          >
+                            <svg class="w-3.5 h-3.5 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+                            </svg>
+                          </button>
+                          <button
+                            v-if="getChaptersBySubject(subject.id).indexOf(chapter) < getChaptersBySubject(subject.id).length - 1"
+                            @click.stop="moveChapterDown(chapter, subject.id)"
+                            class="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-primary-500/20 rounded transition-all"
+                            title="Mover para baixo"
+                          >
+                            <svg class="w-3.5 h-3.5 text-primary-400 hover:text-primary-300" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                          </button>
                           <button
                             v-if="isPro"
                             @click.stop="showAIMenuForChapter($event, chapter)"
@@ -371,8 +394,8 @@
                           </button>
                         </div>
                       </div>
-                    </template>
-                  </draggable>
+                    </div>
+                  </div>
 
                   <!-- Add Chapter Button -->
                   <button
@@ -386,8 +409,8 @@
                   </button>
                 </div>
               </div>
-            </template>
-          </draggable>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -714,7 +737,7 @@
 </template>
 
 <script setup lang="ts">
-import draggable from 'vuedraggable'
+import { useSortable } from '~/composables/useSortable'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -740,6 +763,16 @@ const expandedSubjects = ref<Record<string, boolean>>({})
 const selectedSubject = ref<any>(null)
 const selectedChapter = ref<any>(null)
 const chapterContent = ref('')
+
+// Sortable refs
+const subjectsListRef = ref<HTMLElement | null>(null)
+const chapterListRefs = ref<Record<string, HTMLElement>>({})
+
+const setChapterListRef = (subjectId: string, el: any) => {
+  if (el) {
+    chapterListRefs.value[subjectId] = el
+  }
+}
 
 // Debug user state
 watch(() => user.value, (newUser) => {
@@ -918,6 +951,18 @@ onMounted(async () => {
     console.log('✅ Autosave INICIADO automaticamente (30s)')
   }
 
+  // Inicializar sortable para subjects
+  await nextTick()
+  if (subjectsListRef.value) {
+    useSortable(subjectsListRef, subjects, {
+      handle: '.drag-handle',
+      animation: 200,
+      ghostClass: 'opacity-50 bg-primary-500/30',
+      chosenClass: 'shadow-2xl shadow-primary-500/60 scale-105',
+      onEnd: onSubjectDragEnd
+    })
+  }
+
   console.log('🚀 ===== FIM MONTAGEM NOTEBOOK =====')
 })
 
@@ -1082,7 +1127,7 @@ const cancelSubjectForm = () => {
   showSubjectForm.value = false
 }
 
-const toggleSubject = (subjectId: string) => {
+const toggleSubject = async (subjectId: string) => {
   console.log('🔄 toggleSubject chamado:', subjectId)
   expandedSubjects.value[subjectId] = !expandedSubjects.value[subjectId]
   console.log('📂 Expandido?', expandedSubjects.value[subjectId])
@@ -1090,11 +1135,27 @@ const toggleSubject = (subjectId: string) => {
     const subject = subjects.value.find(s => s.id === subjectId)
     selectedSubject.value = subject
     console.log('✅ Subject selecionado:', subject?.name)
+
+    // Inicializar sortable para capítulos após expandir
+    await nextTick()
+    const chapterList = chapterListRefs.value[subjectId]
+    if (chapterList) {
+      const chaptersBySubject = computed(() => getChaptersBySubject(subjectId))
+      useSortable(ref(chapterList), chaptersBySubject, {
+        handle: '.chapter-drag-handle',
+        animation: 200,
+        ghostClass: 'opacity-50 bg-primary-500/30',
+        chosenClass: 'shadow-2xl scale-105',
+        onEnd: onChapterDragEnd
+      })
+    }
   }
 }
 
 const getChaptersBySubject = (subjectId: string) => {
-  return chapters.value.filter(c => c.subject_id === subjectId)
+  return chapters.value
+    .filter(c => c.subject_id === subjectId)
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
 }
 
 const chapterTitleInput = ref<HTMLInputElement | null>(null)
@@ -1950,6 +2011,174 @@ const onChapterDragEnd = async () => {
   }
 }
 
+// Arrow-based reordering for subjects
+const moveSubjectUp = async (subject: any) => {
+  const currentIndex = subjects.value.indexOf(subject)
+  if (currentIndex <= 0) return
+
+  // Swap positions in the array
+  const temp = subjects.value[currentIndex - 1]
+  subjects.value[currentIndex - 1] = subjects.value[currentIndex]
+  subjects.value[currentIndex] = temp
+
+  // Update order_index in database for both subjects
+  try {
+    await supabase
+      .from('subjects')
+      .update({ order_index: currentIndex - 1 })
+      .eq('id', subject.id)
+
+    await supabase
+      .from('subjects')
+      .update({ order_index: currentIndex })
+      .eq('id', temp.id)
+
+    console.log('✅ Caderno movido para cima')
+  } catch (err) {
+    console.error('❌ Erro ao mover caderno:', err)
+    // Revert on error
+    subjects.value[currentIndex] = subjects.value[currentIndex - 1]
+    subjects.value[currentIndex - 1] = temp
+  }
+}
+
+const moveSubjectDown = async (subject: any) => {
+  const currentIndex = subjects.value.indexOf(subject)
+  if (currentIndex >= subjects.value.length - 1) return
+
+  // Swap positions in the array
+  const temp = subjects.value[currentIndex + 1]
+  subjects.value[currentIndex + 1] = subjects.value[currentIndex]
+  subjects.value[currentIndex] = temp
+
+  // Update order_index in database for both subjects
+  try {
+    await supabase
+      .from('subjects')
+      .update({ order_index: currentIndex + 1 })
+      .eq('id', subject.id)
+
+    await supabase
+      .from('subjects')
+      .update({ order_index: currentIndex })
+      .eq('id', temp.id)
+
+    console.log('✅ Caderno movido para baixo')
+  } catch (err) {
+    console.error('❌ Erro ao mover caderno:', err)
+    // Revert on error
+    subjects.value[currentIndex] = subjects.value[currentIndex + 1]
+    subjects.value[currentIndex + 1] = temp
+  }
+}
+
+// Arrow-based reordering for chapters
+const moveChapterUp = async (chapter: any, subjectId: string) => {
+  const subjectChapters = getChaptersBySubject(subjectId)
+  const currentIndex = subjectChapters.indexOf(chapter)
+  if (currentIndex <= 0) return
+
+  const temp = subjectChapters[currentIndex - 1]
+
+  // Store original order_index values for rollback
+  const originalChapterIndex = chapter.order_index
+  const originalTempIndex = temp.order_index
+
+  // Update the main chapters array immutably
+  const newChapters = chapters.value.map(c => {
+    if (c.id === chapter.id) {
+      return { ...c, order_index: currentIndex - 1 }
+    }
+    if (c.id === temp.id) {
+      return { ...c, order_index: currentIndex }
+    }
+    return c
+  })
+
+  // Apply the new array
+  chapters.value = newChapters
+
+  // Update order_index in database for both chapters
+  try {
+    await supabase
+      .from('chapters')
+      .update({ order_index: currentIndex - 1 })
+      .eq('id', chapter.id)
+
+    await supabase
+      .from('chapters')
+      .update({ order_index: currentIndex })
+      .eq('id', temp.id)
+
+    console.log('✅ Capítulo movido para cima')
+  } catch (err) {
+    console.error('❌ Erro ao mover capítulo:', err)
+    // Revert on error
+    chapters.value = chapters.value.map(c => {
+      if (c.id === chapter.id) {
+        return { ...c, order_index: originalChapterIndex }
+      }
+      if (c.id === temp.id) {
+        return { ...c, order_index: originalTempIndex }
+      }
+      return c
+    })
+  }
+}
+
+const moveChapterDown = async (chapter: any, subjectId: string) => {
+  const subjectChapters = getChaptersBySubject(subjectId)
+  const currentIndex = subjectChapters.indexOf(chapter)
+  if (currentIndex >= subjectChapters.length - 1) return
+
+  const temp = subjectChapters[currentIndex + 1]
+
+  // Store original order_index values for rollback
+  const originalChapterIndex = chapter.order_index
+  const originalTempIndex = temp.order_index
+
+  // Update the main chapters array immutably
+  const newChapters = chapters.value.map(c => {
+    if (c.id === chapter.id) {
+      return { ...c, order_index: currentIndex + 1 }
+    }
+    if (c.id === temp.id) {
+      return { ...c, order_index: currentIndex }
+    }
+    return c
+  })
+
+  // Apply the new array
+  chapters.value = newChapters
+
+  // Update order_index in database for both chapters
+  try {
+    await supabase
+      .from('chapters')
+      .update({ order_index: currentIndex + 1 })
+      .eq('id', chapter.id)
+
+    await supabase
+      .from('chapters')
+      .update({ order_index: currentIndex })
+      .eq('id', temp.id)
+
+    console.log('✅ Capítulo movido para baixo')
+  } catch (err) {
+    console.error('❌ Erro ao mover capítulo:', err)
+    // Revert on error
+    chapters.value = chapters.value.map(c => {
+      if (c.id === chapter.id) {
+        return { ...c, order_index: originalChapterIndex }
+      }
+      if (c.id === temp.id) {
+        return { ...c, order_index: originalTempIndex }
+      }
+      return c
+    })
+  }
+}
+
 // Save before leaving page
 onBeforeUnmount(async () => {
   if (selectedChapter.value && chapterContent.value) {
@@ -2409,5 +2638,48 @@ const formatDateInline = (date: string | Date): string => {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(51, 65, 85, 0.7);
+}
+
+/* Drag and Drop Enhancements */
+.drag-handle,
+.chapter-drag-handle {
+  cursor: grab !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drag-handle:active,
+.chapter-drag-handle:active {
+  cursor: grabbing !important;
+}
+
+.drag-handle:hover,
+.chapter-drag-handle:hover {
+  filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+}
+
+/* Smooth drag transition */
+.sortable-chosen {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ghost element animation */
+.sortable-ghost {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Drop zone indicator */
+.sortable-drag {
+  opacity: 0 !important;
+  transform: rotate(2deg) scale(0.95);
 }
 </style>
