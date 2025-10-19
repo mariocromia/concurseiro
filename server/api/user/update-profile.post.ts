@@ -17,7 +17,11 @@ export default defineEventHandler(async (event) => {
 
   // 2. Validation
   const body = await readBody(event)
+  console.log('[UPDATE PROFILE] Body received:', JSON.stringify(body))
+  console.log('[UPDATE PROFILE] User ID:', user.id)
+
   const validated = validateBody(updateProfileSchema, body)
+  console.log('[UPDATE PROFILE] Validated data:', JSON.stringify(validated))
 
   try {
     const supabase = await serverSupabaseClient(event)
@@ -38,7 +42,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // 4. Update users table if it exists
-    const { error: dbError } = await supabase
+    console.log('[UPDATE PROFILE] Updating database for user:', user.id)
+    const { data: dbData, error: dbError } = await supabase
       .from('users')
       .update({
         full_name: validated.full_name,
@@ -46,10 +51,13 @@ export default defineEventHandler(async (event) => {
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id)
+      .select()
 
     if (dbError) {
-      console.error('Error updating users table:', dbError)
+      console.error('[UPDATE PROFILE] Error updating users table:', dbError)
       // Don't throw - auth update succeeded
+    } else {
+      console.log('[UPDATE PROFILE] Database updated successfully:', JSON.stringify(dbData))
     }
 
     // 5. Return success
