@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div
-      v-if="timer.isRunning"
+      v-if="timer.isRunning || timer.isPaused"
       ref="timerWidget"
       class="fixed z-50 cursor-move"
       :style="{ top: `${position.y}px`, left: `${position.x}px` }"
@@ -12,8 +12,10 @@
         <!-- Header -->
         <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-4 py-2 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-            <span class="text-white text-sm font-semibold">Estudando</span>
+            <div :class="['w-2 h-2 rounded-full', timer.isRunning ? 'bg-white animate-pulse' : 'bg-yellow-300']"></div>
+            <span class="text-white text-sm font-semibold">
+              {{ timer.isRunning ? 'Estudando' : 'Pausado' }}
+            </span>
           </div>
           <button
             @click.stop="toggleMinimize"
@@ -33,7 +35,7 @@
           <!-- Subject -->
           <div class="mb-3">
             <div class="text-xs text-gray-400 mb-1">Matéria</div>
-            <div class="text-white font-medium text-sm truncate">{{ timer.subjectName || 'Carregando...' }}</div>
+            <div class="text-white font-medium text-sm truncate">{{ subjectName || 'Carregando...' }}</div>
           </div>
 
           <!-- Timer Display -->
@@ -45,6 +47,28 @@
 
           <!-- Controls -->
           <div class="flex gap-2">
+            <button
+              v-if="timer.isRunning && !timer.isPaused"
+              @click.stop="handlePause"
+              class="flex-1 px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-1"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              Pausar
+            </button>
+
+            <button
+              v-if="timer.isPaused"
+              @click.stop="handleResume"
+              class="flex-1 px-3 py-2 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-1"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              Retomar
+            </button>
+
             <button
               @click.stop="confirmStop"
               class="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-1"
@@ -73,7 +97,7 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
       @click.self="cancelStop"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-lg max-w-md w-full p-6 shadow-2xl animate-scale-in">
+      <div class="bg-dark-800 border border-dark-700 rounded-xl max-w-md w-full p-6 shadow-2xl animate-scale-in">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-12 h-12 bg-primary-500/20 rounded-full flex items-center justify-center">
             <svg class="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,18 +113,7 @@
         <div class="bg-dark-900 border border-dark-700 rounded-lg p-4 mb-4">
           <div class="flex justify-between items-center mb-2">
             <span class="text-gray-400 text-sm">Matéria:</span>
-            <span class="text-white font-medium">{{ timer.subjectName || 'N/A' }}</span>
-          </div>
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-gray-400 text-sm">Tipo:</span>
-            <span class="text-white">
-              {{ timer.studyType === 'conteudo' ? '📖 Conteúdo' :
-                 timer.studyType === 'questoes' ? '📝 Questões' : '🔄 Revisão' }}
-            </span>
-          </div>
-          <div v-if="timer.plannedQuestions" class="flex justify-between items-center mb-2">
-            <span class="text-gray-400 text-sm">Questões Planejadas:</span>
-            <span class="text-white">{{ timer.plannedQuestions }}</span>
+            <span class="text-white font-medium">{{ subjectName }}</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-gray-400 text-sm">Tempo estudado:</span>
@@ -108,45 +121,14 @@
           </div>
         </div>
 
-        <div class="space-y-4 mb-4">
-          <div v-if="timer.studyType === 'questoes'">
-            <label class="block text-sm font-medium text-gray-300 mb-2">Questões Realizadas</label>
-            <input
-              v-model.number="completedQuestions"
-              type="number"
-              min="0"
-              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
-              :placeholder="String(timer.plannedQuestions || 0)"
-            >
-          </div>
-
-          <div v-if="timer.studyType === 'questoes' && completedQuestions > 0">
-            <label class="block text-sm font-medium text-gray-300 mb-2">Questões Corretas</label>
-            <input
-              v-model.number="correctQuestions"
-              type="number"
-              min="0"
-              :max="completedQuestions"
-              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white focus:ring-2 focus:ring-primary-500"
-              placeholder="0"
-            >
-            <div v-if="correctQuestions !== null && completedQuestions > 0" class="mt-2 text-sm">
-              <span class="text-gray-400">Taxa de acerto: </span>
-              <span class="text-primary-400 font-semibold">
-                {{ Math.round((correctQuestions / completedQuestions) * 100) }}%
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">Anotações (opcional)</label>
-            <textarea
-              v-model="notes"
-              rows="3"
-              placeholder="O que você estudou hoje?"
-              class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
-            ></textarea>
-          </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Anotações (opcional)</label>
+          <textarea
+            v-model="notes"
+            rows="3"
+            placeholder="O que você estudou hoje?"
+            class="w-full px-3 py-2 bg-dark-900 border border-dark-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
+          ></textarea>
         </div>
 
         <div class="flex gap-3">
@@ -210,7 +192,7 @@ import type { Database } from '~/types/database.types'
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
-const { timer, formattedTime, stopTimer } = useStudyTimer()
+const { timer, formattedTime, pauseTimer, resumeTimer, stopTimer } = useStudyTimer()
 
 // Widget state
 const isMinimized = ref(false)
@@ -222,9 +204,10 @@ const timerWidget = ref<HTMLElement | null>(null)
 // Modal state
 const showStopModal = ref(false)
 const notes = ref('')
-const completedQuestions = ref<number | null>(null)
-const correctQuestions = ref<number | null>(null)
 const loading = ref(false)
+
+// Subject name
+const subjectName = ref('')
 
 // Toast system
 const toasts = ref<Array<{ id: number, message: string, type: 'success' | 'error' }>>([])
@@ -236,15 +219,52 @@ onMounted(() => {
     position.value = { x: window.innerWidth - 320, y: 80 }
   }
   console.log('🕐 FloatingTimer montado. Estado do timer:', {
-    isRunning: timer.isRunning,
-    subjectId: timer.subjectId
+    isRunning: timer.value.isRunning,
+    isPaused: timer.value.isPaused,
+    subjectId: timer.value.subjectId
   })
 })
 
 // Watch timer state changes for debugging
-watch(() => timer.isRunning, (running) => {
-  console.log('🕐 Timer isRunning changed:', running)
+watch(() => [timer.value.isRunning, timer.value.isPaused], ([running, paused]) => {
+  console.log('🕐 Timer state changed:', { running, paused })
 })
+
+// Load subject name when timer is running
+watch(() => timer.value.subjectId, async (subjectId) => {
+  console.log('📚 Carregando nome da matéria para:', subjectId)
+  if (!subjectId) {
+    subjectName.value = ''
+    return
+  }
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession()
+    const userId = user.value?.id || sessionData?.session?.user?.id
+    if (!userId) {
+      console.warn('❌ UserId não encontrado')
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('subjects')
+      .select('name')
+      .eq('id', subjectId)
+      .single()
+
+    if (error) {
+      console.error('❌ Erro ao carregar matéria:', error)
+      return
+    }
+
+    if (data) {
+      subjectName.value = data.name
+      console.log('✅ Nome da matéria carregado:', data.name)
+    }
+  } catch (e) {
+    console.error('❌ Erro ao carregar nome da matéria:', e)
+  }
+}, { immediate: true })
 
 // Drag functionality
 const startDrag = (e: MouseEvent | TouchEvent) => {
@@ -296,6 +316,16 @@ const toggleMinimize = () => {
   isMinimized.value = !isMinimized.value
 }
 
+const handlePause = () => {
+  pauseTimer()
+  showToast('Sessão pausada', 'success')
+}
+
+const handleResume = () => {
+  resumeTimer()
+  showToast('Sessão retomada!', 'success')
+}
+
 const confirmStop = () => {
   showStopModal.value = true
 }
@@ -303,27 +333,20 @@ const confirmStop = () => {
 const cancelStop = () => {
   showStopModal.value = false
   notes.value = ''
-  completedQuestions.value = null
-  correctQuestions.value = null
 }
 
 const handleStop = async () => {
   try {
     loading.value = true
-    console.log('🛑 Encerrando sessão')
+    console.log('🛑 Encerrando sessão com notas:', notes.value)
 
-    const result = await stopTimer({
-      notes: notes.value,
-      completedQuestions: completedQuestions.value || undefined,
-      correctQuestions: correctQuestions.value || undefined
-    })
+    const result = await stopTimer(notes.value)
     console.log('✅ Resultado do stopTimer:', result)
 
     if (result?.duration !== undefined) {
-      showToast('Sessão salva com sucesso!', 'success')
+      const minutes = Math.floor(result.duration / 60)
+      showToast(`Sessão salva! Duração: ${minutes} minutos`, 'success')
       notes.value = ''
-      completedQuestions.value = null
-      correctQuestions.value = null
       showStopModal.value = false
     } else {
       console.warn('⚠️ stopTimer retornou sem duration')

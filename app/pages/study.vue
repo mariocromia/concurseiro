@@ -65,7 +65,7 @@
                   </button>
 
                   <button
-                    v-if="timer.isRunning"
+                    v-if="timer.isRunning && !timer.isPaused"
                     @click="pause"
                     class="inline-flex items-center px-8 py-4 bg-yellow-500 text-claude-text dark:text-white rounded-claude-lg hover:bg-yellow-600 transition-all font-semibold text-lg shadow-lg"
                   >
@@ -348,7 +348,7 @@ import type { Database } from '~/types/database.types'
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
-const { timer, formattedTime, startTimer, pauseTimer, resumeTimer, stopTimer, restoreTimer } = useStudyTimer()
+const { timer, formattedTime, startTimer, pauseTimer, resumeTimer, stopTimer } = useStudyTimer()
 
 const subjects = ref<Array<{ id: string, name: string }>>([])
 const selectedSubjectId = ref<string>('')
@@ -395,9 +395,6 @@ const statusDotClass = computed(() => {
 
 // Methods
 onMounted(async () => {
-  // Restore timer if exists
-  await restoreTimer()
-
   // Obter userId da sessão
   const { data: sessionData } = await supabase.auth.getSession()
   const userId = user.value?.id || sessionData?.session?.user?.id
@@ -418,7 +415,7 @@ const start = () => {
     showToast('Selecione uma matéria para iniciar', 'error')
     return
   }
-  startTimer(selectedSubjectId.value, startForm.value.studyType, startForm.value.plannedQuestions || undefined)
+  startTimer(selectedSubjectId.value)
   showToast('Sessão de estudo iniciada!', 'success')
   closeStartModal()
 }
@@ -454,7 +451,7 @@ const stop = async () => {
     loading.value = true
     const result = await stopTimer(notes.value)
 
-    if (result?.duration) {
+    if (result?.duration !== undefined) {
       const minutes = Math.floor(result.duration / 60)
       showToast(`Sessão salva! Duração: ${minutes} minutos`, 'success')
       notes.value = ''
