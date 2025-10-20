@@ -616,6 +616,7 @@
       :is-open="showExercisesModal"
       :content="exercisesContent"
       :chapter-title="selectedChapter?.title"
+      :subject-id="selectedChapter?.subject_id"
       @close="showExercisesModal = false"
     />
 

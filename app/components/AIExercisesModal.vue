@@ -305,6 +305,7 @@ interface Props {
   isOpen: boolean
   content: string
   chapterTitle?: string
+  subjectId?: string // ✅ Subject ID direto do notebook
 }
 
 const props = defineProps<Props>()
@@ -501,20 +502,29 @@ const saveToReports = async () => {
   try {
     const client = useSupabaseClient()
 
-    // Buscar subject_id se chapterTitle foi fornecido
-    let subjectId = null
-    if (props.chapterTitle) {
-      console.log('[AIExercisesModal] Buscando subject_id para:', props.chapterTitle)
-      const { data: subjects } = await client
+    // Usar subject_id da prop (preferencial) ou buscar por chapterTitle (fallback)
+    let subjectId = props.subjectId || null
+
+    if (subjectId) {
+      console.log('[AIExercisesModal] ✅ Usando subject_id da prop:', subjectId)
+    } else if (props.chapterTitle) {
+      console.log('[AIExercisesModal] 🔍 subject_id não fornecido, tentando buscar por chapterTitle:', props.chapterTitle)
+      const { data: subjects, error: subjectError } = await client
         .from('subjects')
-        .select('id')
+        .select('id, name')
         .ilike('name', `%${props.chapterTitle}%`)
         .limit(1)
 
-      if (subjects && subjects.length > 0) {
+      if (subjectError) {
+        console.error('[AIExercisesModal] ❌ Erro ao buscar subject:', subjectError)
+      } else if (subjects && subjects.length > 0) {
         subjectId = subjects[0].id
-        console.log('[AIExercisesModal] Subject encontrado:', subjectId)
+        console.log('[AIExercisesModal] ✅ Subject encontrado por nome:', subjectId, '- Nome:', subjects[0].name)
+      } else {
+        console.warn('[AIExercisesModal] ⚠️ Nenhum subject encontrado com nome similar a:', props.chapterTitle)
       }
+    } else {
+      console.log('[AIExercisesModal] ⚠️ Nenhum subjectId ou chapterTitle fornecido, subject_id será NULL')
     }
 
     // Preparar dados das questões (corrigido para usar options e correct_answer)
@@ -536,8 +546,9 @@ const saveToReports = async () => {
       questions_data: questionsData
     }
 
-    console.log('[AIExercisesModal] Payload a enviar:', payload)
-    console.log('[AIExercisesModal] Chamando /api/exercises/save...')
+    console.log('[AIExercisesModal] 📦 Payload completo:', JSON.stringify(payload, null, 2))
+    console.log('[AIExercisesModal] 🔑 Subject ID no payload:', subjectId || 'NULL')
+    console.log('[AIExercisesModal] 📡 Chamando /api/exercises/save...')
 
     // ✅ CORREÇÃO: Nuxt gerencia autenticação via cookies automaticamente
     // Não precisamos enviar o token manualmente
