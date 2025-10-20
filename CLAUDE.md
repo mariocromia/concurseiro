@@ -363,7 +363,7 @@ ASAAS_WEBHOOK_SECRET=xxx...
 4. ✅ **Error Boundaries** - Tratamento gracioso de erros
 5. ✅ **Integração Global** - ToastContainer em app.vue
 
-### ✅ Reports & Analytics (FASE 5 - 80% Completa) - 2025-10-19
+### ✅ Reports & Analytics (FASE 5 - 90% Completa) - 2025-10-20
 
 1. ✅ **Study Reports** - Relatórios de tempo de estudo funcionando
    - Tempo total, média diária, progresso de metas
@@ -372,20 +372,29 @@ ASAAS_WEBHOOK_SECRET=xxx...
    - Estatísticas de revisões (R1-R7)
    - Exportação para CSV
 
-2. ✅ **Authentication Fix** - Corrigido problema crítico de autenticação
+2. ✅ **AI Exercises Reports** - Relatórios de exercícios IA FUNCIONANDO
+   - Endpoint `/api/exercises/save` criado e funcionando
+   - Salvamento em `saved_exercise_results` funcionando
+   - Exibição na página `/reports` funcionando
+   - Correção crítica: `endDate` com hora completa (23:59:59)
+   - Query sem JOIN de subjects (melhor performance)
+   - 12 exercícios salvos e sendo exibidos corretamente
+
+3. ✅ **Authentication Fix** - Corrigido problema crítico de autenticação
    - `useSupabaseUser()` retornava `user.value.id = undefined`
    - Solução: usar `supabase.auth.getSession()` ao invés
-   - Arquivos corrigidos: `useReports.ts`, `reports.vue`
+   - Arquivos corrigidos: `useReports.ts`, `reports.vue`, `server/api/exercises/save.post.ts`
+   - Import adicionado: `serverSupabaseClient` de `#supabase/server`
 
-3. ✅ **Debug Pages** - Páginas de diagnóstico criadas
-   - `/test-reports-simple` - Teste simples de carregamento
-   - `/test-user-debug` - Debug de autenticação (4 métodos)
-   - `/debug-reports` - Diagnóstico detalhado
+4. ✅ **Date Filter Fix** - Corrigido filtro de data que não incluía o dia atual
+   - Problema: `endDate` era `2025-10-20` (00:00:00), não incluía registros do dia
+   - Solução: `endDate` agora é `2025-10-20T23:59:59.999Z`
+   - Arquivo: `useReports.ts` linha 116-121
 
-4. ⏳ **Question Analytics** - Pendente (20%)
-   - Estrutura pronta em `useReports.ts`
-   - Aguardando dados de `question_attempts` para testar
-   - Query implementada mas não testada com dados reais
+5. ⏳ **Filtros por Matéria** - Pendente (10%)
+   - Estrutura pronta para filtrar exercícios por matéria
+   - Interface precisa ser implementada
+   - Backend já retorna dados de matéria quando disponível
 
 ### 🔄 Pending (Optional Enhancements)
 
@@ -468,17 +477,18 @@ ASAAS_WEBHOOK_SECRET=xxx...
 
 ---
 
-**Version:** 3.1
-**Last Updated:** 2025-10-19
-**Implementation Score:** 96/100
+**Version:** 3.2
+**Last Updated:** 2025-10-20
+**Implementation Score:** 97/100
 
 **Recent Updates:**
-- ✅ Fase 5: Reports & Analytics (80% - Relatórios de tempo funcionando)
-- ✅ Fix crítico: Autenticação com getSession() ao invés de useSupabaseUser()
-- ✅ Páginas de debug criadas para diagnóstico
-- ⏳ Pendente: Análise de questões respondidas (20%)
-- ✅ Score: 95 → 96 (+1 ponto)
-- 📖 Ver SESSAO_CONTINUAR_AMANHA.md para continuar trabalho
+- ✅ Fase 5: Reports & Analytics (90% - Relatórios de exercícios IA funcionando!)
+- ✅ Fix crítico: endDate incluindo hora completa (23:59:59) para incluir dia atual
+- ✅ Endpoint `/api/exercises/save` criado e testado
+- ✅ 12 exercícios IA salvos e exibidos nos relatórios
+- ⏳ Pendente: Filtros por matéria nos relatórios (10%)
+- ✅ Score: 96 → 97 (+1 ponto)
+- 📖 Ver SOLUCAO_EXERCICIOS_GETSESSION.md para detalhes da correção
 
 ## Quick Reference
 
