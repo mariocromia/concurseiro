@@ -28,6 +28,16 @@ interface QuestionReport {
   rate: number
 }
 
+interface ExerciseReport {
+  subject: string
+  color: string
+  title: string
+  totalQuestions: number
+  correctAnswers: number
+  score: number
+  createdAt: string
+}
+
 interface StudyTypeStats {
   conteudo: number
   conteudoSessions: number
@@ -47,6 +57,7 @@ interface ReportData {
   stats: ReportStats
   bySubject: SubjectReport[]
   questionsBySubject: QuestionReport[]
+  exercisesBySubject: ExerciseReport[]
   studyTypes: StudyTypeStats
   dailyData: DailyStudyData[]
   revisionStats: {
@@ -84,9 +95,15 @@ export const useReports = () => {
     if (period === '7days') {
       startDate.setDate(today.getDate() - 7)
       previousStartDate.setDate(today.getDate() - 14)
+    } else if (period === '15days') {
+      startDate.setDate(today.getDate() - 15)
+      previousStartDate.setDate(today.getDate() - 30)
     } else if (period === '30days') {
       startDate.setDate(today.getDate() - 30)
       previousStartDate.setDate(today.getDate() - 60)
+    } else if (period === '60days') {
+      startDate.setDate(today.getDate() - 60)
+      previousStartDate.setDate(today.getDate() - 120)
     } else if (period === '90days') {
       startDate.setDate(today.getDate() - 90)
       previousStartDate.setDate(today.getDate() - 180)
@@ -95,9 +112,13 @@ export const useReports = () => {
       previousStartDate = new Date('2000-01-01')
     }
 
+    // ✅ CORREÇÃO CRÍTICA: Adicionar horário ao endDate para incluir o dia todo
+    const endOfToday = new Date(today)
+    endOfToday.setHours(23, 59, 59, 999)
+
     return {
       startDate: startDate.toISOString().split('T')[0],
-      endDate: today.toISOString().split('T')[0],
+      endDate: endOfToday.toISOString(), // Agora com hora: 2025-10-20T23:59:59.999Z
       previousStartDate: previousStartDate.toISOString().split('T')[0],
       previousEndDate: startDate.toISOString().split('T')[0]
     }
@@ -159,6 +180,55 @@ export const useReports = () => {
         console.log('[useReports] Questões encontradas:', questionAttempts?.length || 0)
       }
 
+      // Buscar exercícios IA salvos do período atual
+      console.log('[useReports] 🔍 Buscando exercícios IA...')
+      console.log('[useReports] 🔍 userId:', userId)
+      console.log('[useReports] 🔍 startDate:', startDate)
+      console.log('[useReports] 🔍 endDate:', endDate)
+      console.log('[useReports] 🔍 period:', period)
+
+      // Tentar SEM o join de subjects primeiro para ver se é isso que está causando problema
+      const { data: savedExercises, error: exercisesError } = await supabase
+        .from('saved_exercise_results')
+        .select('*') // Removido temporariamente: subjects(name, color)
+        .eq('user_id', userId)
+        .gte('created_at', startDate)
+        .lte('created_at', endDate)
+        .order('created_at', { ascending: false })
+
+      console.log('[useReports] 🔍 Query completa:', {
+        table: 'saved_exercise_results',
+        userId,
+        startDate,
+        endDate
+      })
+
+      if (exercisesError) {
+        console.error('[useReports] ❌ ERRO ao buscar exercícios IA:', exercisesError)
+        console.error('[useReports] ❌ Erro completo:', JSON.stringify(exercisesError, null, 2))
+      } else {
+        console.log('[useReports] ✅ Exercícios IA encontrados:', savedExercises?.length || 0)
+        if (savedExercises && savedExercises.length > 0) {
+          console.log('[useReports] ✅ Primeiro exercício:', savedExercises[0])
+          console.log('[useReports] ✅ Todos os exercícios:', savedExercises)
+        } else {
+          console.warn('[useReports] ⚠️ NENHUM exercício encontrado com os filtros aplicados!')
+        }
+      }
+
+      // 🔍 DEBUG: Buscar SEM filtro de data para ver se o problema é isso
+      const { data: allExercises } = await supabase
+        .from('saved_exercise_results')
+        .select('id, title, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      console.log('[useReports] 🔍 DEBUG - Total de exercícios SEM filtro de data:', allExercises?.length || 0)
+      if (allExercises && allExercises.length > 0) {
+        console.log('[useReports] 🔍 DEBUG - Últimos exercícios:', allExercises)
+      }
+
       // Buscar estatísticas de revisões
       const { data: revisions } = await supabase
         .from('revisions')
@@ -185,6 +255,7 @@ export const useReports = () => {
 
       const subjectMap = new Map<string, any>()
       const questionMap = new Map<string, any>()
+      const exercisesList: ExerciseReport[] = []
       const typeMinutes = { conteudo: 0, questoes: 0, revisao: 0 }
       const typeSessions = { conteudo: 0, questoes: 0, revisao: 0 }
       const dailyMap = new Map<string, DailyStudyData>()
@@ -257,6 +328,28 @@ export const useReports = () => {
         })
       }
 
+      // Processar exercícios IA salvos
+      if (savedExercises && savedExercises.length > 0) {
+        console.log('[useReports] 📊 Processando', savedExercises.length, 'exercícios...')
+        savedExercises.forEach((exercise: any) => {
+          // Adicionar questões dos exercícios ao total geral
+          totalQuestions += exercise.total_questions || 0
+          totalCorrect += exercise.correct_answers || 0
+
+          // Adicionar à lista de exercícios (SEM depender de subjects por enquanto)
+          exercisesList.push({
+            subject: 'Exercícios IA', // Temporário: sempre este nome
+            color: '#8B5CF6', // Roxo para IA
+            title: exercise.title,
+            totalQuestions: exercise.total_questions,
+            correctAnswers: exercise.correct_answers,
+            score: exercise.score_percentage,
+            createdAt: exercise.created_at
+          })
+        })
+        console.log('[useReports] 📊 Exercícios processados:', exercisesList.length)
+      }
+
       // Processar sessões anteriores
       if (previousSessions) {
         previousSessions.forEach(session => {
@@ -319,6 +412,7 @@ export const useReports = () => {
           item.rate = Math.round((item.correct / item.total) * 100)
           return item
         }).sort((a, b) => b.total - a.total),
+        exercisesBySubject: exercisesList,
         studyTypes: {
           // NOTA: study_sessions não tem tipos de estudo
           // Para ter essa funcionalidade, seria necessário adicionar um campo 'type' na tabela

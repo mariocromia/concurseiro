@@ -496,33 +496,70 @@ const resetQuiz = () => {
 
 const saveToReports = async () => {
   savingToReports.value = true
+  console.log('[AIExercisesModal] 🚀 Iniciando saveToReports...')
 
   try {
-    // Aqui você pode adicionar a lógica para salvar nos relatórios
-    // Por exemplo, chamar uma API para salvar os resultados
-    await $fetch('/api/study-sessions/save', {
-      method: 'POST',
-      body: {
-        type: 'ai_exercises',
-        subject: props.chapterTitle || 'Exercícios IA',
-        total_questions: exercises.value.length,
-        correct_answers: correctCount.value,
-        score: percentage.value,
-        difficulty: config.value.difficulty,
-        questions: exercises.value.map((ex, idx) => ({
-          question: ex.question,
-          selected: answers.value[idx]?.selected,
-          correct: answers.value[idx]?.correct
-        }))
+    const client = useSupabaseClient()
+
+    // Buscar subject_id se chapterTitle foi fornecido
+    let subjectId = null
+    if (props.chapterTitle) {
+      console.log('[AIExercisesModal] Buscando subject_id para:', props.chapterTitle)
+      const { data: subjects } = await client
+        .from('subjects')
+        .select('id')
+        .ilike('name', `%${props.chapterTitle}%`)
+        .limit(1)
+
+      if (subjects && subjects.length > 0) {
+        subjectId = subjects[0].id
+        console.log('[AIExercisesModal] Subject encontrado:', subjectId)
       }
+    }
+
+    // Preparar dados das questões (corrigido para usar options e correct_answer)
+    const questionsData = exercises.value.map((ex, idx) => ({
+      question: ex.question,
+      options: ex.options, // ✅ CORREÇÃO: usar 'options' ao invés de 'alternatives'
+      correct_answer: ex.correct_answer, // ✅ CORREÇÃO: usar 'correct_answer' ao invés de 'correctAnswer'
+      explanation: ex.explanation,
+      selected_answer: answers.value[idx]?.selected || null,
+      is_correct: answers.value[idx]?.correct || false
+    }))
+
+    const payload = {
+      subject_id: subjectId,
+      title: props.chapterTitle ? `Exercícios - ${props.chapterTitle}` : 'Exercícios IA',
+      total_questions: exercises.value.length,
+      correct_answers: correctCount.value,
+      score_percentage: percentage.value,
+      questions_data: questionsData
+    }
+
+    console.log('[AIExercisesModal] Payload a enviar:', payload)
+    console.log('[AIExercisesModal] Chamando /api/exercises/save...')
+
+    // ✅ CORREÇÃO: Nuxt gerencia autenticação via cookies automaticamente
+    // Não precisamos enviar o token manualmente
+    const response = await $fetch('/api/exercises/save', {
+      method: 'POST',
+      body: payload
     })
 
+    console.log('[AIExercisesModal] ✅ Resposta da API:', response)
+
     savedToReports.value = true
-  } catch (err) {
-    console.error('Erro ao salvar nos relatórios:', err)
-    // Mostrar mensagem de erro se necessário
+    console.log('✅ Exercícios salvos com sucesso nos relatórios!')
+  } catch (err: any) {
+    console.error('[AIExercisesModal] ❌ ERRO COMPLETO:', err)
+    console.error('[AIExercisesModal] ❌ Status:', err?.statusCode)
+    console.error('[AIExercisesModal] ❌ Message:', err?.message)
+    console.error('[AIExercisesModal] ❌ Data:', err?.data)
+
+    alert(`Erro ao salvar: ${err?.message || err}`)
   } finally {
     savingToReports.value = false
+    console.log('[AIExercisesModal] 🏁 saveToReports finalizado')
   }
 }
 

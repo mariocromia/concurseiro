@@ -335,6 +335,78 @@
           </div>
         </div>
 
+        <!-- Exercícios IA Salvos -->
+        <div v-if="reportData.exercisesBySubject.length > 0" class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-purple-500/20 dark:border-dark-700 rounded-claude-lg p-6 mb-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-claude-text dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+              Exercícios IA Salvos
+              <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full">PRO</span>
+            </h2>
+            <span class="text-sm text-purple-400 font-medium">{{ reportData.exercisesBySubject.length }} exercícios</span>
+          </div>
+
+          <div class="space-y-4">
+            <div
+              v-for="(exercise, index) in reportData.exercisesBySubject"
+              :key="index"
+              class="bg-white dark:bg-dark-900 border border-purple-500/20 dark:border-dark-700 rounded-claude-md p-5 hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+            >
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div
+                      class="w-3 h-3 rounded-full shadow-lg"
+                      :style="{ backgroundColor: exercise.color }"
+                    ></div>
+                    <span class="text-xs text-purple-400 font-medium uppercase tracking-wider">{{ exercise.subject }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">•</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ new Date(exercise.createdAt).toLocaleDateString('pt-BR') }}</span>
+                  </div>
+                  <h3 class="font-semibold text-claude-text dark:text-white">{{ exercise.title }}</h3>
+                </div>
+                <div
+                  class="text-2xl font-bold px-3 py-1 rounded-md ml-4"
+                  :class="exercise.score >= 70 ? 'text-green-400 bg-green-500/10' : exercise.score >= 50 ? 'text-yellow-400 bg-yellow-500/10' : 'text-red-400 bg-red-500/10'"
+                >
+                  {{ Math.round(exercise.score) }}%
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  <span class="text-gray-600 dark:text-gray-400">{{ exercise.totalQuestions }} questões</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span class="text-green-400">{{ exercise.correctAnswers }} acertos</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  <span class="text-red-400">{{ exercise.totalQuestions - exercise.correctAnswers }} erros</span>
+                </div>
+              </div>
+
+              <!-- Barra de progresso -->
+              <div class="mt-3 w-full bg-dark-800 rounded-full h-2 overflow-hidden">
+                <div
+                  class="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-400 transition-all duration-500"
+                  :style="{ width: `${exercise.score}%` }"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tipos de Estudo -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-purple-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
@@ -426,12 +498,14 @@ definePageMeta({ middleware: 'auth' })
 const { isLoading, error, formatHours, loadReportData, exportToCSV } = useReports()
 const { success, error: showError } = useToast()
 
-const selectedPeriod = ref('30days')
+const selectedPeriod = ref('all') // Mudado de '30days' para 'all' para mostrar todos os exercícios
 const reportData = ref<any>(null)
 
 const periods = [
   { label: '7 dias', value: '7days' },
+  { label: '15 dias', value: '15days' },
   { label: '30 dias', value: '30days' },
+  { label: '60 dias', value: '60days' },
   { label: '90 dias', value: '90days' },
   { label: 'Todo período', value: 'all' }
 ]
