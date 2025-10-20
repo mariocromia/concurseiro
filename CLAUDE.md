@@ -477,8 +477,8 @@ ASAAS_WEBHOOK_SECRET=xxx...
 
 ---
 
-**Version:** 3.2
-**Last Updated:** 2025-10-20
+**Version:** 3.2.1
+**Last Updated:** 2025-10-20T15:45:00-0300
 **Implementation Score:** 97/100
 
 **Recent Updates:**
@@ -486,6 +486,7 @@ ASAAS_WEBHOOK_SECRET=xxx...
 - ✅ Fix crítico: endDate incluindo hora completa (23:59:59) para incluir dia atual
 - ✅ Endpoint `/api/exercises/save` criado e testado
 - ✅ 12 exercícios IA salvos e exibidos nos relatórios
+- ✅ Commit e push realizados com sucesso (`43bf7c5`)
 - ⏳ Pendente: Filtros por matéria nos relatórios (10%)
 - ✅ Score: 96 → 97 (+1 ponto)
 - 📖 Ver SOLUCAO_EXERCICIOS_GETSESSION.md para detalhes da correção
