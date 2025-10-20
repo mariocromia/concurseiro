@@ -133,7 +133,7 @@
             </div>
             <div class="text-4xl font-bold text-claude-text dark:text-white mb-2">{{ reportData.stats.totalHours }}</div>
             <div class="flex items-center gap-2 text-sm">
-              <span class="text-gray-600 dark:text-gray-500">{{ reportData.stats.totalMinutes }} minutos</span>
+              <span class="text-gray-600 dark:text-gray-500">{{ reportData.stats.totalMinutes }} minutos no total</span>
               <span v-if="reportData.stats.weeklyTrend !== 0" :class="reportData.stats.weeklyTrend > 0 ? 'text-green-400' : 'text-red-400'" class="flex items-center gap-1">
                 <svg v-if="reportData.stats.weeklyTrend > 0" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -212,30 +212,6 @@
                   :class="reportData.stats.goalProgress >= 100 ? 'bg-gradient-to-r from-green-500 to-green-400' : 'bg-gradient-to-r from-yellow-500 to-yellow-400'"
                   :style="{ width: `${Math.min(reportData.stats.goalProgress, 100)}%` }"
                 ></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Estatísticas de Revisões -->
-          <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
-            <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-4 flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              Revisões
-            </h3>
-            <div class="grid grid-cols-3 gap-3">
-              <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-claude-md p-3">
-                <div class="text-xs text-yellow-400 mb-1">Pendentes</div>
-                <div class="text-2xl font-bold text-yellow-300">{{ reportData.revisionStats.pending }}</div>
-              </div>
-              <div class="bg-green-500/10 border border-green-500/20 rounded-claude-md p-3">
-                <div class="text-xs text-green-400 mb-1">Concluídas</div>
-                <div class="text-2xl font-bold text-green-300">{{ reportData.revisionStats.completed }}</div>
-              </div>
-              <div class="bg-red-500/10 border border-red-500/20 rounded-claude-md p-3">
-                <div class="text-xs text-red-400 mb-1">Taxa</div>
-                <div class="text-2xl font-bold text-red-300">{{ reportData.revisionStats.completionRate }}%</div>
               </div>
             </div>
           </div>
@@ -472,7 +448,7 @@
         </div>
 
         <!-- Tipos de Estudo -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-purple-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-12 h-12 bg-purple-500/20 rounded-claude-md flex items-center justify-center">
@@ -493,17 +469,6 @@
             </div>
             <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.questoes) }}</div>
             <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.questoesSessions }} sessões</div>
-          </div>
-
-          <div class="bg-gradient-to-br from-green-500/10 to-green-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-green-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-green-500/10 transition-all">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-12 h-12 bg-green-500/20 rounded-claude-md flex items-center justify-center">
-                <span class="text-2xl">🔄</span>
-              </div>
-              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Revisão</h3>
-            </div>
-            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.revisao) }}</div>
-            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.revisaoSessions }} sessões</div>
           </div>
         </div>
       </div>
@@ -868,21 +833,14 @@ const handleExport = () => {
 }
 
 // Carregar dados ao montar
-const user = useSupabaseUser()
-let dataLoaded = false
+onMounted(async () => {
+  console.log('✅ [Reports] Página montada, carregando dados...')
 
-// Aguardar usuário estar disponível antes de carregar dados
-watchEffect(async () => {
-  if (user.value?.id && !dataLoaded) {
-    console.log('✅ [Reports] Usuário disponível, carregando dados...')
-    dataLoaded = true
+  // Carregar matérias primeiro
+  await fetchSubjects()
 
-    // Carregar matérias primeiro
-    await fetchSubjects()
-
-    // Depois carregar relatório
-    await refreshData()
-  }
+  // Depois carregar relatório com período padrão
+  await refreshData()
 })
 </script>
 
