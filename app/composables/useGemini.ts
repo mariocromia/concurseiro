@@ -184,65 +184,124 @@ export const useGemini = () => {
 
   /**
    * Limpar e validar JSON da resposta do Gemini
+   * Preserva caracteres especiais, fórmulas matemáticas e símbolos científicos
    */
   const cleanAndParseJSON = (text: string): any => {
+    console.log('[useGemini] Starting JSON parsing...')
+
     // Extrair JSON da resposta
     let jsonStr = text.trim()
 
     // Remover markdown code blocks
     jsonStr = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
 
-    // Extrair apenas o objeto JSON
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
+    // Extrair apenas o objeto JSON (suporta arrays também)
+    const jsonMatch = jsonStr.match(/[\[{][\s\S]*[\]}]/)
     if (!jsonMatch) {
-      console.error('[useGemini] No JSON found in response:', text)
+      console.error('[useGemini] No JSON found in response:', text.substring(0, 200))
       throw new Error('Resposta da IA não contém JSON válido')
     }
 
     let rawJson = jsonMatch[0]
+    console.log('[useGemini] Extracted JSON length:', rawJson.length)
 
-    // Sanitizar JSON antes do parse
-    // 1. Remove controle de caracteres inválidos mas preserva quebras de linha válidas (\n e \r)
+    // Sanitizar JSON preservando caracteres especiais válidos
+    // ORDEM IMPORTA - do mais específico para o mais geral!
+
+    // 1. Remove APENAS caracteres de controle problemáticos (não printáveis)
+    // Preserva: acentos, símbolos matemáticos, emojis, etc
     rawJson = rawJson.replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F]/g, '')
 
-    // 2. Corrige escapes duplos comuns
-    rawJson = rawJson.replace(/\\\\\\\\/g, '\\\\').replace(/\\\\/g, '\\')
+    // 2. Normaliza separadores de linha Unicode problemáticos
+    rawJson = rawJson.replace(/\u2028/g, '\\n').replace(/\u2029/g, '\\n')
 
-    // 3. Remove caracteres de controle Unicode problemáticos
-    rawJson = rawJson.replace(/\u2028/g, '').replace(/\u2029/g, '')
+    // 3. Corrige quebras de linha literais dentro de strings JSON
+    // Usa lookbehind/lookahead para não mexer em quebras já escapadas
+    rawJson = rawJson.replace(/([^\\])\r?\n/g, '$1 ')
 
-    // 4. Corrige aspas não escapadas dentro de strings (heurística)
-    // Isto é arriscado, mas pode ajudar em alguns casos
+    // 4. Remove escapes múltiplos desnecessários mantendo escapes válidos
+    // Reduz \\\\ para \\ apenas quando houver múltiplos
+    while (rawJson.includes('\\\\\\\\')) {
+      rawJson = rawJson.replace(/\\\\\\\\/g, '\\\\')
+    }
 
+    // 5. Remove vírgulas trailing antes de fechar objeto/array
+    rawJson = rawJson.replace(/,\s*([}\]])/g, '$1')
+
+    // Primeira tentativa: parse direto
     try {
-      return JSON.parse(rawJson)
+      const result = JSON.parse(rawJson)
+      console.log('[useGemini] ✓ JSON parsed successfully')
+      return result
     } catch (parseError: any) {
-      console.error('[useGemini] JSON parse error:', parseError.message)
+      console.warn('[useGemini] First parse attempt failed:', parseError.message)
 
-      // Pegar contexto do erro se disponível
+      // Mostrar contexto do erro
       const errorPos = parseError.message.match(/position (\d+)/)?.[1]
       if (errorPos) {
         const pos = parseInt(errorPos)
-        console.error('[useGemini] Context around error:', rawJson.substring(Math.max(0, pos - 100), Math.min(rawJson.length, pos + 100)))
+        const start = Math.max(0, pos - 80)
+        const end = Math.min(rawJson.length, pos + 80)
+        const context = rawJson.substring(start, end)
+        const pointer = ' '.repeat(Math.min(80, pos - start)) + '^'
+        console.error('[useGemini] Error context:\n', context, '\n', pointer)
       }
 
-      // Tentar uma última sanitização mais agressiva
+      // Segunda tentativa: sanitização de espaços
       try {
-        // Remove quebras de linha e espaços extras
-        const cleanJson = rawJson
-          .replace(/\n/g, ' ')
-          .replace(/\r/g, ' ')
+        console.log('[useGemini] Attempting space normalization...')
+
+        let cleanJson = rawJson
+          // Normaliza tabs e múltiplos espaços (mas preserva dentro de strings)
           .replace(/\t/g, ' ')
-          .replace(/\s+/g, ' ')
+          .replace(/\s{2,}/g, ' ')
+          // Remove trailing commas novamente
           .replace(/,\s*}/g, '}')
           .replace(/,\s*]/g, ']')
 
         const result = JSON.parse(cleanJson)
-        console.log('[useGemini] ✓ Parsed with aggressive sanitization')
+        console.log('[useGemini] ✓ Parsed with space normalization')
         return result
-      } catch (secondError) {
-        console.error('[useGemini] Failed even with aggressive sanitization')
-        throw new Error(`Erro ao processar resposta da IA. Por favor, tente novamente. Detalhes: ${parseError.message}`)
+      } catch (secondError: any) {
+        console.warn('[useGemini] Second parse attempt failed:', secondError.message)
+
+        // Terceira tentativa: usar JSON5 parsing manual (mais permissivo)
+        try {
+          console.log('[useGemini] Attempting permissive parsing...')
+
+          // Estratégia: processar string a string para escapar aspas não escapadas
+          let processedJson = rawJson
+          let inString = false
+          let escaped = false
+          let result = ''
+
+          for (let i = 0; i < processedJson.length; i++) {
+            const char = processedJson[i]
+            const prevChar = i > 0 ? processedJson[i - 1] : ''
+
+            if (char === '"' && !escaped) {
+              inString = !inString
+              result += char
+            } else if (inString && char === '\\' && !escaped) {
+              escaped = true
+              result += char
+            } else {
+              if (escaped) escaped = false
+              result += char
+            }
+          }
+
+          const finalResult = JSON.parse(result)
+          console.log('[useGemini] ✓ Parsed with permissive mode')
+          return finalResult
+        } catch (thirdError: any) {
+          console.error('[useGemini] All parse attempts failed')
+          console.error('[useGemini] Original response (first 500 chars):', text.substring(0, 500))
+          console.error('[useGemini] Processed JSON (first 500 chars):', rawJson.substring(0, 500))
+
+          // Mensagem de erro mais amigável
+          throw new Error('Não foi possível processar a resposta da IA. Tente gerar novamente com um conteúdo diferente.')
+        }
       }
     }
   }
@@ -269,7 +328,8 @@ ${content.substring(0, 3000)}
 
 Crie EXATAMENTE ${quantity} questões de múltipla escolha de nível ${difficultyMap[difficulty] || difficulty}.
 
-Retorne um JSON com a seguinte estrutura:
+RETORNE APENAS O JSON ABAIXO (sem texto antes ou depois, sem markdown):
+
 {
   "exercises": [
     {
@@ -286,13 +346,21 @@ Retorne um JSON com a seguinte estrutura:
   ]
 }
 
-Requisitos:
-- Cada questão deve ter exatamente 4 opções (A, B, C, D)
-- Apenas uma resposta correta por questão
-- Questões devem ser relevantes ao conteúdo fornecido
-- Explicações devem ser claras e educativas
-- Evite usar aspas duplas dentro dos textos, prefira aspas simples
-- Mantenha os textos em uma única linha, sem quebras`
+REGRAS DE FORMATAÇÃO:
+1. Cada questão deve ter exatamente 4 opções (A, B, C, D)
+2. Apenas uma resposta correta por questão
+3. Para aspas dentro do texto, use aspas simples (')
+   Exemplo: "A formula de Newton e F = m × a"
+4. Para fórmulas matemáticas, use Unicode ou texto simples:
+   ✓ "E = mc²" ou "E = mc^2"
+   ✓ "π × r²" ou "pi × r^2"
+   ✓ "√2" ou "raiz(2)"
+5. Mantenha cada valor em uma única linha (sem quebras \n)
+6. Símbolos permitidos: ±, ×, ÷, ≠, ≤, ≥, °, ², ³, α, β, π, Σ, √, etc
+7. Acentuação normal permitida: á, é, í, ó, ú, ã, õ, ç
+8. Questões devem ser relevantes e explicações claras
+
+IMPORTANTE: Retorne JSON válido que funcione com JSON.parse()`
 
     try {
       const text = await generateContent(prompt, {

@@ -126,6 +126,17 @@ export const useReports = () => {
         .gte('started_at', previousStartDate)
         .lt('started_at', previousEndDate)
 
+      // Buscar tentativas de questões do período atual
+      const { data: questionAttempts } = await supabase
+        .from('question_attempts')
+        .select(`
+          *,
+          questions(subject_id, subjects(name, color))
+        `)
+        .eq('user_id', user.value.id)
+        .gte('created_at', startDate)
+        .lte('created_at', endDate)
+
       // Buscar estatísticas de revisões
       const { data: revisions } = await supabase
         .from('revisions')
@@ -141,37 +152,8 @@ export const useReports = () => {
         .eq('user_id', user.value.id)
         .single()
 
-      if (!sessions || sessions.length === 0) {
-        return {
-          stats: {
-            totalHours: '0h',
-            totalMinutes: 0,
-            dailyAverage: '0h',
-            totalQuestions: 0,
-            successRate: 0,
-            weeklyTrend: 0,
-            monthlyComparison: 0,
-            goalProgress: 0
-          },
-          bySubject: [],
-          questionsBySubject: [],
-          studyTypes: {
-            conteudo: 0,
-            conteudoSessions: 0,
-            questoes: 0,
-            questoesSessions: 0,
-            revisao: 0,
-            revisaoSessions: 0
-          },
-          dailyData: [],
-          revisionStats: {
-            pending: 0,
-            completed: 0,
-            skipped: 0,
-            completionRate: 0
-          }
-        }
-      }
+      // Não retornar vazio se não houver sessões, pois pode haver questões
+      // Removido o early return aqui
 
       // Processar dados
       let totalMinutes = 0
@@ -185,40 +167,73 @@ export const useReports = () => {
       const typeSessions = { conteudo: 0, questoes: 0, revisao: 0 }
       const dailyMap = new Map<string, DailyStudyData>()
 
-      // Processar sessões atuais
-      sessions.forEach(session => {
-        // Converter duração de segundos para minutos
-        const minutes = Math.floor((session.duration || 0) / 60)
-        totalMinutes += minutes
+      // Processar sessões atuais (se houver)
+      if (sessions && sessions.length > 0) {
+        sessions.forEach(session => {
+          // Converter duração de segundos para minutos
+          const minutes = Math.floor((session.duration || 0) / 60)
+          totalMinutes += minutes
 
-        // Dados diários (extrair data de started_at)
-        const dateKey = session.started_at.split('T')[0]
-        if (!dailyMap.has(dateKey)) {
-          dailyMap.set(dateKey, { date: dateKey, minutes: 0, sessions: 0 })
-        }
-        const dailyData = dailyMap.get(dateKey)!
-        dailyData.minutes += minutes
-        dailyData.sessions++
+          // Dados diários (extrair data de started_at)
+          const dateKey = session.started_at.split('T')[0]
+          if (!dailyMap.has(dateKey)) {
+            dailyMap.set(dateKey, { date: dateKey, minutes: 0, sessions: 0 })
+          }
+          const dailyData = dailyMap.get(dateKey)!
+          dailyData.minutes += minutes
+          dailyData.sessions++
 
-        // Por matéria
-        const subjectName = session.subjects?.name || 'Sem matéria'
-        const subjectColor = session.subjects?.color || '#22C55E'
-        if (!subjectMap.has(subjectName)) {
-          subjectMap.set(subjectName, {
-            subject: subjectName,
-            color: subjectColor,
-            minutes: 0,
-            sessions: 0,
-            percentage: 0
-          })
-        }
-        const subjectData = subjectMap.get(subjectName)
-        subjectData.minutes += minutes
-        subjectData.sessions++
+          // Por matéria
+          const subjectName = session.subjects?.name || 'Sem matéria'
+          const subjectColor = session.subjects?.color || '#22C55E'
+          if (!subjectMap.has(subjectName)) {
+            subjectMap.set(subjectName, {
+              subject: subjectName,
+              color: subjectColor,
+              minutes: 0,
+              sessions: 0,
+              percentage: 0
+            })
+          }
+          const subjectData = subjectMap.get(subjectName)
+          subjectData.minutes += minutes
+          subjectData.sessions++
 
-        // NOTA: study_sessions não tem campos de questões ou tipos de estudo
-        // Essas features ficam para study_schedules (calendário)
-      })
+          // NOTA: study_sessions não tem campos de questões ou tipos de estudo
+          // Essas features ficam para study_schedules (calendário)
+        })
+      }
+
+      // Processar tentativas de questões
+      if (questionAttempts && questionAttempts.length > 0) {
+        questionAttempts.forEach((attempt: any) => {
+          totalQuestions++
+          if (attempt.is_correct) {
+            totalCorrect++
+          }
+
+          // Agrupar por matéria
+          const subjectName = attempt.questions?.subjects?.name || 'Sem matéria'
+          const subjectColor = attempt.questions?.subjects?.color || '#22C55E'
+
+          if (!questionMap.has(subjectName)) {
+            questionMap.set(subjectName, {
+              subject: subjectName,
+              color: subjectColor,
+              total: 0,
+              correct: 0,
+              wrong: 0,
+              rate: 0
+            })
+          }
+
+          const qData = questionMap.get(subjectName)
+          qData.total++
+          if (attempt.is_correct) {
+            qData.correct++
+          }
+        })
+      }
 
       // Processar sessões anteriores
       if (previousSessions) {
@@ -287,7 +302,7 @@ export const useReports = () => {
           // Para ter essa funcionalidade, seria necessário adicionar um campo 'type' na tabela
           // Por enquanto, retornamos o total em 'conteudo' já que timer não especifica tipo
           conteudo: totalMinutes,
-          conteudoSessions: sessions.length,
+          conteudoSessions: sessions?.length || 0,
           questoes: 0,
           questoesSessions: 0,
           revisao: 0,
