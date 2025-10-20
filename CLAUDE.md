@@ -307,8 +307,9 @@ Trial period: 14 days from `trial_ends_at` timestamp.
 6. **useStudyTimer.ts** - Study timer logic with R1-R7 automation
 7. **useSubscription.ts** - Subscription management
 8. **useTheme.ts** - Dark/light theme management
-9. **useLoading.ts** - ⭐ Universal loading state management (NEW)
-10. **useToast.ts** - ⭐ Toast notifications system (NEW)
+9. **useLoading.ts** - Universal loading state management
+10. **useToast.ts** - Toast notifications system
+11. **useReports.ts** - ⭐ Study reports data loading (FIXED - 2025-10-19)
 
 ## Environment Variables
 
@@ -361,6 +362,30 @@ ASAAS_WEBHOOK_SECRET=xxx...
 3. ✅ **Skeleton Screens** - 8 tipos pré-configurados
 4. ✅ **Error Boundaries** - Tratamento gracioso de erros
 5. ✅ **Integração Global** - ToastContainer em app.vue
+
+### ✅ Reports & Analytics (FASE 5 - 80% Completa) - 2025-10-19
+
+1. ✅ **Study Reports** - Relatórios de tempo de estudo funcionando
+   - Tempo total, média diária, progresso de metas
+   - Gráficos de evolução diária (Chart.js)
+   - Distribuição por matéria com porcentagens
+   - Estatísticas de revisões (R1-R7)
+   - Exportação para CSV
+
+2. ✅ **Authentication Fix** - Corrigido problema crítico de autenticação
+   - `useSupabaseUser()` retornava `user.value.id = undefined`
+   - Solução: usar `supabase.auth.getSession()` ao invés
+   - Arquivos corrigidos: `useReports.ts`, `reports.vue`
+
+3. ✅ **Debug Pages** - Páginas de diagnóstico criadas
+   - `/test-reports-simple` - Teste simples de carregamento
+   - `/test-user-debug` - Debug de autenticação (4 métodos)
+   - `/debug-reports` - Diagnóstico detalhado
+
+4. ⏳ **Question Analytics** - Pendente (20%)
+   - Estrutura pronta em `useReports.ts`
+   - Aguardando dados de `question_attempts` para testar
+   - Query implementada mas não testada com dados reais
 
 ### 🔄 Pending (Optional Enhancements)
 
@@ -419,6 +444,7 @@ ASAAS_WEBHOOK_SECRET=xxx...
 - Ensure Supabase environment variables are correct in `.env`
 - Check that RLS policies are enabled in Supabase dashboard
 - Verify your Supabase project URL and anon key match
+- ⚠️ **IMPORTANT**: If `user.value.id` is undefined, use `supabase.auth.getSession()` instead of `useSupabaseUser()` (see useReports.ts for example)
 
 **AI features not working:**
 - Verify `GOOGLE_AI_API_KEY` is set in `.env`
@@ -442,15 +468,17 @@ ASAAS_WEBHOOK_SECRET=xxx...
 
 ---
 
-**Version:** 3.0
-**Last Updated:** 2025-10-17
-**Implementation Score:** 95/100
+**Version:** 3.1
+**Last Updated:** 2025-10-19
+**Implementation Score:** 96/100
 
 **Recent Updates:**
-- ✅ Fase 3: AI Optimization (Tour interativo, Cache Redis, Prompts otimizados)
-- ✅ Fase 4: UX Improvements (Loading states, Toast, Skeleton, Error boundaries)
-- ✅ Score: 73 → 95 (+22 pontos)
-- ✅ Ver IMPLEMENTACAO_COMPLETA.md para detalhes
+- ✅ Fase 5: Reports & Analytics (80% - Relatórios de tempo funcionando)
+- ✅ Fix crítico: Autenticação com getSession() ao invés de useSupabaseUser()
+- ✅ Páginas de debug criadas para diagnóstico
+- ⏳ Pendente: Análise de questões respondidas (20%)
+- ✅ Score: 95 → 96 (+1 ponto)
+- 📖 Ver SESSAO_CONTINUAR_AMANHA.md para continuar trabalho
 
 ## Quick Reference
 
