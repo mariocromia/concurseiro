@@ -215,30 +215,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Estatísticas de Revisões -->
-          <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
-            <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-4 flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              Revisões
-            </h3>
-            <div class="grid grid-cols-3 gap-3">
-              <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-claude-md p-3">
-                <div class="text-xs text-yellow-400 mb-1">Pendentes</div>
-                <div class="text-2xl font-bold text-yellow-300">{{ reportData.revisionStats.pending }}</div>
-              </div>
-              <div class="bg-green-500/10 border border-green-500/20 rounded-claude-md p-3">
-                <div class="text-xs text-green-400 mb-1">Concluídas</div>
-                <div class="text-2xl font-bold text-green-300">{{ reportData.revisionStats.completed }}</div>
-              </div>
-              <div class="bg-red-500/10 border border-red-500/20 rounded-claude-md p-3">
-                <div class="text-xs text-red-400 mb-1">Taxa</div>
-                <div class="text-2xl font-bold text-red-300">{{ reportData.revisionStats.completionRate }}%</div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Gráficos -->
