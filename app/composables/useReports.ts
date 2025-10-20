@@ -124,7 +124,7 @@ export const useReports = () => {
     }
   }
 
-  const loadReportData = async (period: string = '30days'): Promise<ReportData | null> => {
+  const loadReportData = async (period: string = '30days', subjectId?: string): Promise<ReportData | null> => {
     // ✅ CORREÇÃO: Usar getSession() ao invés de user.value.id
     const { data: sessionData } = await supabase.auth.getSession()
     const userId = sessionData?.session?.user?.id
@@ -134,20 +134,25 @@ export const useReports = () => {
       return null
     }
 
-    console.log('[useReports] Carregando dados para user:', userId)
+    console.log('[useReports] Carregando dados para user:', userId, 'subject:', subjectId || 'all')
 
     return await withLoading(async () => {
       const { startDate, endDate, previousStartDate, previousEndDate } = getDateRange(period)
-      console.log('[useReports] Período:', { startDate, endDate })
+      console.log('[useReports] Período:', { startDate, endDate }, 'Subject filter:', subjectId)
 
       // Buscar sessões do período atual (da tabela study_sessions)
-      const { data: sessions, error: sessionsError } = await supabase
+      let sessionsQuery = supabase
         .from('study_sessions')
         .select('*, subjects(name, color)')
         .eq('user_id', userId)
         .gte('started_at', startDate)
         .lte('started_at', endDate)
-        .order('started_at', { ascending: true })
+
+      if (subjectId) {
+        sessionsQuery = sessionsQuery.eq('subject_id', subjectId)
+      }
+
+      const { data: sessions, error: sessionsError } = await sessionsQuery.order('started_at', { ascending: true })
 
       if (sessionsError) {
         console.error('[useReports] Erro ao buscar sessões:', sessionsError)
@@ -156,15 +161,21 @@ export const useReports = () => {
       }
 
       // Buscar sessões do período anterior para comparação
-      const { data: previousSessions } = await supabase
+      let prevSessionsQuery = supabase
         .from('study_sessions')
         .select('duration')
         .eq('user_id', userId)
         .gte('started_at', previousStartDate)
         .lt('started_at', previousEndDate)
 
+      if (subjectId) {
+        prevSessionsQuery = prevSessionsQuery.eq('subject_id', subjectId)
+      }
+
+      const { data: previousSessions } = await prevSessionsQuery
+
       // Buscar tentativas de questões do período atual
-      const { data: questionAttempts, error: questionsError } = await supabase
+      let questionsQuery = supabase
         .from('question_attempts')
         .select(`
           *,
@@ -174,6 +185,11 @@ export const useReports = () => {
         .gte('created_at', startDate)
         .lte('created_at', endDate)
 
+      // Note: subject filtering for questions is more complex due to nested relation
+      // We'll filter after fetching if needed
+
+      const { data: questionAttempts, error: questionsError } = await questionsQuery
+
       if (questionsError) {
         console.error('[useReports] Erro ao buscar questões:', questionsError)
       } else {
@@ -181,61 +197,42 @@ export const useReports = () => {
       }
 
       // Buscar exercícios IA salvos do período atual
-      console.log('[useReports] 🔍 Buscando exercícios IA...')
-      console.log('[useReports] 🔍 userId:', userId)
-      console.log('[useReports] 🔍 startDate:', startDate)
-      console.log('[useReports] 🔍 endDate:', endDate)
-      console.log('[useReports] 🔍 period:', period)
+      console.log('[useReports] 🔍 Buscando exercícios IA... (subjectId:', subjectId || 'all', ')')
 
       // Tentar SEM o join de subjects primeiro para ver se é isso que está causando problema
-      const { data: savedExercises, error: exercisesError } = await supabase
+      let exercisesQuery = supabase
         .from('saved_exercise_results')
         .select('*') // Removido temporariamente: subjects(name, color)
         .eq('user_id', userId)
         .gte('created_at', startDate)
         .lte('created_at', endDate)
-        .order('created_at', { ascending: false })
 
-      console.log('[useReports] 🔍 Query completa:', {
-        table: 'saved_exercise_results',
-        userId,
-        startDate,
-        endDate
-      })
+      if (subjectId) {
+        exercisesQuery = exercisesQuery.eq('subject_id', subjectId)
+      }
+
+      const { data: savedExercises, error: exercisesError } = await exercisesQuery.order('created_at', { ascending: false })
 
       if (exercisesError) {
-        console.error('[useReports] ❌ ERRO ao buscar exercícios IA:', exercisesError)
-        console.error('[useReports] ❌ Erro completo:', JSON.stringify(exercisesError, null, 2))
+        console.error('[useReports] ❌ Erro ao buscar exercícios IA:', exercisesError.message)
       } else {
         console.log('[useReports] ✅ Exercícios IA encontrados:', savedExercises?.length || 0)
-        if (savedExercises && savedExercises.length > 0) {
-          console.log('[useReports] ✅ Primeiro exercício:', savedExercises[0])
-          console.log('[useReports] ✅ Todos os exercícios:', savedExercises)
-        } else {
-          console.warn('[useReports] ⚠️ NENHUM exercício encontrado com os filtros aplicados!')
-        }
       }
 
-      // 🔍 DEBUG: Buscar SEM filtro de data para ver se o problema é isso
-      const { data: allExercises } = await supabase
-        .from('saved_exercise_results')
-        .select('id, title, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      console.log('[useReports] 🔍 DEBUG - Total de exercícios SEM filtro de data:', allExercises?.length || 0)
-      if (allExercises && allExercises.length > 0) {
-        console.log('[useReports] 🔍 DEBUG - Últimos exercícios:', allExercises)
-      }
 
       // Buscar estatísticas de revisões
-      const { data: revisions } = await supabase
+      let revisionsQuery = supabase
         .from('revisions')
         .select('status')
         .eq('user_id', userId)
         .gte('scheduled_date', startDate)
         .lte('scheduled_date', endDate)
+
+      if (subjectId) {
+        revisionsQuery = revisionsQuery.eq('subject_id', subjectId)
+      }
+
+      const { data: revisions } = await revisionsQuery
 
       // Buscar meta do usuário
       const { data: goal } = await supabase
@@ -299,7 +296,16 @@ export const useReports = () => {
 
       // Processar tentativas de questões
       if (questionAttempts && questionAttempts.length > 0) {
+        console.log('[useReports] 🔍 Processando questões com filtro de subject:', subjectId)
+        let filteredCount = 0
         questionAttempts.forEach((attempt: any) => {
+          // Filter by subject if specified
+          if (subjectId && attempt.questions?.subject_id !== subjectId) {
+            console.log('[useReports] ⏭️ Pulando questão - subject_id:', attempt.questions?.subject_id, '!==', subjectId)
+            return
+          }
+
+          filteredCount++
           totalQuestions++
           if (attempt.is_correct) {
             totalCorrect++
@@ -326,15 +332,22 @@ export const useReports = () => {
             qData.correct++
           }
         })
+        console.log('[useReports] ✅ Questões processadas:', filteredCount, 'de', questionAttempts.length)
+        console.log('[useReports] 📊 Total de questões:', totalQuestions, 'Corretas:', totalCorrect)
       }
 
       // Processar exercícios IA salvos
       if (savedExercises && savedExercises.length > 0) {
-        console.log('[useReports] 📊 Processando', savedExercises.length, 'exercícios...')
+        console.log('[useReports] 📊 Processando', savedExercises.length, 'exercícios IA...')
         savedExercises.forEach((exercise: any) => {
           // Adicionar questões dos exercícios ao total geral
-          totalQuestions += exercise.total_questions || 0
-          totalCorrect += exercise.correct_answers || 0
+          const questionsToAdd = exercise.total_questions || 0
+          const correctToAdd = exercise.correct_answers || 0
+
+          console.log('[useReports] 📝 Exercício IA:', exercise.title, '- Questões:', questionsToAdd, 'Corretas:', correctToAdd)
+
+          totalQuestions += questionsToAdd
+          totalCorrect += correctToAdd
 
           // Adicionar à lista de exercícios (SEM depender de subjects por enquanto)
           exercisesList.push({
@@ -368,6 +381,12 @@ export const useReports = () => {
       const dailyAvg = totalMinutes / days
       const successRate = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0
       const weeklyTrend = calculateTrend(totalMinutes, previousTotalMinutes)
+
+      console.log('[useReports] 🎯 MÉTRICAS FINAIS:')
+      console.log('[useReports] 📊 Total de Questões:', totalQuestions)
+      console.log('[useReports] ✅ Total Corretas:', totalCorrect)
+      console.log('[useReports] 🎯 Taxa de Acerto:', successRate, '%')
+      console.log('[useReports] 📚 Matérias processadas:', subjectMap.size)
 
       // Progresso da meta
       let goalProgress = 0
