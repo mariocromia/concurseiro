@@ -415,8 +415,12 @@ const start = () => {
     showToast('Selecione uma matéria para iniciar', 'error')
     return
   }
-  startTimer(selectedSubjectId.value)
-  showToast('Sessão de estudo iniciada!', 'success')
+  startTimer(
+    selectedSubjectId.value,
+    startForm.value.studyType,
+    startForm.value.plannedQuestions || undefined
+  )
+  showToast(`Sessão de ${startForm.value.studyType} iniciada!`, 'success')
   closeStartModal()
 }
 

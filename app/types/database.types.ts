@@ -76,6 +76,8 @@ export interface Database {
           ended_at: string | null
           duration: number | null
           notes: string | null
+          study_type: 'conteudo' | 'questoes' | 'revisao'
+          planned_questions: number | null
           created_at: string
         }
         Insert: {
@@ -86,6 +88,8 @@ export interface Database {
           ended_at?: string | null
           duration?: number | null
           notes?: string | null
+          study_type?: 'conteudo' | 'questoes' | 'revisao'
+          planned_questions?: number | null
           created_at?: string
         }
         Update: {
@@ -96,6 +100,8 @@ export interface Database {
           ended_at?: string | null
           duration?: number | null
           notes?: string | null
+          study_type?: 'conteudo' | 'questoes' | 'revisao'
+          planned_questions?: number | null
           created_at?: string
         }
       }

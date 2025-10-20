@@ -12,6 +12,8 @@ export const useStudyTimer = () => {
     elapsed: 0,
     subjectId: '' as string,
     startedAt: null as Date | null,
+    studyType: 'conteudo' as 'conteudo' | 'questoes' | 'revisao',
+    plannedQuestions: null as number | null,
   }))
 
   const now = useState('study-timer-now', () => Date.now())
@@ -39,13 +41,15 @@ export const useStudyTimer = () => {
     }, 1000)
   }
 
-  const startTimer = (subjectId: string) => {
+  const startTimer = (subjectId: string, studyType: 'conteudo' | 'questoes' | 'revisao' = 'conteudo', plannedQuestions?: number) => {
     if (timer.value.isRunning) {
       console.log('⏱️ Timer já está rodando')
       return
     }
-    console.log('⏱️ Iniciando timer para subject:', subjectId)
+    console.log('⏱️ Iniciando timer para subject:', subjectId, 'tipo:', studyType)
     timer.value.subjectId = subjectId
+    timer.value.studyType = studyType
+    timer.value.plannedQuestions = plannedQuestions || null
     timer.value.isRunning = true
     timer.value.isPaused = false
     timer.value.startTime = Date.now()
@@ -116,11 +120,17 @@ export const useStudyTimer = () => {
       console.log('⏱️ Interval encerrado e limpo')
     }
 
+    // Salvar studyType e plannedQuestions antes do reset
+    const studyType = timer.value.studyType
+    const plannedQuestions = timer.value.plannedQuestions
+
     // Reset state
     timer.value.isRunning = false
     timer.value.isPaused = false
     timer.value.startTime = 0
     timer.value.elapsed = 0
+    timer.value.studyType = 'conteudo'
+    timer.value.plannedQuestions = null
 
     if (!user.value) return { duration }
 
@@ -138,6 +148,8 @@ export const useStudyTimer = () => {
       ended_at: endedAt.toISOString(),
       duration,
       notes: notes || null,
+      study_type: studyType,
+      planned_questions: plannedQuestions,
     })
     if (error) throw error
 

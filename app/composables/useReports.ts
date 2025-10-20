@@ -259,7 +259,7 @@ export const useReports = () => {
 
       // Processar sessões atuais (se houver)
       if (sessions && sessions.length > 0) {
-        sessions.forEach(session => {
+        sessions.forEach((session: any) => {
           // Converter duração de segundos para minutos
           const minutes = Math.floor((session.duration || 0) / 60)
           totalMinutes += minutes
@@ -289,8 +289,23 @@ export const useReports = () => {
           subjectData.minutes += minutes
           subjectData.sessions++
 
-          // NOTA: study_sessions não tem campos de questões ou tipos de estudo
-          // Essas features ficam para study_schedules (calendário)
+          // ✅ NOVO: Processar tipos de estudo e questões
+          const studyType = session.study_type || 'conteudo'
+          if (studyType === 'conteudo') {
+            typeMinutes.conteudo += minutes
+            typeSessions.conteudo++
+          } else if (studyType === 'questoes') {
+            typeMinutes.questoes += minutes
+            typeSessions.questoes++
+            // Contar questões da sessão
+            if (session.completed_questions) {
+              totalQuestions += session.completed_questions
+              totalCorrect += session.correct_questions || 0
+            }
+          } else if (studyType === 'revisao') {
+            typeMinutes.revisao += minutes
+            typeSessions.revisao++
+          }
         })
       }
 
@@ -433,15 +448,12 @@ export const useReports = () => {
         }).sort((a, b) => b.total - a.total),
         exercisesBySubject: exercisesList,
         studyTypes: {
-          // NOTA: study_sessions não tem tipos de estudo
-          // Para ter essa funcionalidade, seria necessário adicionar um campo 'type' na tabela
-          // Por enquanto, retornamos o total em 'conteudo' já que timer não especifica tipo
-          conteudo: totalMinutes,
-          conteudoSessions: sessions?.length || 0,
-          questoes: 0,
-          questoesSessions: 0,
-          revisao: 0,
-          revisaoSessions: 0
+          conteudo: typeMinutes.conteudo,
+          conteudoSessions: typeSessions.conteudo,
+          questoes: typeMinutes.questoes,
+          questoesSessions: typeSessions.questoes,
+          revisao: typeMinutes.revisao,
+          revisaoSessions: typeSessions.revisao
         },
         dailyData: Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
         revisionStats: {
@@ -476,6 +488,13 @@ export const useReports = () => {
       const mins = item.minutes % 60
       csvRows.push(`${item.subject},${hours}h ${mins}min,${item.sessions},${item.percentage}%`)
     })
+
+    // Tipos de Estudo
+    csvRows.push('\nTempo por Tipo de Estudo')
+    csvRows.push('Tipo,Tempo (minutos),Sessões')
+    csvRows.push(`Conteúdo,${data.studyTypes.conteudo},${data.studyTypes.conteudoSessions}`)
+    csvRows.push(`Questões,${data.studyTypes.questoes},${data.studyTypes.questoesSessions}`)
+    csvRows.push(`Revisão,${data.studyTypes.revisao},${data.studyTypes.revisaoSessions}`)
 
     // Questões por matéria
     if (data.questionsBySubject.length > 0) {
