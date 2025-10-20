@@ -104,44 +104,66 @@ export const useReports = () => {
   }
 
   const loadReportData = async (period: string = '30days'): Promise<ReportData | null> => {
-    if (!user.value) return null
+    // ✅ CORREÇÃO: Usar getSession() ao invés de user.value.id
+    const { data: sessionData } = await supabase.auth.getSession()
+    const userId = sessionData?.session?.user?.id
+
+    if (!userId) {
+      console.error('[useReports] Usuário não autenticado')
+      return null
+    }
+
+    console.log('[useReports] Carregando dados para user:', userId)
 
     return await withLoading(async () => {
       const { startDate, endDate, previousStartDate, previousEndDate } = getDateRange(period)
+      console.log('[useReports] Período:', { startDate, endDate })
 
       // Buscar sessões do período atual (da tabela study_sessions)
-      const { data: sessions } = await supabase
+      const { data: sessions, error: sessionsError } = await supabase
         .from('study_sessions')
         .select('*, subjects(name, color)')
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
         .gte('started_at', startDate)
         .lte('started_at', endDate)
         .order('started_at', { ascending: true })
+
+      if (sessionsError) {
+        console.error('[useReports] Erro ao buscar sessões:', sessionsError)
+      } else {
+        console.log('[useReports] Sessions encontradas:', sessions?.length || 0)
+      }
 
       // Buscar sessões do período anterior para comparação
       const { data: previousSessions } = await supabase
         .from('study_sessions')
         .select('duration')
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
         .gte('started_at', previousStartDate)
         .lt('started_at', previousEndDate)
 
       // Buscar tentativas de questões do período atual
-      const { data: questionAttempts } = await supabase
+      const { data: questionAttempts, error: questionsError } = await supabase
         .from('question_attempts')
         .select(`
           *,
           questions(subject_id, subjects(name, color))
         `)
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
         .gte('created_at', startDate)
         .lte('created_at', endDate)
+
+      if (questionsError) {
+        console.error('[useReports] Erro ao buscar questões:', questionsError)
+      } else {
+        console.log('[useReports] Questões encontradas:', questionAttempts?.length || 0)
+      }
 
       // Buscar estatísticas de revisões
       const { data: revisions } = await supabase
         .from('revisions')
         .select('status')
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
         .gte('scheduled_date', startDate)
         .lte('scheduled_date', endDate)
 
@@ -149,7 +171,7 @@ export const useReports = () => {
       const { data: goal } = await supabase
         .from('study_goals')
         .select('daily_hours, target_date')
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
         .single()
 
       // Não retornar vazio se não houver sessões, pois pode haver questões

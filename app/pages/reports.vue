@@ -592,8 +592,14 @@ const handleExport = () => {
 }
 
 // Carregar dados ao montar
-onMounted(async () => {
-  await refreshData()
+const user = useSupabaseUser()
+
+// Aguardar usuário estar disponível antes de carregar dados
+watchEffect(() => {
+  if (user.value?.id && !reportData.value) {
+    console.log('✅ [Reports] Usuário disponível, carregando dados...')
+    refreshData()
+  }
 })
 </script>
 
