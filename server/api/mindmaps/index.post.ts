@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 import { createMindmapSchema, validateBody } from '../../utils/validation-schemas'
 
 // POST /api/mindmaps - Criar novo mapa mental
@@ -9,10 +9,11 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient(event)
     console.log('[CREATE-MINDMAP] Supabase client obtido')
 
-    const user = await serverSupabaseUser(event)
+    // Usar getUser() ao invés de serverSupabaseUser() para garantir que o user.id existe
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     console.log('[CREATE-MINDMAP] User:', user ? user.id : 'Não autenticado')
 
-    if (!user) {
+    if (authError || !user) {
       throw createError({
         statusCode: 401,
         message: 'Usuário não autenticado'

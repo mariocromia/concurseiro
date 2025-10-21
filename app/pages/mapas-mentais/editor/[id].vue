@@ -32,6 +32,19 @@
 
       <div class="flex items-center gap-2">
         <button
+          @click="saveNodes"
+          :disabled="saving"
+          class="px-4 py-2 bg-green-600 text-white rounded-claude-md hover:bg-green-500 transition flex items-center gap-2 disabled:opacity-50"
+        >
+          <svg v-if="saving" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+          {{ saving ? 'Salvando...' : 'Salvar' }}
+        </button>
+        <button
           @click="addNode"
           class="px-4 py-2 bg-primary-600 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-500 transition flex items-center gap-2"
         >
@@ -137,7 +150,7 @@
             </div>
           </div>
 
-          <div>
+          <div class="space-y-2">
             <button
               @click="addChildNode"
               class="w-full py-2 bg-primary-600 text-claude-text dark:text-white rounded-claude-md hover:bg-primary-500 transition flex items-center justify-center gap-2"
@@ -147,6 +160,7 @@
               </svg>
               Adicionar Filho
             </button>
+            <p class="text-xs text-center theme-text-tertiary">💡 Lembre-se de clicar em "Salvar" após fazer alterações</p>
           </div>
         </div>
       </div>
@@ -191,30 +205,54 @@ const { onNodeClick: onVueFlowNodeClick, onPaneClick: onVueFlowPaneClick, addNod
 
 // Carregar mapa
 const loadMindmap = async () => {
+  console.log('[EDITOR] === INICIANDO CARREGAMENTO DO MAPA ===')
+  console.log('[EDITOR] ID do mapa:', id)
+
   loading.value = true
   try {
     const { data, error } = await useFetch(`/api/mindmaps/${id}`)
 
+    console.log('[EDITOR] Resposta recebida:')
+    console.log('[EDITOR] - error:', error.value)
+    console.log('[EDITOR] - data:', data.value)
+
     if (error.value) {
+      console.error('[EDITOR] Erro na requisição:', error.value)
       throw new Error(error.value.message || 'Erro ao carregar')
     }
 
     if (data.value?.success) {
       const mindmap = data.value.data
+      console.log('[EDITOR] Mindmap data:', mindmap)
+      console.log('[EDITOR] Título:', mindmap.title)
+      console.log('[EDITOR] Quantidade de nós:', mindmap.nodes?.length || 0)
+
       title.value = mindmap.title
 
+      if (!mindmap.nodes || mindmap.nodes.length === 0) {
+        console.warn('[EDITOR] ⚠️ Nenhum nó encontrado no mapa mental!')
+        elements.value = []
+        return
+      }
+
       // Converter nós para formato Vue Flow
-      const nodes = mindmap.nodes.map((node: any) => ({
-        id: node.id,
-        type: 'custom',
-        position: { x: node.position_x || 0, y: node.position_y || 0 },
-        data: {
+      console.log('[EDITOR] Convertendo nós para Vue Flow...')
+      const nodes = mindmap.nodes.map((node: any) => {
+        console.log('[EDITOR] Nó:', { id: node.id, text: node.text, position_x: node.position_x, position_y: node.position_y })
+        return {
           id: node.id,
-          text: node.text,
-          color: node.color || '#ca643f',
-          parent_id: node.parent_id
+          type: 'custom',
+          position: { x: node.position_x || 0, y: node.position_y || 0 },
+          data: {
+            id: node.id,
+            text: node.text,
+            color: node.color || '#ca643f',
+            parent_id: node.parent_id
+          }
         }
-      }))
+      })
+
+      console.log('[EDITOR] Nós convertidos:', nodes.length)
 
       // Criar edges (conexões entre nós)
       const edges = mindmap.nodes
@@ -228,13 +266,19 @@ const loadMindmap = async () => {
           style: { stroke: '#6366f1', strokeWidth: 2 }
         }))
 
+      console.log('[EDITOR] Edges criadas:', edges.length)
+
       elements.value = [...nodes, ...edges] as any
+      console.log('[EDITOR] Elements total:', elements.value.length)
+      console.log('[EDITOR] ✅ Mapa carregado com sucesso!')
     }
   } catch (error: any) {
-    console.error('Erro ao carregar:', error)
+    console.error('[EDITOR] === ERRO AO CARREGAR MAPA ===')
+    console.error('[EDITOR]', error)
     alert('Erro ao carregar mapa mental')
   } finally {
     loading.value = false
+    console.log('[EDITOR] === FIM DO CARREGAMENTO ===')
   }
 }
 
@@ -252,6 +296,7 @@ const saveTitle = async () => {
 
 // Salvar nós
 const saveNodes = async () => {
+  console.log('[EDITOR] === SALVANDO MAPA MENTAL ===')
   saving.value = true
   try {
     const nodes = elements.value
@@ -265,15 +310,20 @@ const saveNodes = async () => {
         color: node.data.color
       }))
 
+    console.log('[EDITOR] Salvando', nodes.length, 'nós...')
+
     await $fetch(`/api/mindmaps/${id}/nodes`, {
       method: 'POST',
       body: { nodes }
     })
 
+    console.log('[EDITOR] ✅ Mapa salvo com sucesso!')
     lastSaved.value = 'agora mesmo'
     setTimeout(() => { lastSaved.value = '' }, 3000)
-  } catch (error) {
-    console.error('Erro ao salvar:', error)
+    alert('✅ Mapa mental salvo com sucesso!')
+  } catch (error: any) {
+    console.error('[EDITOR] ❌ Erro ao salvar:', error)
+    alert(`❌ Erro ao salvar: ${error.message || 'Erro desconhecido'}`)
   } finally {
     saving.value = false
   }
@@ -305,7 +355,7 @@ const addNode = () => {
   }
 
   addNodes([newNode])
-  debouncedSave()
+  // Auto-save desabilitado - use o botão Salvar
 }
 
 // Adicionar nó filho
@@ -339,7 +389,7 @@ const addChildNode = () => {
 
   addNodes([newNode])
   addEdges([newEdge])
-  debouncedSave()
+  // Auto-save desabilitado - use o botão Salvar
 }
 
 // Deletar nó selecionado
@@ -348,7 +398,7 @@ const deleteSelectedNode = () => {
 
   removeNodes([selectedNode.value.id])
   selectedNode.value = null
-  debouncedSave()
+  // Auto-save desabilitado - use o botão Salvar
 }
 
 // Mudar cor do nó
@@ -357,7 +407,7 @@ const changeNodeColor = (color: string) => {
 
   selectedNode.value.data.color = color
   updateNode(selectedNode.value.id, { data: selectedNode.value.data })
-  debouncedSave()
+  // Auto-save desabilitado - use o botão Salvar
 }
 
 // Edição inline
@@ -370,7 +420,7 @@ const startEditing = (nodeId: string) => {
 
 const stopEditing = () => {
   editingNodeId.value = null
-  debouncedSave()
+  // Auto-save desabilitado - use o botão Salvar
 }
 
 // Eventos
@@ -383,7 +433,7 @@ const onPaneClick = () => {
 }
 
 const handleNodesChange = (changes: any) => {
-  debouncedSave()
+  // Auto-save desabilitado - use o botão Salvar
 }
 
 const handleEdgesChange = (changes: any) => {

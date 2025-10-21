@@ -1,11 +1,13 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 
 // POST /api/mindmaps/:id/nodes - Adicionar/atualizar nós do mapa mental
 export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event)
-  const user = await serverSupabaseUser(event)
 
-  if (!user) {
+  // Usar getUser() ao invés de serverSupabaseUser() para garantir que o user.id existe
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
     throw createError({
       statusCode: 401,
       message: 'Usuário não autenticado'

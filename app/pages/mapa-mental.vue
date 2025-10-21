@@ -4,82 +4,154 @@
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold theme-text-primary mb-2">Mapas Mentais</h1>
-        <p class="theme-text-secondary">Organize seus conhecimentos visualmente</p>
+        <p class="theme-text-secondary">Organize seus conhecimentos visualmente com inteligência artificial</p>
       </div>
 
-      <!-- Aviso de Setup -->
-      <div v-if="showSetupWarning" class="mb-6 theme-bg-secondary border border-yellow-500/50 rounded-claude-lg p-6">
-        <div class="flex items-start gap-4">
-          <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <div class="flex-1">
-            <h3 class="text-lg font-semibold text-yellow-500 mb-2">Configuração Necessária</h3>
-            <p class="theme-text-secondary text-sm mb-4">
-              As tabelas do banco de dados precisam ser criadas. Execute o script SQL no Supabase:
-            </p>
-            <div class="bg-dark-900/50 rounded-claude-md p-4 mb-4 overflow-x-auto">
-              <code class="text-xs text-claude-text-secondary dark:text-gray-300 whitespace-pre">scripts/create-mindmaps-tables.sql</code>
+      <!-- Two Cards: AI Creation + Manual Creation -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Card 1: Criar com IA (PRO) -->
+        <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-8 hover:border-primary-500 transition-all cursor-pointer group" @click="openAIModal">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-claude-lg flex items-center justify-center">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
             </div>
-            <button
-              @click="showSetupWarning = false"
-              class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-dark-900 rounded-claude-md transition-colors text-sm font-medium"
-            >
-              Já executei o script
-            </button>
+            <span class="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30">
+              GRÁTIS
+            </span>
           </div>
-        </div>
-      </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-claude-primary dark:border-primary-500"></div>
-      </div>
+          <h3 class="text-2xl font-bold theme-text-primary mb-3 group-hover:text-primary-500 transition-colors">
+            Criar com IA
+          </h3>
 
-      <!-- Error -->
-      <div v-else-if="error" class="theme-bg-secondary border border-red-500/50 rounded-claude-lg p-8 text-center">
-        <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-red-400 mb-2">Erro ao carregar</h3>
-        <p class="theme-text-secondary mb-4">{{ error }}</p>
-        <button
-          @click="loadMindmaps"
-          class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors inline-flex items-center gap-2"
-        >
-          Tentar Novamente
-        </button>
-      </div>
+          <p class="theme-text-secondary mb-6 leading-relaxed">
+            Deixe a inteligência artificial analisar seu caderno e gerar automaticamente um mapa mental completo e estruturado.
+          </p>
 
-      <!-- Lista de Mapas Mentais -->
-      <div v-else-if="!selectedMindmap">
-        <div class="mb-6 flex justify-end">
-          <button
-            @click="createNewMindmap"
-            class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors flex items-center gap-2"
-          >
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-2 text-sm theme-text-tertiary">
+              <svg class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Análise automática do conteúdo
+            </li>
+            <li class="flex items-start gap-2 text-sm theme-text-tertiary">
+              <svg class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Estrutura hierárquica inteligente
+            </li>
+            <li class="flex items-start gap-2 text-sm theme-text-tertiary">
+              <svg class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Cores e conexões automáticas
+            </li>
+          </ul>
+
+          <button class="w-full px-6 py-3 bg-gradient-to-r from-primary-500 to-purple-600 hover:from-primary-600 hover:to-purple-700 text-white rounded-claude-md transition-all font-semibold flex items-center justify-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Novo Mapa Mental
+            Gerar com IA
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Card 2: Criar do Zero -->
+        <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-8 hover:border-primary-500 transition-all cursor-pointer group" @click="createManualMindmap">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-claude-lg flex items-center justify-center">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <span class="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30">
+              GRÁTIS
+            </span>
+          </div>
+
+          <h3 class="text-2xl font-bold theme-text-primary mb-3 group-hover:text-primary-500 transition-colors">
+            Criar do Zero
+          </h3>
+
+          <p class="theme-text-secondary mb-6 leading-relaxed">
+            Crie seu mapa mental manualmente com total controle sobre a estrutura, cores e organização dos conceitos.
+          </p>
+
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-2 text-sm theme-text-tertiary">
+              <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Editor visual interativo
+            </li>
+            <li class="flex items-start gap-2 text-sm theme-text-tertiary">
+              <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Personalização completa
+            </li>
+            <li class="flex items-start gap-2 text-sm theme-text-tertiary">
+              <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Arrastar e soltar nós
+            </li>
+          </ul>
+
+          <button class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-claude-md transition-all font-semibold flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Criar Mapa Mental
+          </button>
+        </div>
+      </div>
+
+      <!-- Biblioteca de Mapas Mentais -->
+      <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold theme-text-primary">Meus Mapas Mentais</h2>
+          <button @click="loadMindmaps" class="p-2 hover:bg-primary-500/20 rounded-claude-md transition-colors">
+            <svg class="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex items-center justify-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        </div>
+
+        <!-- Error -->
+        <div v-else-if="error" class="text-center py-12">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="theme-text-secondary mb-4">{{ error }}</p>
+          <button @click="loadMindmaps" class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-claude-md transition-colors">
+            Tentar Novamente
+          </button>
+        </div>
+
+        <!-- Grid de Mapas -->
+        <div v-else-if="mindmaps.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
             v-for="mindmap in mindmaps"
             :key="mindmap.id"
-            @click="openMindmap(mindmap.id)"
-            class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6 cursor-pointer hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500 transition-all group"
+            class="theme-bg-tertiary border theme-border-primary rounded-claude-lg p-6 cursor-pointer hover:border-primary-500 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="flex-1">
-                <h3 class="text-lg font-semibold theme-text-primary group-hover:text-primary-500 transition-colors">
+              <div class="flex-1" @click="navigateToEditor(mindmap.id)">
+                <h3 class="text-lg font-semibold theme-text-primary group-hover:text-primary-500 transition-colors mb-1">
                   {{ mindmap.title }}
                 </h3>
-                <p class="text-sm theme-text-tertiary mt-1">
+                <p class="text-sm theme-text-tertiary">
                   {{ mindmap.description || 'Sem descrição' }}
                 </p>
               </div>
@@ -96,154 +168,107 @@
               Atualizado em {{ formatDate(mindmap.updated_at) }}
             </div>
           </div>
-
-          <!-- Empty State -->
-          <div v-if="mindmaps.length === 0" class="col-span-full">
-            <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-12 text-center">
-              <div class="w-20 h-20 bg-claude-primary/20 dark:bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-10 h-10 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold theme-text-primary mb-2">Nenhum mapa mental criado</h3>
-              <p class="theme-text-secondary mb-4">Crie seu primeiro mapa mental para começar a organizar suas ideias</p>
-              <button
-                @click="createNewMindmap"
-                class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors inline-flex items-center gap-2"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Criar Mapa Mental
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Editor do Mapa Mental (versão simplificada) -->
-      <div v-else class="space-y-4">
-        <!-- Toolbar -->
-        <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-4 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <button
-              @click="closeMindmap"
-              class="p-2 hover:bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md transition-colors"
-            >
-              <svg class="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <input
-              v-model="currentMindmapData.title"
-              @blur="saveMindmapInfo"
-              class="text-xl font-bold theme-text-primary bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary-500 rounded px-2 py-1"
-              placeholder="Título do mapa mental"
-            />
-          </div>
-          <div class="flex items-center gap-2">
-            <span v-if="saving" class="text-sm theme-text-tertiary flex items-center gap-2">
-              <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Salvando...
-            </span>
-            <span v-else class="text-sm theme-text-tertiary">✓ Salvo</span>
-          </div>
         </div>
 
-        <!-- Lista de Nós -->
-        <div class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold theme-text-primary">Nós do Mapa Mental</h3>
-            <button
-              @click="addNode"
-              class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors flex items-center gap-2 text-sm"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Adicionar Nó
-            </button>
+        <!-- Empty State -->
+        <div v-else class="text-center py-12">
+          <div class="w-20 h-20 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
           </div>
-
-          <div class="space-y-3">
-            <div
-              v-for="node in nodes"
-              :key="node.id"
-              class="flex items-center gap-3 p-4 rounded-claude-md border theme-border-primary hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500 transition-colors"
-            >
-              <div
-                class="w-4 h-4 rounded-full flex-shrink-0"
-                :style="{ backgroundColor: node.color }"
-              ></div>
-              <div class="flex-1">
-                <p class="theme-text-primary">{{ node.text }}</p>
-              </div>
-              <button
-                @click="editNode(node)"
-                class="p-2 hover:bg-claude-primary/20 dark:bg-primary-500/20 rounded-claude-md transition-colors"
-              >
-                <svg class="w-4 h-4 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button
-                @click="deleteNodeConfirm(node.id)"
-                class="p-2 hover:bg-red-500/20 rounded-claude-md transition-colors"
-              >
-                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-
-            <div v-if="nodes.length === 0" class="text-center py-8 theme-text-tertiary">
-              Nenhum nó criado. Clique em "Adicionar Nó" para começar.
-            </div>
-          </div>
+          <h3 class="text-xl font-semibold theme-text-primary mb-2">Nenhum mapa mental criado</h3>
+          <p class="theme-text-secondary">Crie seu primeiro mapa mental usando IA ou do zero</p>
         </div>
       </div>
     </main>
 
-    <!-- Modal para Adicionar/Editar Nó -->
-    <div v-if="showNodeEditor" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" @click="showNodeEditor = false">
-      <div @click.stop class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6 w-full max-w-md">
-        <h3 class="text-xl font-bold theme-text-primary mb-4">
-          {{ editingNode.id ? 'Editar Nó' : 'Novo Nó' }}
-        </h3>
-        <div class="space-y-4">
+    <!-- Modal: Configuração de IA -->
+    <div v-if="showAIModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click="closeAIModal">
+      <div @click.stop class="theme-bg-secondary border theme-border-primary rounded-claude-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-primary-500">🚀 NOVA VERSÃO - Configurar Geração com IA</h3>
+          <button @click="closeAIModal" class="p-2 hover:bg-dark-700 rounded-claude-md transition-colors">
+            <svg class="w-6 h-6 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Loading de configurações -->
+        <div v-if="loadingConfig" class="flex items-center justify-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        </div>
+
+        <!-- Formulário -->
+        <div v-else class="space-y-6">
+          <!-- Caderno (Subject) -->
           <div>
-            <label class="block text-sm font-medium theme-text-secondary mb-2">Texto</label>
+            <label class="block text-sm font-medium theme-text-secondary mb-2">
+              Caderno <span class="text-red-400">*</span>
+            </label>
+            <select
+              v-model="aiConfig.subjectId"
+              @change="onSubjectChange"
+              class="w-full px-4 py-3 theme-bg-tertiary theme-text-primary border theme-border-primary rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">Selecione um caderno</option>
+              <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
+                {{ subject.name }}
+              </option>
+            </select>
+            <p class="text-xs theme-text-tertiary mt-1">Selecione o caderno que contém o capítulo desejado</p>
+          </div>
+
+          <!-- Capítulo (Chapter) -->
+          <div>
+            <label class="block text-sm font-medium theme-text-secondary mb-2">
+              Capítulo <span class="text-red-400">*</span>
+            </label>
+            <select
+              v-model="aiConfig.chapterId"
+              :disabled="!aiConfig.subjectId || loadingChapters"
+              class="w-full px-4 py-3 theme-bg-tertiary theme-text-primary border theme-border-primary rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+            >
+              <option value="">{{ loadingChapters ? 'Carregando...' : 'Selecione um capítulo' }}</option>
+              <option v-for="chapter in chapters" :key="chapter.id" :value="chapter.id">
+                {{ chapter.title }}
+              </option>
+            </select>
+            <p class="text-xs theme-text-tertiary mt-1">O mapa mental será gerado a partir do conteúdo deste capítulo</p>
+          </div>
+
+          <!-- Título do Mapa -->
+          <div>
+            <label class="block text-sm font-medium theme-text-secondary mb-2">
+              Título do Mapa Mental <span class="text-red-400">*</span>
+            </label>
             <input
-              v-model="editingNode.text"
-              class="w-full px-4 py-2 theme-bg-tertiary theme-text-primary border theme-border-primary rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Digite o texto do nó"
+              v-model="aiConfig.title"
+              type="text"
+              class="w-full px-4 py-3 theme-bg-tertiary theme-text-primary border theme-border-primary rounded-claude-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Ex: Estruturas de Dados - Árvores"
             />
           </div>
-          <div>
-            <label class="block text-sm font-medium theme-text-secondary mb-2">Cor</label>
-            <div class="flex gap-2 flex-wrap">
-              <button
-                v-for="color in colors"
-                :key="color"
-                @click="editingNode.color = color"
-                class="w-10 h-10 rounded-claude-md border-2 transition-all"
-                :class="editingNode.color === color ? 'border-white scale-110' : 'border-transparent'"
-                :style="{ backgroundColor: color }"
-              />
-            </div>
-          </div>
-          <div class="flex gap-2 pt-4">
+
+          <!-- Botões -->
+          <div class="flex gap-3 pt-4">
             <button
-              @click="saveNode"
-              class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-claude-text dark:text-white rounded-claude-md transition-colors"
+              @click="generateWithAI"
+              :disabled="!canGenerate || generatingAI"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-primary-500 to-purple-600 hover:from-primary-600 hover:to-purple-700 text-white rounded-claude-md transition-all font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Salvar
+              <svg v-if="generatingAI" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              {{ generatingAI ? 'Gerando...' : 'Gerar Mapa Mental' }}
             </button>
             <button
-              @click="showNodeEditor = false"
-              class="px-4 py-2 theme-bg-tertiary theme-text-secondary hover:bg-dark-700 rounded-claude-md transition-colors"
+              @click="closeAIModal"
+              class="px-6 py-3 theme-bg-tertiary theme-text-secondary hover:bg-dark-700 rounded-claude-md transition-colors"
             >
               Cancelar
             </button>
@@ -259,18 +284,33 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const mindmaps = ref<any[]>([])
-const selectedMindmap = ref<string | null>(null)
-const currentMindmapData = ref<any>({})
-const nodes = ref<any[]>([])
-const loading = ref(true)
-const saving = ref(false)
-const error = ref<string | null>(null)
-const showNodeEditor = ref(false)
-const editingNode = ref<any>({})
-const showSetupWarning = ref(true)
+const router = useRouter()
+const client = useSupabaseClient()
 
-const colors = ['#ca643f', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+// State
+const mindmaps = ref<any[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+// AI Modal
+const showAIModal = ref(false)
+const loadingConfig = ref(false)
+const loadingChapters = ref(false)
+const generatingAI = ref(false)
+
+const subjects = ref<any[]>([])
+const chapters = ref<any[]>([])
+
+const aiConfig = ref({
+  subjectId: '',
+  chapterId: '',
+  title: ''
+})
+
+// Computed
+const canGenerate = computed(() => {
+  return aiConfig.value.subjectId && aiConfig.value.chapterId && aiConfig.value.title.trim()
+})
 
 // Carregar mapas mentais
 const loadMindmaps = async () => {
@@ -279,59 +319,205 @@ const loadMindmaps = async () => {
     error.value = null
     const response = await $fetch('/api/mindmaps')
     mindmaps.value = response.data || []
-    showSetupWarning.value = false
   } catch (err: any) {
     console.error('Erro ao carregar mapas mentais:', err)
-    error.value = err.message || 'Erro ao carregar mapas mentais. Verifique se as tabelas foram criadas no Supabase.'
+    error.value = err.message || 'Erro ao carregar mapas mentais'
   } finally {
     loading.value = false
   }
 }
 
-// Criar novo mapa mental
-const createNewMindmap = async () => {
+// Abrir modal de IA
+const openAIModal = async () => {
+  showAIModal.value = true
+  loadingConfig.value = true
+
+  try {
+    // Carregar todas as matérias (subjects)
+    const { data: subjectsData } = await client
+      .from('subjects')
+      .select('id, name')
+      .order('name')
+
+    subjects.value = subjectsData || []
+    console.log('[FRONTEND] Matérias carregadas:', subjects.value.length)
+  } catch (err) {
+    console.error('Erro ao carregar matérias:', err)
+  } finally {
+    loadingConfig.value = false
+  }
+}
+
+// Fechar modal de IA
+const closeAIModal = () => {
+  showAIModal.value = false
+  aiConfig.value = {
+    subjectId: '',
+    chapterId: '',
+    title: ''
+  }
+  chapters.value = []
+}
+
+// Quando mudar matéria (subject)
+const onSubjectChange = async () => {
+  console.log('[FRONTEND] === onSubjectChange CHAMADO ===')
+  console.log('[FRONTEND] Matéria selecionada ID:', aiConfig.value.subjectId)
+
+  aiConfig.value.chapterId = ''
+  chapters.value = []
+
+  if (!aiConfig.value.subjectId) {
+    console.warn('[FRONTEND] subjectId está vazio, retornando...')
+    return
+  }
+
+  loadingChapters.value = true
+  try {
+    console.log('[FRONTEND] Buscando capítulos da matéria:', aiConfig.value.subjectId)
+    const { data, error } = await client
+      .from('chapters')
+      .select('id, title')
+      .eq('subject_id', aiConfig.value.subjectId)
+      .order('title')
+
+    console.log('[FRONTEND] Resultado da busca:')
+    console.log('[FRONTEND] - data:', data)
+    console.log('[FRONTEND] - error:', error)
+    console.log('[FRONTEND] - Quantidade de capítulos:', data?.length || 0)
+
+    chapters.value = data || []
+
+    if (data && data.length > 0) {
+      console.log('[FRONTEND] Capítulos encontrados:', data.map((c: any) => ({ id: c.id, title: c.title })))
+    } else {
+      console.warn('[FRONTEND] Nenhum capítulo encontrado para esta matéria')
+    }
+  } catch (err) {
+    console.error('[FRONTEND] Erro ao carregar capítulos:', err)
+  } finally {
+    loadingChapters.value = false
+    console.log('[FRONTEND] === FIM onSubjectChange ===')
+  }
+}
+
+// Gerar com IA
+const generateWithAI = async () => {
+  console.log('[FRONTEND] === INICIANDO GERAÇÃO COM IA ===')
+  console.log('[FRONTEND] canGenerate:', canGenerate.value)
+  console.log('[FRONTEND] aiConfig completo:', JSON.stringify(aiConfig.value, null, 2))
+
+  if (!canGenerate.value) {
+    console.error('[FRONTEND] ❌ Validação falhou! canGenerate = false')
+    alert('Por favor, preencha todos os campos obrigatórios:\n- Caderno\n- Capítulo\n- Título')
+    return
+  }
+
+  generatingAI.value = true
+  try {
+    // Verificar se o capítulo tem conteúdo antes de enviar
+    console.log('[FRONTEND] Verificando se o capítulo tem páginas com conteúdo...')
+
+    if (!aiConfig.value.chapterId) {
+      alert('⚠️ Por favor, selecione um capítulo antes de gerar o mapa mental.')
+      return
+    }
+
+    const { data: pages, error: pagesError } = await client
+      .from('pages')
+      .select('id, title, content')
+      .eq('chapter_id', aiConfig.value.chapterId)
+
+    if (pagesError) {
+      console.error('[FRONTEND] Erro ao verificar páginas:', pagesError)
+      throw new Error(`Erro ao verificar o conteúdo do capítulo: ${pagesError.message}`)
+    }
+
+    console.log('[FRONTEND] Páginas encontradas:', pages?.length || 0)
+
+    if (!pages || pages.length === 0) {
+      alert('⚠️ O capítulo selecionado não possui páginas.\n\nPor favor, adicione conteúdo ao capítulo antes de gerar o mapa mental.')
+      return
+    }
+
+    // Verificar se as páginas têm conteúdo
+    const pagesWithContent = pages.filter((p: any) => p.content && p.content.trim().length > 0)
+    console.log('[FRONTEND] Páginas com conteúdo:', pagesWithContent.length)
+
+    if (pagesWithContent.length === 0) {
+      alert('⚠️ O capítulo selecionado não possui conteúdo de texto.\n\nPor favor, adicione texto às páginas do capítulo antes de gerar o mapa mental.')
+      return
+    }
+
+    // Verificar tamanho do conteúdo
+    const totalContent = pagesWithContent.map((p: any) => p.content).join('\n\n')
+    console.log('[FRONTEND] Tamanho total do conteúdo:', totalContent.length, 'caracteres')
+
+    if (totalContent.length < 50) {
+      alert('⚠️ O capítulo selecionado possui muito pouco conteúdo.\n\nAdicione mais texto (pelo menos 50 caracteres) para gerar um mapa mental útil.')
+      return
+    }
+
+    console.log('[FRONTEND] ✅ Validação de conteúdo OK! Enviando para API...')
+    console.log('[FRONTEND] Chamando API /api/mindmaps/generate-ai...')
+
+    const response = await $fetch('/api/mindmaps/generate-ai', {
+      method: 'POST',
+      body: {
+        chapter_id: aiConfig.value.chapterId,
+        title: aiConfig.value.title
+      }
+    })
+
+    console.log('[FRONTEND] Resposta recebida:', response)
+
+    if (response.data?.id) {
+      console.log('[FRONTEND] ✅ Mapa mental criado com sucesso! ID:', response.data.id)
+      alert('🎉 Mapa mental gerado com sucesso!')
+      closeAIModal()
+      await loadMindmaps()
+      navigateToEditor(response.data.id)
+    } else {
+      console.error('[FRONTEND] Resposta sem ID:', response)
+      alert('Erro: Resposta inválida da API')
+    }
+  } catch (err: any) {
+    console.error('[FRONTEND] === ERRO AO GERAR MAPA MENTAL ===')
+    console.error('[FRONTEND] Erro completo:', err)
+    console.error('[FRONTEND] Status:', err.statusCode)
+    console.error('[FRONTEND] Message:', err.message)
+    console.error('[FRONTEND] Data:', err.data)
+
+    const errorMessage = err.data?.message || err.message || 'Erro ao gerar mapa mental com IA'
+    alert(`❌ Erro: ${errorMessage}`)
+  } finally {
+    generatingAI.value = false
+    console.log('[FRONTEND] === FIM DA GERAÇÃO ===')
+  }
+}
+
+// Criar mapa manual
+const createManualMindmap = async () => {
   try {
     const response = await $fetch('/api/mindmaps', {
       method: 'POST',
       body: {
-        title: 'Novo Mapa Mental',
-        description: ''
+        title: 'Novo Mapa Mental'
       }
     })
 
-    if (response.data) {
-      await openMindmap(response.data.id)
-      await loadMindmaps()
+    if (response.data?.id) {
+      navigateToEditor(response.data.id)
     }
   } catch (err: any) {
     console.error('Erro ao criar mapa mental:', err)
-    error.value = err.message || 'Erro ao criar mapa mental'
+    alert(err.data?.message || 'Erro ao criar mapa mental')
   }
 }
 
-// Abrir mapa mental
-const openMindmap = async (id: string) => {
-  try {
-    loading.value = true
-    error.value = null
-    const response = await $fetch(`/api/mindmaps/${id}`)
-
-    selectedMindmap.value = id
-    currentMindmapData.value = response.data
-    nodes.value = response.data.nodes || []
-  } catch (err: any) {
-    console.error('Erro ao abrir mapa mental:', err)
-    error.value = err.message || 'Erro ao abrir mapa mental'
-  } finally {
-    loading.value = false
-  }
-}
-
-// Fechar mapa mental
-const closeMindmap = () => {
-  selectedMindmap.value = null
-  currentMindmapData.value = {}
-  nodes.value = []
+// Navegar para editor
+const navigateToEditor = (id: string) => {
+  router.push(`/mapas-mentais/editor/${id}`)
 }
 
 // Deletar mapa mental
@@ -343,107 +529,7 @@ const deleteMindmap = async (id: string) => {
     await loadMindmaps()
   } catch (err: any) {
     console.error('Erro ao deletar mapa mental:', err)
-    error.value = err.message || 'Erro ao deletar mapa mental'
-  }
-}
-
-// Salvar informações do mapa mental
-const saveMindmapInfo = async () => {
-  if (!selectedMindmap.value) return
-
-  try {
-    saving.value = true
-    await $fetch(`/api/mindmaps/${selectedMindmap.value}`, {
-      method: 'PUT',
-      body: {
-        title: currentMindmapData.value.title,
-        description: currentMindmapData.value.description
-      }
-    })
-  } catch (err: any) {
-    console.error('Erro ao salvar informações:', err)
-  } finally {
-    setTimeout(() => {
-      saving.value = false
-    }, 500)
-  }
-}
-
-// Adicionar novo nó
-const addNode = () => {
-  editingNode.value = {
-    text: '',
-    color: colors[0]
-  }
-  showNodeEditor.value = true
-}
-
-// Editar nó
-const editNode = (node: any) => {
-  editingNode.value = { ...node }
-  showNodeEditor.value = true
-}
-
-// Salvar nó
-const saveNode = async () => {
-  if (!editingNode.value.text.trim()) {
-    alert('Digite um texto para o nó')
-    return
-  }
-
-  try {
-    if (editingNode.value.id) {
-      // Atualizar nó existente
-      await $fetch(`/api/mindmap-nodes/${editingNode.value.id}`, {
-        method: 'PUT',
-        body: {
-          text: editingNode.value.text,
-          color: editingNode.value.color
-        }
-      })
-
-      // Atualizar na lista
-      const index = nodes.value.findIndex(n => n.id === editingNode.value.id)
-      if (index !== -1) {
-        nodes.value[index] = { ...editingNode.value }
-      }
-    } else {
-      // Criar novo nó
-      const { data } = await $fetch('/api/mindmap-nodes', {
-        method: 'POST',
-        body: {
-          mindmap_id: selectedMindmap.value,
-          text: editingNode.value.text,
-          color: editingNode.value.color
-        }
-      })
-
-      if (data) {
-        nodes.value.push(data)
-      }
-    }
-
-    showNodeEditor.value = false
-    editingNode.value = {}
-  } catch (err: any) {
-    console.error('Erro ao salvar nó:', err)
-    alert('Erro ao salvar nó')
-  }
-}
-
-// Deletar nó
-const deleteNodeConfirm = async (nodeId: string) => {
-  if (!confirm('Tem certeza que deseja excluir este nó?')) return
-
-  try {
-    await $fetch(`/api/mindmap-nodes/${nodeId}`, {
-      method: 'DELETE'
-    })
-
-    nodes.value = nodes.value.filter(n => n.id !== nodeId)
-  } catch (err: any) {
-    console.error('Erro ao deletar nó:', err)
-    alert('Erro ao deletar nó')
+    alert('Erro ao deletar mapa mental')
   }
 }
 
