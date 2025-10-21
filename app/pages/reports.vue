@@ -217,6 +217,42 @@
           </div>
         </div>
 
+        <!-- Tipos de Estudo -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-purple-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 bg-purple-500/20 rounded-claude-md flex items-center justify-center">
+                <span class="text-2xl">📖</span>
+              </div>
+              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Conteúdo</h3>
+            </div>
+            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.conteudo) }}</div>
+            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.conteudoSessions }} sessões</div>
+          </div>
+
+          <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-blue-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 bg-blue-500/20 rounded-claude-md flex items-center justify-center">
+                <span class="text-2xl">📝</span>
+              </div>
+              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Questões</h3>
+            </div>
+            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.questoes) }}</div>
+            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.questoesSessions }} sessões</div>
+          </div>
+
+          <div class="bg-gradient-to-br from-green-500/10 to-green-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-green-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-green-500/10 transition-all">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 bg-green-500/20 rounded-claude-md flex items-center justify-center">
+                <span class="text-2xl">🔄</span>
+              </div>
+              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Revisão</h3>
+            </div>
+            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.revisao) }}</div>
+            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.revisaoSessions }} sessões</div>
+          </div>
+        </div>
+
         <!-- Gráficos -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Gráfico de Evolução Diária -->
@@ -444,42 +480,6 @@
                 ></div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Tipos de Estudo -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-purple-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-12 h-12 bg-purple-500/20 rounded-claude-md flex items-center justify-center">
-                <span class="text-2xl">📖</span>
-              </div>
-              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Conteúdo</h3>
-            </div>
-            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.conteudo) }}</div>
-            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.conteudoSessions }} sessões</div>
-          </div>
-
-          <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-blue-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-12 h-12 bg-blue-500/20 rounded-claude-md flex items-center justify-center">
-                <span class="text-2xl">📝</span>
-              </div>
-              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Questões</h3>
-            </div>
-            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.questoes) }}</div>
-            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.questoesSessions }} sessões</div>
-          </div>
-
-          <div class="bg-gradient-to-br from-green-500/10 to-green-600/5 dark:bg-dark-800/50 backdrop-blur-sm border border-green-500/20 dark:border-dark-700 rounded-claude-lg p-6 hover:shadow-lg hover:shadow-green-500/10 transition-all">
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-12 h-12 bg-green-500/20 rounded-claude-md flex items-center justify-center">
-                <span class="text-2xl">🔄</span>
-              </div>
-              <h3 class="text-lg font-semibold text-claude-text dark:text-white">Revisão</h3>
-            </div>
-            <div class="text-4xl font-bold text-primary-400 mb-2">{{ formatHours(reportData.studyTypes.revisao) }}</div>
-            <div class="text-sm text-claude-text-secondary dark:text-gray-400">{{ reportData.studyTypes.revisaoSessions }} sessões</div>
           </div>
         </div>
       </div>
