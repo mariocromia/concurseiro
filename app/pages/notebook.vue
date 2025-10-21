@@ -1587,11 +1587,27 @@ const handleExplain = async (content: string) => {
 }
 
 const handleExercises = (content: string) => {
+  // Validar se há conteúdo suficiente
+  const trimmedContent = content?.trim() || ''
+
+  if (trimmedContent.length < 20) {
+    alert('⚠️ Conteúdo insuficiente!\n\nPara gerar exercícios, você precisa ter pelo menos 20 caracteres de texto no capítulo.\n\nDica: Escreva mais conteúdo ou selecione um texto maior antes de usar esta funcionalidade.')
+    return
+  }
+
   exercisesContent.value = content
   showExercisesModal.value = true
 }
 
 const handleFlashcards = (content: string) => {
+  // Validar se há conteúdo suficiente
+  const trimmedContent = content?.trim() || ''
+
+  if (trimmedContent.length < 20) {
+    alert('⚠️ Conteúdo insuficiente!\n\nPara gerar flashcards, você precisa ter pelo menos 20 caracteres de texto no capítulo.\n\nDica: Escreva mais conteúdo ou selecione um texto maior antes de usar esta funcionalidade.')
+    return
+  }
+
   flashcardsContent.value = content
   showFlashcardsModal.value = true
 }

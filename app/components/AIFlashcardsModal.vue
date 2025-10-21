@@ -214,6 +214,11 @@ const generateFlashcards = async () => {
   error.value = ''
 
   try {
+    // Validate content
+    if (!props.content || props.content.trim().length < 20) {
+      throw new Error('O conteúdo é muito curto para gerar flashcards. É necessário pelo menos 20 caracteres de texto.')
+    }
+
     const result = await generateFlashcardsAPI(
       props.content,
       config.value.quantity,

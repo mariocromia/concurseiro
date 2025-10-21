@@ -350,8 +350,8 @@ const generateExercises = async () => {
 
   try {
     // Validate content
-    if (!props.content || props.content.trim().length < 50) {
-      throw new Error('O conteúdo selecionado é muito curto. Selecione um texto maior para gerar exercícios.')
+    if (!props.content || props.content.trim().length < 20) {
+      throw new Error('O conteúdo é muito curto para gerar exercícios. É necessário pelo menos 20 caracteres de texto.')
     }
 
     const result = await generateExercisesAPI(

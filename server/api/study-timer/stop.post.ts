@@ -70,6 +70,9 @@ export default defineEventHandler(async (event) => {
       ended_at: now.toISOString(),
       duration: totalSeconds,
       notes: notes || null,
+      study_type: timer.study_type || 'conteudo',
+      completed_questions: completed_questions || 0,
+      correct_questions: correct_questions || 0,
     })
 
   if (sessionError) {
