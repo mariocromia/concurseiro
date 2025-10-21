@@ -165,6 +165,42 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast Notifications -->
+    <div class="fixed top-4 right-4 z-50 space-y-2">
+      <TransitionGroup name="toast">
+        <div
+          v-for="toast in toasts"
+          :key="toast.id"
+          :class="[
+            'px-4 py-3 rounded-claude-md shadow-lg backdrop-blur-sm border flex items-center gap-3 min-w-[300px]',
+            toast.type === 'success'
+              ? 'bg-claude-primary/20 dark:bg-primary-500/20 border-claude-primary dark:border-primary-500/50 text-primary-100'
+              : 'bg-red-500/20 border-red-500/50 text-red-100'
+          ]"
+        >
+          <svg
+            v-if="toast.type === 'success'"
+            class="w-5 h-5 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <svg
+            v-else
+            class="w-5 h-5 text-red-400 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          <span class="flex-1 font-medium">{{ toast.message }}</span>
+        </div>
+      </TransitionGroup>
+    </div>
   </div>
 </template>
 
@@ -194,6 +230,10 @@ const selectedNode = ref<any>(null)
 const editingNodeId = ref<string | null>(null)
 const nodeInput = ref<HTMLInputElement | null>(null)
 const saveTimeout = ref<any>(null)
+
+// Sistema de notificações toast
+const toasts = ref<Array<{ id: number, message: string, type: 'success' | 'error' }>>([])
+let toastIdCounter = 0
 
 const colors = [
   '#ca643f', '#8b5cf6', '#ec4899', '#f59e0b',
@@ -320,10 +360,11 @@ const saveNodes = async () => {
     console.log('[EDITOR] ✅ Mapa salvo com sucesso!')
     lastSaved.value = 'agora mesmo'
     setTimeout(() => { lastSaved.value = '' }, 3000)
-    alert('✅ Mapa mental salvo com sucesso!')
+
+    showToast('Mapa mental salvo!', 'success')
   } catch (error: any) {
     console.error('[EDITOR] ❌ Erro ao salvar:', error)
-    alert(`❌ Erro ao salvar: ${error.message || 'Erro desconhecido'}`)
+    showToast(error.message || 'Erro ao salvar o mapa mental', 'error')
   } finally {
     saving.value = false
   }
@@ -440,6 +481,15 @@ const handleEdgesChange = (changes: any) => {
   // Edges changes handled automatically
 }
 
+// Toast
+const showToast = (message: string, type: 'success' | 'error') => {
+  const id = toastIdCounter++
+  toasts.value.push({ id, message, type })
+  setTimeout(() => {
+    toasts.value = toasts.value.filter(t => t.id !== id)
+  }, 3000)
+}
+
 // Lifecycle
 onMounted(() => {
   loadMindmap()
@@ -452,3 +502,36 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+
+<style scoped>
+/* Animações dos toasts */
+.toast-enter-active {
+  animation: slide-in 0.3s ease-out;
+}
+
+.toast-leave-active {
+  animation: slide-out 0.3s ease-in;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+</style>
