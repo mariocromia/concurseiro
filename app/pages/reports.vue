@@ -844,21 +844,23 @@ const handleExport = () => {
 }
 
 // Carregar dados ao montar
-const user = useSupabaseUser()
-let dataLoaded = false
+onMounted(async () => {
+  console.log('✅ [Reports] Componente montado, carregando dados...')
 
-// Aguardar usuário estar disponível antes de carregar dados
-watchEffect(async () => {
-  if (user.value?.id && !dataLoaded) {
-    console.log('✅ [Reports] Usuário disponível, carregando dados...')
-    dataLoaded = true
-
-    // Carregar matérias primeiro
-    await fetchSubjects()
-
-    // Depois carregar relatório
-    await refreshData()
+  // Verificar se há sessão ativa
+  const { data: sessionData } = await supabase.auth.getSession()
+  if (!sessionData?.session?.user?.id) {
+    console.warn('⚠️ [Reports] Sem usuário autenticado')
+    return
   }
+
+  console.log('✅ [Reports] Usuário autenticado, iniciando carregamento...')
+
+  // Carregar matérias primeiro
+  await fetchSubjects()
+
+  // Depois carregar relatório
+  await refreshData()
 })
 </script>
 
