@@ -238,94 +238,9 @@
           @create-activity="handleCreateActivity"
           @view-activity="handleViewActivity"
           @update-activity="handleUpdateActivity"
+          @delete-activity="handleDeleteActivity"
+          @toggle-completion="handleToggleActivityCompletion"
         />
-      </div>
-
-      <!-- Kanban Board -->
-      <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6 mb-8">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-claude-text dark:text-white">Mural de Tarefas</h3>
-          <button
-            @click="showAddTaskModal = true"
-            class="px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md text-claude-text dark:text-white rounded-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 transition flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Nova Tarefa
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- To Do Column -->
-          <div class="bg-[#f5f5ed] dark:bg-dark-900/50 border border-[#ca643f]/30 dark:border-dark-700 rounded-claude-md p-4">
-            <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
-              <div class="w-3 h-3 bg-primary-500 rounded-full"></div>
-              A Fazer ({{ todoTasks.length }})
-            </h4>
-            <div class="space-y-3">
-              <div
-                v-for="task in todoTasks"
-                :key="task.id"
-                class="bg-white dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition"
-                @click="editTask(task)"
-              >
-                <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
-                <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-3">{{ task.description }}</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs px-2 py-1 bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors rounded-full">{{ task.subject }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-500">{{ formatDate(task.due_date) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- In Progress Column -->
-          <div class="bg-primary-500/10 border border-[#ca643f]/30 dark:border-primary-500/30 rounded-claude-md p-4">
-            <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
-              <div class="w-3 h-3 bg-primary-500 rounded-full"></div>
-              Em Progresso ({{ inProgressTasks.length }})
-            </h4>
-            <div class="space-y-3">
-              <div
-                v-for="task in inProgressTasks"
-                :key="task.id"
-                class="bg-white dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition"
-                @click="editTask(task)"
-              >
-                <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
-                <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-3">{{ task.description }}</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs px-2 py-1 bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors rounded-full">{{ task.subject }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-500">{{ formatDate(task.due_date) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Done Column -->
-          <div class="bg-primary-500/10 border border-[#ca643f]/30 dark:border-primary-500/30 rounded-claude-md p-4">
-            <h4 class="font-medium text-claude-text dark:text-white mb-4 flex items-center gap-2">
-              <div class="w-3 h-3 bg-primary-500 rounded-full"></div>
-              Concluído ({{ doneTasks.length }})
-            </h4>
-            <div class="space-y-3">
-              <div
-                v-for="task in doneTasks"
-                :key="task.id"
-                class="bg-white dark:bg-dark-800 p-4 rounded-claude-md border border-[#E5E5E5] dark:border-dark-700 cursor-pointer hover:border-[#ca643f] dark:hover:border-primary-500 transition opacity-75"
-                @click="editTask(task)"
-              >
-                <h5 class="font-medium text-claude-text dark:text-white mb-2">{{ task.title }}</h5>
-                <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-3">{{ task.description }}</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs px-2 py-1 bg-claude-primary/20 dark:bg-primary-500/20 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors rounded-full">{{ task.subject }}</span>
-                  <span class="text-xs text-gray-600 dark:text-gray-500">{{ formatDate(task.completed_at) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Quick Actions -->
@@ -581,7 +496,15 @@ const formatDate = (dateString: string) => {
 
 // Buscar dados do usuário e estatísticas
 onMounted(async () => {
-  if (user.value) {
+  console.log('📍📍📍 === DASHBOARD MOUNTED === 📍📍📍')
+  console.log('👤 user.value:', user.value)
+  console.log('👤 user.value?.id:', user.value?.id)
+  console.log('👤 typeof user.value:', typeof user.value)
+  console.log('⏰ Timestamp:', new Date().toISOString())
+
+  // ✅ CORREÇÃO CRÍTICA: Verificar explicitamente se user.value.id existe
+  if (user.value?.id) {
+    console.log('✅ user.value.id disponível:', user.value.id)
     const { data } = await supabase
       .from('users')
       .select('*')
@@ -589,15 +512,104 @@ onMounted(async () => {
       .single()
 
     if (data) {
+      console.log('✅ Dados do usuário carregados')
       userData.value = data
       subscriptionType.value = data.subscription_type || 'freemium'
       await loadStats()
       await loadTasks()
       await loadSubjects()
       await initCharts()
+      console.log('📅 Chamando loadCalendarData no onMounted...')
       await loadCalendarData()
+      console.log('✅ onMounted concluído COM loadCalendarData')
+    } else {
+      console.warn('⚠️ Dados do usuário não encontrados no banco')
     }
+  } else {
+    console.warn('⚠️⚠️⚠️ user.value.id NÃO disponível no onMounted ⚠️⚠️⚠️')
+    console.warn('❌ loadCalendarData NÃO será chamado agora')
+    console.warn('⏳ Aguardando watch detectar usuário...')
   }
+  console.log('🏁 === FIM: onMounted ===')
+})
+
+// ✅ SOLUÇÃO DEFINITIVA: Buscar user_id diretamente da sessão do Supabase
+let calendarLoaded = ref(false)
+let userIdFromSession = ref<string | null>(null)
+
+// Helper function to get user ID directly from Supabase session
+const getUserIdFromSession = async () => {
+  try {
+    console.log('🔍 Buscando user_id da sessão Supabase...')
+    const { data: { session }, error } = await supabase.auth.getSession()
+
+    if (error) {
+      console.error('❌ Erro ao obter sessão:', error)
+      return null
+    }
+
+    const userId = session?.user?.id || null
+    console.log('📍 user_id da sessão:', userId)
+    return userId
+  } catch (err) {
+    console.error('❌ Exception ao obter sessão:', err)
+    return null
+  }
+}
+
+watchEffect(async () => {
+  console.log('⚡⚡⚡ === WATCHEFFECT DISPARADO === ⚡⚡⚡')
+  console.log('👤 user.value?.id:', user.value?.id)
+  console.log('👤 userIdFromSession.value:', userIdFromSession.value)
+  console.log('📊 calendarLoaded:', calendarLoaded.value)
+
+  // Tenta obter user_id da sessão se ainda não temos
+  if (!userIdFromSession.value) {
+    userIdFromSession.value = await getUserIdFromSession()
+  }
+
+  // Use either session user ID or reactive user.value.id
+  const effectiveUserId = userIdFromSession.value || user.value?.id
+
+  if (effectiveUserId && !calendarLoaded.value) {
+    console.log('✅✅✅ USER_ID DISPONÍVEL! Carregando calendário... ✅✅✅')
+    console.log('👤 effectiveUserId:', effectiveUserId)
+
+    try {
+      await loadCalendarData()
+      calendarLoaded.value = true
+      console.log('✅ Calendário carregado com sucesso!')
+    } catch (err) {
+      console.error('❌ Erro ao carregar calendário:', err)
+    }
+  } else if (!effectiveUserId) {
+    console.log('⏳ USER_ID ainda não disponível, tentando novamente em 1 segundo...')
+
+    // Retry once after 1 second if no user ID available
+    setTimeout(async () => {
+      if (!calendarLoaded.value) {
+        console.log('🔄 RETRY: Buscando user_id novamente...')
+        userIdFromSession.value = await getUserIdFromSession()
+
+        const retryUserId = userIdFromSession.value || user.value?.id
+
+        if (retryUserId) {
+          console.log('✅ RETRY SUCESSO! user_id encontrado:', retryUserId)
+          try {
+            await loadCalendarData()
+            calendarLoaded.value = true
+            console.log('✅ Calendário carregado no retry!')
+          } catch (err) {
+            console.error('❌ Erro no retry:', err)
+          }
+        } else {
+          console.error('❌ RETRY FALHOU: user_id ainda não disponível')
+        }
+      }
+    }, 1000)
+  }
+
+  console.log('🏁 === FIM: watchEffect ===')
 })
 
 const loadStats = async () => {
@@ -952,11 +964,44 @@ const handleUpdateActivity = async (activity: ScheduleActivity, updates: any) =>
 }
 
 const handleSaveActivity = async (payload: CreateActivityPayload) => {
-  const result = await createActivity(payload)
-  if (result) {
-    showActivityModal.value = false
-    selectedActivity.value = null
-    await loadCalendarData()
+  console.log('🌟🌟🌟 === INÍCIO: handleSaveActivity (Dashboard) === 🌟🌟🌟')
+  console.log('📦 Payload recebido do modal:', JSON.stringify(payload, null, 2))
+
+  try {
+    console.log('📞 Chamando createActivity do composable...')
+    const result = await createActivity(payload)
+
+    console.log('📬 Resposta de createActivity:', result ? 'SUCESSO' : 'FALHA (null)')
+
+    if (result) {
+      console.log('✅✅✅ Atividade criada com sucesso! ✅✅✅')
+      console.log('🎉 Dados da atividade criada:', JSON.stringify(result, null, 2))
+
+      console.log('🚪 Fechando modal...')
+      showActivityModal.value = false
+
+      console.log('🧹 Limpando selectedActivity...')
+      selectedActivity.value = null
+
+      console.log('🔄 Recarregando dados do calendário...')
+      await loadCalendarData()
+
+      console.log('✅ Calendário recarregado com sucesso')
+      console.log('🏁 === FIM: handleSaveActivity (SUCESSO) ===')
+    } else {
+      console.error('❌❌❌ createActivity retornou NULL ❌❌❌')
+      console.error('Isso indica que houve um erro no composable')
+      console.error('Verifique os logs acima para detalhes do erro')
+      alert('Não foi possível salvar a atividade. Verifique o console para mais detalhes.')
+      console.log('🏁 === FIM: handleSaveActivity (FALHA) ===')
+    }
+  } catch (err: any) {
+    console.error('❌❌❌ EXCEPTION em handleSaveActivity ❌❌❌')
+    console.error('Tipo:', typeof err)
+    console.error('Mensagem:', err.message)
+    console.error('Stack:', err.stack)
+    alert(`Erro ao salvar atividade: ${err.message || 'Erro desconhecido'}`)
+    console.log('🏁 === FIM: handleSaveActivity (EXCEPTION) ===')
   }
 }
 
@@ -969,7 +1014,10 @@ const handleUpdateExistingActivity = async (id: string, updates: Partial<CreateA
   }
 }
 
-const handleDeleteActivity = async (id: string) => {
+const handleDeleteActivity = async (activityOrId: ScheduleActivity | string) => {
+  const id = typeof activityOrId === 'string' ? activityOrId : activityOrId.id
+  if (!id) return
+
   const success = await deleteActivity(id)
   if (success) {
     showActivityModal.value = false
@@ -978,12 +1026,17 @@ const handleDeleteActivity = async (id: string) => {
   }
 }
 
-const handleToggleActivityCompletion = async (id: string) => {
+const handleToggleActivityCompletion = async (activityOrId: ScheduleActivity | string) => {
+  const id = typeof activityOrId === 'string' ? activityOrId : activityOrId.id
+  if (!id) return
+
   await toggleCompletion(id)
   await loadCalendarData()
 }
 
 const loadCalendarData = async () => {
+  console.log('📅📅📅 === INÍCIO: loadCalendarData (Dashboard) === 📅📅📅')
+
   const now = new Date()
   const weekStart = new Date(now)
   weekStart.setDate(now.getDate() - now.getDay())
@@ -993,8 +1046,17 @@ const loadCalendarData = async () => {
   const startStr = weekStart.toISOString().split('T')[0]
   const endStr = weekEnd.toISOString().split('T')[0]
 
+  console.log('📆 Período da semana:', { startStr, endStr })
+  console.log('🔄 Chamando fetchActivities...')
+
   await fetchActivities(startStr, endStr)
+
+  console.log('📊 Calculando estatísticas...')
   calendarStats.value = getWorkloadStats(startStr, endStr)
+
+  console.log('✅ loadCalendarData concluído')
+  console.log('📊 calendarActivities.length:', calendarActivities.value.length)
+  console.log('🏁 === FIM: loadCalendarData ===')
 }
 
 const handleSignOut = async () => {

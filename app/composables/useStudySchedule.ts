@@ -69,37 +69,97 @@ export const useStudySchedule = () => {
 
   // Busca todas as atividades do usuário em um período
   const fetchActivities = async (startDate: string, endDate: string) => {
-    if (!user.value?.id) {
+    console.log('🔄🔄🔄 === INÍCIO: fetchActivities (CARREGAMENTO) === 🔄🔄🔄')
+    console.log('📅 Período solicitado:', { startDate, endDate })
+
+    // ✅ CORREÇÃO: Usar getSession() ao invés de user.value
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError || !session?.user?.id) {
+      console.error('❌ Usuário não autenticado')
+      console.error('sessionError:', sessionError)
+      console.error('session:', session)
       error.value = 'Usuário não autenticado'
       return
     }
 
+    console.log('✅ Usuário autenticado:', session.user.id)
     loading.value = true
     error.value = null
 
     try {
+      console.log('🔍 Buscando na tabela study_schedules...')
+      console.log('📊 Filtros aplicados:', {
+        user_id: session.user.id,
+        'scheduled_date >=': startDate,
+        'scheduled_date <=': endDate
+      })
+
       const { data, error: fetchError } = await supabase
         .from('study_schedules')
         .select(`
           *,
           subject:subjects(id, name, color, icon)
         `)
-        .eq('user_id', user.value.id)
+        .eq('user_id', session.user.id)  // ✅ CORREÇÃO: usar session.user.id
         .gte('scheduled_date', startDate)
         .lte('scheduled_date', endDate)
         .order('scheduled_date', { ascending: true })
-        .order('start_time', { ascending: true })
+        // NÃO ordenar por start_time/scheduled_time - pode causar erro se coluna não existir
 
-      if (fetchError) throw fetchError
+      console.log('📬 Resposta recebida do banco')
 
-      activities.value = (data || []).map(item => ({
-        ...item,
-        subject: item.subject ? (Array.isArray(item.subject) ? item.subject[0] : item.subject) : null,
-        type: item.subject_id ? 'study' : 'event'
-      })) as ScheduleActivity[]
+      if (fetchError) {
+        console.error('❌❌❌ ERRO NA CONSULTA ❌❌❌')
+        console.error('Código:', fetchError.code)
+        console.error('Mensagem:', fetchError.message)
+        console.error('Detalhes:', fetchError.details)
+        console.error('Hint:', fetchError.hint)
+        throw fetchError
+      }
+
+      console.log('✅ Consulta executada com sucesso')
+      console.log('📊 Quantidade de registros retornados:', (data || []).length)
+
+      if ((data || []).length === 0) {
+        console.warn('⚠️⚠️⚠️ NENHUMA ATIVIDADE ENCONTRADA ⚠️⚠️⚠️')
+        console.warn('Possíveis causas:')
+        console.warn('1. Não há atividades criadas neste período')
+        console.warn('2. Atividades foram criadas com user_id diferente')
+        console.warn('3. Atividades foram criadas com scheduled_date fora do período')
+        console.warn('4. Políticas RLS estão bloqueando a leitura')
+      } else {
+        console.log('📋 Primeiros registros encontrados:', JSON.stringify(data.slice(0, 3), null, 2))
+      }
+
+      activities.value = (data || []).map(item => {
+        // Fazer mapeamento robusto dos campos (compatibilidade total)
+        const mapped = {
+          ...item,
+          // Garantir que start_time existe (pode vir como start_time ou scheduled_time)
+          start_time: item.start_time || item.scheduled_time || '00:00',
+          // Garantir que duration existe (pode vir como duration ou planned_duration)
+          duration: item.duration || item.planned_duration || 60,
+          // Garantir que is_completed existe (pode vir como is_completed ou derivar de status)
+          is_completed: item.is_completed !== undefined ? item.is_completed : (item.status === 'completed'),
+          subject: item.subject ? (Array.isArray(item.subject) ? item.subject[0] : item.subject) : null,
+          type: item.subject_id ? 'study' : 'event'
+        }
+
+        return mapped
+      }) as ScheduleActivity[]
+
+      console.log('✅✅✅ Atividades processadas e armazenadas ✅✅✅')
+      console.log('📊 Total no array local:', activities.value.length)
+      console.log('🏁 === FIM: fetchActivities (SUCESSO) ===')
     } catch (err: any) {
-      console.error('Erro ao buscar atividades:', err)
+      console.error('❌❌❌ EXCEPTION em fetchActivities ❌❌❌')
+      console.error('Tipo:', typeof err)
+      console.error('Mensagem:', err.message)
+      console.error('Stack:', err.stack)
+      console.error('Erro completo:', JSON.stringify(err, null, 2))
       error.value = err.message || 'Erro ao carregar atividades'
+      console.log('🏁 === FIM: fetchActivities (ERRO) ===')
     } finally {
       loading.value = false
     }
@@ -112,26 +172,63 @@ export const useStudySchedule = () => {
 
   // Cria uma nova atividade
   const createActivity = async (payload: CreateActivityPayload): Promise<ScheduleActivity | null> => {
-    if (!user.value?.id) {
-      error.value = 'Usuário não autenticado'
-      return null
-    }
+    console.log('🎬 === INÍCIO: createActivity ===')
+    console.log('📊 Payload recebido:', JSON.stringify(payload, null, 2))
 
     loading.value = true
     error.value = null
 
     try {
-      const insertData: StudyScheduleInsert = {
-        user_id: user.value.id,
+      // PASSO 1: Verificar autenticação
+      console.log('🔐 PASSO 1: Verificando autenticação...')
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+      if (sessionError) {
+        console.error('❌ Erro ao buscar sessão:', sessionError)
+        error.value = 'Erro ao verificar autenticação'
+        return null
+      }
+
+      if (!session?.user?.id) {
+        console.error('❌ Usuário não autenticado ou session.user.id está undefined')
+        console.log('📋 Session completa:', JSON.stringify(session, null, 2))
+        error.value = 'Usuário não autenticado'
+        return null
+      }
+
+      console.log('✅ Usuário autenticado:', session.user.id)
+
+      // PASSO 2: Preparar dados para inserção
+      console.log('📝 PASSO 2: Preparando dados para inserção...')
+      const insertData: any = {
+        user_id: session.user.id,
         subject_id: payload.subject_id || null,
         title: payload.title,
         description: payload.description || null,
         scheduled_date: payload.scheduled_date,
-        start_time: payload.start_time,
-        duration: payload.duration,
-        is_completed: false,
+
+        // ✅ Enviar AMBOS os campos para compatibilidade total
+        start_time: payload.start_time,           // Campo novo (se existir)
+        scheduled_time: payload.start_time,       // Campo antigo (se existir)
+        duration: payload.duration,               // Campo novo (se existir)
+        planned_duration: payload.duration,       // Campo antigo (se existir) - OBRIGATÓRIO!
+
+        // Status/completion
+        is_completed: false,                      // Campo novo (se existir)
+        status: 'pending',                        // Campo antigo (se existir) - OBRIGATÓRIO!
+
+        // Tipo de estudo (se campo existir)
+        study_type: payload.type === 'study' ? 'conteudo' : 'revisao',  // Campo antigo - OBRIGATÓRIO!
+
         color: payload.color || null
       }
+
+      console.log('📦 Dados preparados para inserção:', JSON.stringify(insertData, null, 2))
+
+      // PASSO 3: Tentar inserir no banco
+      console.log('🚀 PASSO 3: Enviando para o banco de dados...')
+      console.log('📍 Tabela: study_schedules')
+      console.log('⚠️ IMPORTANTE: Aguardando resposta do banco...')
 
       const { data, error: insertError } = await supabase
         .from('study_schedules')
@@ -142,14 +239,39 @@ export const useStudySchedule = () => {
         `)
         .single()
 
-      if (insertError) throw insertError
+      console.log('📬 Resposta recebida do banco')
+      console.log('🔍 Verificando se houve erro...')
+      console.log('📊 data =', data ? 'EXISTE' : 'NULL')
+      console.log('📊 insertError =', insertError ? 'EXISTE' : 'NULL')
 
+      if (insertError) {
+        console.error('❌❌❌ ERRO AO INSERIR NO BANCO ❌❌❌')
+        console.error('Código do erro:', insertError.code)
+        console.error('Mensagem:', insertError.message)
+        console.error('Detalhes:', insertError.details)
+        console.error('Hint:', insertError.hint)
+        console.error('Erro completo:', JSON.stringify(insertError, null, 2))
+
+        error.value = `Erro no banco: ${insertError.message || 'Desconhecido'}`
+        throw insertError
+      }
+
+      console.log('✅✅✅ ATIVIDADE CRIADA COM SUCESSO ✅✅✅')
+      console.log('🎉 Dados retornados:', JSON.stringify(data, null, 2))
+
+      // PASSO 4: Processar resposta
+      console.log('🔄 PASSO 4: Processando resposta...')
       const newActivity = {
         ...data,
+        // Os campos já estão corretos (start_time, duration, is_completed)
         subject: data.subject ? (Array.isArray(data.subject) ? data.subject[0] : data.subject) : null,
         type: data.subject_id ? 'study' : 'event'
       } as ScheduleActivity
 
+      console.log('✨ Atividade processada:', JSON.stringify(newActivity, null, 2))
+
+      // PASSO 5: Adicionar à lista local
+      console.log('📋 PASSO 5: Adicionando à lista local...')
       activities.value.push(newActivity)
       activities.value.sort((a, b) => {
         if (a.scheduled_date !== b.scheduled_date) {
@@ -158,13 +280,22 @@ export const useStudySchedule = () => {
         return a.start_time.localeCompare(b.start_time)
       })
 
+      console.log('✅ Lista atualizada. Total de atividades:', activities.value.length)
+      console.log('🏁 === FIM: createActivity (SUCESSO) ===')
       return newActivity
     } catch (err: any) {
-      console.error('Erro ao criar atividade:', err)
+      console.error('❌❌❌ EXCEPTION CAPTURADA ❌❌❌')
+      console.error('Tipo:', typeof err)
+      console.error('Mensagem:', err.message)
+      console.error('Stack:', err.stack)
+      console.error('Erro completo:', JSON.stringify(err, null, 2))
+
       error.value = err.message || 'Erro ao criar atividade'
+      console.log('🏁 === FIM: createActivity (ERRO) ===')
       return null
     } finally {
       loading.value = false
+      console.log('🔓 Loading definido como false')
     }
   }
 
@@ -173,25 +304,58 @@ export const useStudySchedule = () => {
     id: string,
     updates: Partial<CreateActivityPayload>
   ): Promise<boolean> => {
-    if (!user.value?.id) {
+    // ✅ Buscar user_id da sessão diretamente
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError || !session?.user?.id) {
       error.value = 'Usuário não autenticado'
       return false
     }
+
+    const userId = session.user.id
 
     loading.value = true
     error.value = null
 
     try {
-      const updateData: StudyScheduleUpdate = {
-        ...updates,
-        subject_id: updates.subject_id !== undefined ? updates.subject_id : undefined
+      // Preparar dados para atualização - enviar AMBOS os formatos para compatibilidade
+      const updateData: any = {}
+
+      if (updates.subject_id !== undefined) updateData.subject_id = updates.subject_id
+      if (updates.title) updateData.title = updates.title
+      if (updates.description !== undefined) updateData.description = updates.description
+      if (updates.scheduled_date) updateData.scheduled_date = updates.scheduled_date
+
+      // ✅ Enviar ambos os campos de horário (novo e antigo)
+      if (updates.start_time) {
+        updateData.start_time = updates.start_time
+        updateData.scheduled_time = updates.start_time
+      }
+
+      // ✅ Enviar ambos os campos de duração (novo e antigo)
+      if (updates.duration) {
+        updateData.duration = updates.duration
+        updateData.planned_duration = updates.duration
+      }
+
+      if (updates.color !== undefined) updateData.color = updates.color
+
+      // ✅ Enviar ambos os campos de status (novo e antigo)
+      if ((updates as any).is_completed !== undefined) {
+        updateData.is_completed = (updates as any).is_completed
+        updateData.status = (updates as any).is_completed ? 'completed' : 'pending'
+      }
+
+      // ✅ Tipo de estudo (se for passado)
+      if (updates.type) {
+        updateData.study_type = updates.type === 'study' ? 'conteudo' : 'revisao'
       }
 
       const { data, error: updateError } = await supabase
         .from('study_schedules')
         .update(updateData)
         .eq('id', id)
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
         .select(`
           *,
           subject:subjects(id, name, color, icon)
@@ -204,6 +368,7 @@ export const useStudySchedule = () => {
       if (index !== -1) {
         activities.value[index] = {
           ...data,
+          // Os campos já estão corretos (start_time, duration, is_completed)
           subject: data.subject ? (Array.isArray(data.subject) ? data.subject[0] : data.subject) : null,
           type: data.subject_id ? 'study' : 'event'
         } as ScheduleActivity
@@ -239,10 +404,15 @@ export const useStudySchedule = () => {
 
   // Deleta uma atividade
   const deleteActivity = async (id: string): Promise<boolean> => {
-    if (!user.value?.id) {
+    // ✅ Buscar user_id da sessão diretamente
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError || !session?.user?.id) {
       error.value = 'Usuário não autenticado'
       return false
     }
+
+    const userId = session.user.id
 
     loading.value = true
     error.value = null
@@ -252,7 +422,7 @@ export const useStudySchedule = () => {
         .from('study_schedules')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.value.id)
+        .eq('user_id', userId)
 
       if (deleteError) throw deleteError
 

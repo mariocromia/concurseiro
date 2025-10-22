@@ -41,6 +41,7 @@ const formData = ref({
 
 const subjects = ref<Subject[]>([])
 const loadingSubjects = ref(false)
+const savingActivity = ref(false)
 const showNewSubjectForm = ref(false)
 const conflicts = ref<ScheduleActivity[]>([])
 const currentStep = ref(1) // 1: tipo, 2: detalhes, 3: confirmação
@@ -48,11 +49,10 @@ const currentStep = ref(1) // 1: tipo, 2: detalhes, 3: confirmação
 // Novo formulário de matéria
 const newSubject = ref({
   name: '',
-  color: '#8B5CF6',
-  icon: '📚'
+  color: '#8B5CF6'
 })
 
-// Ícone padrão para matérias (será sempre o mesmo)
+// Ícone padrão para todas as matérias (sempre o mesmo)
 const defaultIcon = '📚'
 
 // Durações pré-definidas (em minutos)
@@ -67,20 +67,31 @@ const quickDurations = [
 
 // Carrega matérias do usuário
 const loadSubjects = async () => {
-  if (!user.value?.id) return
-
   loadingSubjects.value = true
   try {
+    // Garante que temos o usuário autenticado
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError || !session?.user?.id) {
+      console.error('❌ Usuário não autenticado ao carregar matérias')
+      return
+    }
+
+    console.log('🔍 Carregando matérias do usuário:', session.user.id)
+
     const { data, error } = await supabase
       .from('subjects')
       .select('id, name, color, icon')
-      .eq('user_id', user.value.id)
+      .eq('user_id', session.user.id)
       .order('name')
 
     if (error) throw error
+
     subjects.value = data || []
+    console.log(`✅ ${subjects.value.length} matérias carregadas com sucesso`)
   } catch (err) {
-    console.error('Erro ao carregar matérias:', err)
+    console.error('❌ Erro ao carregar matérias:', err)
+    subjects.value = []
   } finally {
     loadingSubjects.value = false
   }
@@ -88,31 +99,50 @@ const loadSubjects = async () => {
 
 // Cria nova matéria
 const createNewSubject = async () => {
-  if (!user.value?.id || !newSubject.value.name.trim()) return
+  if (!newSubject.value.name.trim()) {
+    alert('Por favor, preencha o nome da matéria')
+    return
+  }
 
   try {
+    // Garante que temos o usuário autenticado
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError || !session?.user?.id) {
+      alert('Você precisa estar autenticado para criar uma matéria')
+      return
+    }
+
+    console.log('➕ Criando nova matéria:', newSubject.value.name)
+
     const { data, error } = await supabase
       .from('subjects')
       .insert({
-        user_id: user.value.id,
+        user_id: session.user.id,
         name: newSubject.value.name.trim(),
         color: newSubject.value.color,
-        icon: newSubject.value.icon
+        icon: defaultIcon // Sempre usa o ícone padrão
       })
       .select('id, name, color, icon')
       .single()
 
     if (error) throw error
 
+    console.log('✅ Matéria criada com sucesso:', data)
+
+    // Adiciona à lista e seleciona automaticamente
     subjects.value.push(data)
     formData.value.subject_id = data.id
     formData.value.color = data.color
 
-    newSubject.value = { name: '', color: '#8B5CF6', icon: '📚' }
+    // Limpa o formulário de nova matéria
+    newSubject.value = { name: '', color: '#8B5CF6' }
     showNewSubjectForm.value = false
-  } catch (err) {
-    console.error('Erro ao criar matéria:', err)
-    alert('Erro ao criar matéria. Tente novamente.')
+
+    console.log('✨ Matéria selecionada automaticamente')
+  } catch (err: any) {
+    console.error('❌ Erro ao criar matéria:', err)
+    alert(`Erro ao criar matéria: ${err.message || 'Tente novamente'}`)
   }
 }
 
@@ -211,30 +241,52 @@ watch(() => props.show, (show) => {
 })
 
 // Salva ou atualiza atividade
-const handleSave = () => {
+const handleSave = async () => {
+  console.log('🎬🎬🎬 === INÍCIO: handleSave (ActivityModal) === 🎬🎬🎬')
+  console.log('📋 Estado do formulário:', JSON.stringify(formData.value, null, 2))
+
+  // VALIDAÇÃO 1: Título
+  console.log('✔️ VALIDAÇÃO 1: Verificando título...')
   if (!formData.value.title.trim()) {
+    console.warn('❌ Validação falhou: título vazio')
     alert('Por favor, preencha o título da atividade')
     return
   }
+  console.log('✅ Título OK:', formData.value.title)
 
+  // VALIDAÇÃO 2: Matéria (apenas para estudos)
+  console.log('✔️ VALIDAÇÃO 2: Verificando matéria...')
   if (formData.value.type === 'study' && !formData.value.subject_id) {
-    alert('Por favor, selecione uma matéria')
+    console.warn('❌ Validação falhou: estudo sem matéria')
+    alert('Por favor, selecione uma matéria para atividades de estudo')
     return
   }
+  console.log('✅ Matéria OK:', formData.value.subject_id || 'N/A (evento)')
 
+  // VALIDAÇÃO 3: Data e horário
+  console.log('✔️ VALIDAÇÃO 3: Verificando data e horário...')
   if (!formData.value.scheduled_date || !formData.value.start_time) {
+    console.warn('❌ Validação falhou: data ou horário vazio')
     alert('Por favor, preencha data e horário')
     return
   }
+  console.log('✅ Data OK:', formData.value.scheduled_date)
+  console.log('✅ Horário OK:', formData.value.start_time)
 
+  // VALIDAÇÃO 4: Duração
+  console.log('✔️ VALIDAÇÃO 4: Verificando duração...')
   if (formData.value.duration <= 0) {
+    console.warn('❌ Validação falhou: duração inválida')
     alert('A duração deve ser maior que zero')
     return
   }
+  console.log('✅ Duração OK:', formData.value.duration, 'minutos')
 
+  // Prepara o payload
+  console.log('📦 Preparando payload...')
   const payload: CreateActivityPayload = {
     type: formData.value.type,
-    subject_id: formData.value.subject_id,
+    subject_id: formData.value.type === 'study' ? formData.value.subject_id : null,
     title: formData.value.title.trim(),
     description: formData.value.description.trim() || null,
     scheduled_date: formData.value.scheduled_date,
@@ -243,10 +295,40 @@ const handleSave = () => {
     color: formData.value.color || null
   }
 
-  if (props.activity?.id) {
-    emit('update', props.activity.id, payload)
-  } else {
-    emit('save', payload)
+  console.log('✅✅✅ Payload final preparado:', JSON.stringify(payload, null, 2))
+
+  // Ativa loading
+  console.log('⏳ Ativando loading...')
+  savingActivity.value = true
+
+  try {
+    if (props.activity?.id) {
+      console.log('📝 Modo: ATUALIZAÇÃO (update)')
+      console.log('🆔 ID da atividade:', props.activity.id)
+      console.log('🚀 Emitindo evento "update"...')
+      emit('update', props.activity.id, payload)
+      console.log('✅ Evento "update" emitido')
+    } else {
+      console.log('➕ Modo: CRIAÇÃO (save)')
+      console.log('🚀 Emitindo evento "save"...')
+      emit('save', payload)
+      console.log('✅ Evento "save" emitido')
+      console.log('⏳ Aguardando componente pai processar...')
+    }
+
+    console.log('🏁 === FIM: handleSave (ActivityModal) ===')
+  } catch (err: any) {
+    console.error('❌❌❌ ERRO CAPTURADO em handleSave ❌❌❌')
+    console.error('Mensagem:', err.message)
+    console.error('Stack:', err.stack)
+    alert(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`)
+  } finally {
+    // O loading será desativado pelo componente pai após a operação
+    console.log('⏰ Agendando desativação do loading em 500ms...')
+    setTimeout(() => {
+      savingActivity.value = false
+      console.log('🔓 Loading desativado')
+    }, 500)
   }
 }
 
@@ -290,7 +372,7 @@ const prevStep = () => {
     <Transition name="modal-fade">
       <div
         v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
         @click.self="closeModal"
       >
         <Transition name="modal-slide">
@@ -424,36 +506,51 @@ const prevStep = () => {
                       Selecione a matéria
                     </label>
 
-                    <div class="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2">
+                    <!-- Loading state -->
+                    <div v-if="loadingSubjects" class="flex items-center justify-center py-12">
+                      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div v-else-if="subjects.length === 0" class="text-center py-8 px-4 bg-gray-50 dark:bg-dark-900/30 rounded-xl border-2 border-dashed border-gray-300 dark:border-dark-600">
+                      <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <p class="text-gray-700 dark:text-gray-300 font-medium mb-1">Nenhuma matéria cadastrada</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Crie sua primeira matéria para começar</p>
+                    </div>
+
+                    <!-- Subjects list - COMPACTO -->
+                    <div v-else class="grid grid-cols-2 gap-2 max-h-[350px] overflow-y-auto pr-2">
                       <button
                         v-for="subject in subjects"
                         :key="subject.id"
                         @click="formData.subject_id = subject.id"
                         :class="[
-                          'relative p-4 rounded-xl border-2 transition-all text-left',
+                          'relative p-2.5 rounded-lg border-2 transition-all text-left',
                           formData.subject_id === subject.id
-                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-lg scale-105'
-                            : 'border-gray-200 dark:border-dark-600 hover:border-gray-300 dark:hover:border-dark-500 hover:shadow-md'
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
+                            : 'border-gray-200 dark:border-dark-600 hover:border-gray-300 dark:hover:border-dark-500 hover:shadow-sm'
                         ]"
                       >
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
                           <div
-                            class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+                            class="w-7 h-7 rounded-md flex items-center justify-center text-base flex-shrink-0"
                             :style="{ backgroundColor: subject.color + '20' }"
                           >
                             {{ subject.icon }}
                           </div>
                           <div class="flex-1 min-w-0">
-                            <div class="font-semibold text-gray-900 dark:text-white truncate">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">
                               {{ subject.name }}
                             </div>
                           </div>
                         </div>
                         <div
                           v-if="formData.subject_id === subject.id"
-                          class="absolute top-2 right-2 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center"
+                          class="absolute top-1.5 right-1.5 w-4 h-4 bg-primary-500 rounded-full flex items-center justify-center"
                         >
-                          <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                           </svg>
                         </div>
@@ -462,7 +559,8 @@ const prevStep = () => {
 
                     <button
                       @click="showNewSubjectForm = true"
-                      class="mt-4 w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-all flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300 font-medium"
+                      :disabled="loadingSubjects"
+                      class="mt-4 w-full py-3 px-4 border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-all flex items-center justify-center gap-2 text-gray-700 dark:text-gray-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -471,13 +569,16 @@ const prevStep = () => {
                     </button>
                   </div>
 
-                  <!-- Form de nova matéria -->
-                  <div v-else class="bg-gray-50 dark:bg-dark-900/50 rounded-xl p-6 space-y-4 border-2 border-primary-200 dark:border-primary-800">
-                    <div class="flex items-center justify-between mb-2">
-                      <h4 class="font-bold text-gray-900 dark:text-white">Nova Matéria</h4>
+                  <!-- Form de nova matéria - SIMPLIFICADO -->
+                  <div v-else class="bg-gray-50 dark:bg-dark-900/50 rounded-xl p-5 space-y-3 border-2 border-primary-200 dark:border-primary-800">
+                    <div class="flex items-center justify-between">
+                      <h4 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="text-xl">{{ defaultIcon }}</span>
+                        <span>Nova Matéria</span>
+                      </h4>
                       <button
                         @click="showNewSubjectForm = false"
-                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition"
                       >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -485,15 +586,20 @@ const prevStep = () => {
                       </button>
                     </div>
 
-                    <input
-                      v-model="newSubject.name"
-                      type="text"
-                      placeholder="Nome da matéria (ex: Direito Constitucional)"
-                      class="w-full px-4 py-3 bg-white dark:bg-dark-800 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white"
-                    />
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Nome da matéria
+                      </label>
+                      <input
+                        v-model="newSubject.name"
+                        type="text"
+                        placeholder="Ex: Direito Constitucional"
+                        class="w-full px-4 py-2.5 bg-white dark:bg-dark-800 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white"
+                      />
+                    </div>
 
                     <div>
-                      <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Escolha uma cor
                       </label>
                       <div class="flex flex-wrap gap-2">
@@ -501,18 +607,25 @@ const prevStep = () => {
                           v-for="color in colorPalette"
                           :key="color"
                           @click="newSubject.color = color"
-                          class="w-10 h-10 rounded-lg transition-all"
-                          :class="newSubject.color === color ? 'ring-4 ring-gray-900 dark:ring-white scale-110' : 'hover:scale-105'"
+                          class="w-9 h-9 rounded-lg transition-all flex items-center justify-center"
+                          :class="newSubject.color === color ? 'ring-3 ring-primary-500 scale-105' : 'hover:scale-105 opacity-80 hover:opacity-100'"
                           :style="{ backgroundColor: color }"
-                        />
+                        >
+                          <svg v-if="newSubject.color === color" class="w-4 h-4 text-white drop-shadow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
 
                     <button
                       @click="createNewSubject"
                       :disabled="!newSubject.name.trim()"
-                      class="w-full px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-lg"
+                      class="w-full px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-lg hover:from-primary-700 hover:to-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold shadow-lg flex items-center justify-center gap-2"
                     >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
                       Criar Matéria
                     </button>
                   </div>
@@ -520,14 +633,14 @@ const prevStep = () => {
 
                 <!-- Título (se tipo = event) -->
                 <div v-if="formData.type === 'event'">
-                  <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                  <label class="block text-sm font-bold text-gray-700 dark:text-white mb-3">
                     Nome do evento
                   </label>
                   <input
                     v-model="formData.title"
                     type="text"
                     placeholder="Ex: Prova de Matemática, Entrega de trabalho..."
-                    class="w-full px-4 py-3 bg-white dark:bg-dark-700 border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-lg"
+                    class="w-full px-4 py-3 bg-white dark:bg-dark-700 border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -554,7 +667,7 @@ const prevStep = () => {
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                      <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-5 h-5 text-gray-500 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Data
@@ -562,13 +675,13 @@ const prevStep = () => {
                     <input
                       v-model="formData.scheduled_date"
                       type="date"
-                      class="w-full px-4 py-3 bg-white dark:bg-dark-700 border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-gray-900 dark:text-white"
+                      class="w-full px-4 py-3 bg-white dark:bg-dark-700 border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-gray-900 dark:text-white [&::-webkit-calendar-picker-indicator]:dark:invert"
                     />
                   </div>
 
                   <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                      <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-5 h-5 text-gray-500 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       Horário
@@ -576,7 +689,7 @@ const prevStep = () => {
                     <input
                       v-model="formData.start_time"
                       type="time"
-                      class="w-full px-4 py-3 bg-white dark:bg-dark-700 border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-gray-900 dark:text-white"
+                      class="w-full px-4 py-3 bg-white dark:bg-dark-700 border-2 border-gray-300 dark:border-dark-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-gray-900 dark:text-white [&::-webkit-calendar-picker-indicator]:dark:invert"
                     />
                   </div>
                 </div>
@@ -702,12 +815,20 @@ const prevStep = () => {
                   <button
                     v-if="activity"
                     @click="handleToggleCompletion"
-                    class="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md flex items-center gap-2"
+                    :class="[
+                      'px-4 py-2.5 rounded-lg transition font-medium shadow-md flex items-center gap-2',
+                      activity.is_completed
+                        ? 'bg-green-600 text-white hover:bg-green-700 ring-2 ring-green-400 ring-offset-2 dark:ring-offset-dark-900'
+                        : 'bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-600'
+                    ]"
                   >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    <svg v-if="activity.is_completed" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
-                    {{ activity.is_completed ? 'Concluído' : 'Marcar Concluído' }}
+                    <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ activity.is_completed ? '✓ Concluída' : 'Marcar como Concluída' }}
                   </button>
 
                   <button
@@ -733,13 +854,6 @@ const prevStep = () => {
                   </button>
 
                   <button
-                    @click="closeModal"
-                    class="px-6 py-2.5 bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-dark-600 transition font-medium"
-                  >
-                    Cancelar
-                  </button>
-
-                  <button
                     v-if="currentStep === 1 && !activity"
                     @click="nextStep"
                     class="px-8 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-lg hover:from-primary-700 hover:to-primary-600 transition font-bold shadow-lg flex items-center gap-2"
@@ -753,12 +867,17 @@ const prevStep = () => {
                   <button
                     v-else
                     @click="handleSave"
-                    class="px-8 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-lg hover:from-primary-700 hover:to-primary-600 transition font-bold shadow-lg flex items-center gap-2"
+                    :disabled="savingActivity"
+                    class="px-8 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-lg hover:from-primary-700 hover:to-primary-600 transition font-bold shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg v-if="!savingActivity" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
-                    {{ activity ? 'Salvar Alterações' : 'Criar Atividade' }}
+                    <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ savingActivity ? 'Salvando...' : (activity ? 'Salvar Alterações' : 'Criar Atividade') }}
                   </button>
                 </div>
               </div>
