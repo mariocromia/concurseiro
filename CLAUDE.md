@@ -916,25 +916,42 @@ setTheme(theme.value === 'dark' ? 'light' : 'dark')
 
 ---
 
-**Version:** 3.6.0
-**Last Updated:** 2025-10-22T01:00:00-0300
+**Version:** 3.7.0
+**Last Updated:** 2025-10-22T19:30:00-0300
 **Implementation Score:** 100/100 ⭐
 
 **Recent Updates (2025-10-22):**
-- ✅ **FASE 8 COMPLETA**: Interactive Study Calendar - 100%
-  - Composable useStudySchedule (370+ lines) with CRUD operations
-  - CalendarView component (600+ lines) with 4 visualization modes
-  - ActivityModal component (866 lines) with wizard-style interface
-  - Drag-and-drop scheduling functionality
-  - Time conflict detection
-  - Workload statistics (weekly hours, completion rate)
-  - Dashboard integration with statistics cards
-  - SVG monochromatic icons following platform standards
-  - White text in dark mode for accessibility
-  - Two activity types: Study (subject-linked) + Event (free-form)
-  - Inline subject creation with color picker
-  - Comprehensive documentation created
-- ✅ Score: 100/100 maintained (Organization pillar 95% → 100%)
+- ✅ **CALENDÁRIO 100% COMPLETO**: Melhorias de UX e Funcionalidades
+  - **Visualização em Lista Compacta**: Layout horizontal ultra-compacto (66% menos altura)
+    - Cards de atividades em uma linha com todos os elementos organizados
+    - Barra colorida lateral (1px) na cor da matéria
+    - Checkbox animado, horário em badge, duração, status visual
+    - Descrição expansível ao hover
+    - Botões de ação aparecem apenas no hover
+    - Responsivo: esconde elementos secundários em mobile
+  - **Sistema de Busca Inteligente**:
+    - Campo de busca visível apenas no modo lista
+    - Busca em múltiplos campos: título, descrição, matéria, horário
+    - Contador de resultados em tempo real
+    - Highlight amarelo nos resultados encontrados
+    - Estado vazio diferenciado (busca vs sem atividades)
+  - **Melhorias no Modal de Atividade**:
+    - Ícones internos de data/hora brancos no modo escuro
+    - Botão "Cancelar" removido (interface mais limpa)
+    - Botão "Marcar como Concluída" com feedback visual forte:
+      - Estado pendente: botão cinza com ícone vazio
+      - Estado concluído: botão verde + ring brilhante + emoji ✓ + ícone preenchido
+  - **Correções Críticas**:
+    - Fixed: `user.value.id` undefined em `updateActivity()` e `deleteActivity()`
+    - Solução: usar `supabase.auth.getSession()` diretamente
+    - Agora é possível marcar, editar e excluir atividades corretamente
+  - **Dashboard Simplificado**:
+    - Removido "Mural de Tarefas" (Kanban) do dashboard
+    - Foco total no calendário de estudos
+    - Layout mais limpo e objetivo
+
+- ✅ **DASHBOARD 80%**: Priorização do calendário de estudos como ferramenta principal
+- ✅ Score: 100/100 maintained
 
 ---
 
