@@ -21,6 +21,7 @@
     "@vue-flow/minimap": "^1.5.4",
     "@vueup/vue-quill": "^1.2.0",
     "@vueuse/core": "^13.9.0",
+    "canvas-confetti": "^1.9.3",
     "chart.js": "^4.5.0",
     "html2canvas": "^1.4.1",
     "nuxt": "^4.1.2",
