@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **PraPassar** is a SaaS platform for Brazilian students preparing for competitive exams ("concursos") and university entrance exams. It combines structured organization, spaced repetition learning, and AI-powered study tools.
 
 **Three Core Pillars:**
-1. **Organization** (95% implemented) - Subject management, virtual notebooks, Kanban board, study calendar, timer, question bank, exam simulations
+1. **Organization** (100% implemented) - Subject management, virtual notebooks, Kanban board, **interactive study calendar with scheduler**, timer, question bank, exam simulations
 2. **Scientific Retention** (85% implemented) - R1-R7 spaced repetition system, gamified flashcards, push notifications, simulados
 3. **Active AI** (75% implemented) - AI tutor (Google Gemini), question generation, mind maps, AI tour, caching, optimized prompts
 
@@ -32,8 +32,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 prapassar/
 ├── prapassar-app/            # Main Nuxt application
 │   ├── app/
-│   │   ├── components/       # 13 Vue components
-│   │   ├── composables/      # 9 composables (useAuth, useStudyTimer, useGeminiAI, useGoals, etc.)
+│   │   ├── components/       # 15 Vue components (includes CalendarView, ActivityModal)
+│   │   ├── composables/      # 10 composables (useAuth, useStudyTimer, useGeminiAI, useGoals, useStudySchedule, etc.)
 │   │   ├── middleware/       # auth.ts
 │   │   ├── pages/            # 31 pages
 │   │   ├── assets/css/       # theme.css (dark/light theme system)
@@ -283,15 +283,29 @@ Implementation: [app/composables/useGoals.ts](prapassar-app/app/composables/useG
 4. **AIFlashcardsModal.vue** - AI flashcard generator
 5. **AIPopupMenu.vue** - Context menu for AI features
 
+### Calendar Components
+
+6. **CalendarView.vue** - Interactive study calendar
+   - 4 view modes (day, week, biweek, month)
+   - Drag-and-drop scheduling
+   - Time conflict detection
+   - Dark/light theme support
+7. **ActivityModal.vue** - Calendar activity creation/editing
+   - Wizard-style 2-step form
+   - Study (linked to subject) or Event (free-form)
+   - Inline subject creation
+   - Duration slider, color picker
+
 ### Utility Components
 
-6. **Calculator.vue** - Built-in calculator
-7. **FloatingTimer.vue** - Floating study timer
-8. **GlobalSearchBar.vue** - Global search functionality
-9. **RemindersManager.vue** - Reminders management
-10. **RichContentEditor.vue** - WYSIWYG editor for notebooks
-11. **SmartSearch.vue** - Advanced search component
-12. **WhatsAppButton.vue** - WhatsApp support button
+8. **Calculator.vue** - Built-in calculator
+9. **FloatingTimer.vue** - Floating study timer
+10. **GlobalSearchBar.vue** - Global search functionality
+11. **RemindersManager.vue** - Reminders management
+12. **RichContentEditor.vue** - WYSIWYG editor for notebooks
+13. **SmartSearch.vue** - Advanced search component
+14. **WhatsAppButton.vue** - WhatsApp support button
+15. **GoalCard.vue** - Study goals card component
 
 ## Key Pages
 
@@ -335,13 +349,14 @@ Implementation: [app/composables/useGoals.ts](prapassar-app/app/composables/useG
 3. **useGemini.ts** - Gemini AI integration (legacy)
 4. **useGeminiAI.ts** - Enhanced Gemini AI wrapper
 5. **useGlobalSearch.ts** - Global search functionality
-6. **useGoals.ts** - **NEW** Study goals management with CRUD operations (2025-10-21)
-7. **useStudyTimer.ts** - Study timer logic with R1-R7 automation
-8. **useSubscription.ts** - Subscription management
-9. **useTheme.ts** - Dark/light theme management
-10. **useLoading.ts** - Universal loading state management
-11. **useToast.ts** - Toast notifications system
-12. **useReports.ts** - Study reports data loading (FIXED - 2025-10-19)
+6. **useGoals.ts** - Study goals management with CRUD operations (2025-10-21)
+7. **useStudySchedule.ts** - **NEW** Study calendar scheduling logic (2025-10-22)
+8. **useStudyTimer.ts** - Study timer logic with R1-R7 automation
+9. **useSubscription.ts** - Subscription management
+10. **useTheme.ts** - Dark/light theme management
+11. **useLoading.ts** - Universal loading state management
+12. **useToast.ts** - Toast notifications system
+13. **useReports.ts** - Study reports data loading (FIXED - 2025-10-19)
 
 ## Environment Variables
 
@@ -427,6 +442,82 @@ ASAAS_WEBHOOK_SECRET=xxx...
    - Estrutura pronta para filtrar exercícios por matéria
    - Interface precisa ser implementada
    - Backend já retorna dados de matéria quando disponível
+
+### ✅ Study Calendar System (FASE 8 - 100% Completa) - 2025-10-22
+
+**Complete interactive calendar with drag-and-drop scheduling and activity management**
+
+1. ✅ **Composable (useStudySchedule.ts - 370+ lines)**
+   - Complete CRUD operations for schedule activities
+   - Time conflict detection and validation
+   - Workload statistics calculation
+   - Duration formatting and time calculations
+   - Activity grouping by date
+   - Support for both Study (linked to subject) and Event (free-form) activities
+
+2. ✅ **Calendar Component (CalendarView.vue - 600+ lines)**
+   - 4 visualization modes:
+     - Daily: Full day with hourly grid (00:00-23:00)
+     - Weekly: 7 days with detailed time slots
+     - Biweekly: 14 days compact view
+     - Monthly: Traditional calendar layout
+   - Drag-and-drop activity reorganization
+   - Click empty slot to create new activity
+   - Click activity to view/edit
+   - Navigation: Previous/Next/Today buttons
+   - Visual indicators for current day, past days, completed activities
+   - Dark/light theme support
+   - Mobile responsive
+
+3. ✅ **Activity Modal (ActivityModal.vue - 866 lines)**
+   - Wizard-style 2-step interface
+   - Step 1: Choose type (Study/Event) and select/create subject
+   - Step 2: Fill details (title, date, time, duration, description, color)
+   - Inline subject creation with color picker (no icon selection)
+   - Duration slider (15 min to 8 hours)
+   - Automatic end time calculation
+   - Conflict detection with visual alerts
+   - SVG monochromatic icons following platform standards
+   - White text in dark mode for better readability
+   - Create, edit, delete, mark as completed
+
+4. ✅ **Dashboard Integration**
+   - Calendar section in dashboard with statistics cards:
+     - Weekly workload (total hours)
+     - Activities completed vs total
+     - Completion rate percentage
+   - "Nova Atividade" button for quick creation
+   - Calendar and modal fully integrated
+   - loadCalendarData() called on mount
+
+5. ✅ **Database Integration**
+   - Uses existing `study_schedules` table
+   - Columns: user_id, subject_id, title, description, scheduled_date, start_time, duration, is_completed, color
+   - RLS policies enforced
+   - Proper indexing for performance
+
+**Files Created:**
+- app/composables/useStudySchedule.ts (370+ lines)
+- app/components/CalendarView.vue (600+ lines)
+- app/components/ActivityModal.vue (866 lines)
+- CALENDAR_INTEGRATION_GUIDE.md (integration guide)
+- CALENDARIO_ESTUDOS_README.md (feature documentation)
+- integrate_calendar.py (Python integration script)
+
+**Key Features:**
+- ✅ 4 calendar views (day, week, biweek, month)
+- ✅ Drag-and-drop scheduling
+- ✅ Two activity types: Study (subject-linked) and Event (free-form)
+- ✅ Inline subject creation
+- ✅ Time conflict detection
+- ✅ Visual statistics (workload, completion rate)
+- ✅ Dark/light theme support
+- ✅ Mobile responsive
+- ✅ SVG monochromatic icons
+- ✅ White text in dark mode
+- ✅ Automatic time calculations
+- ✅ Duration slider interface
+- ✅ Color customization per activity
 
 ### ✅ Study Goals System (FASE 7 - 100% Completa) - 2025-10-21
 
@@ -801,12 +892,12 @@ setTheme(theme.value === 'dark' ? 'light' : 'dark')
 
 ## Project Statistics
 
-- **Total Pages:** 33 Vue files (+2: metas, metas/[id])
-- **Total Components:** 19 Vue components (+1: GoalCard)
-- **Total API Endpoints:** 37 endpoints (+9: goals system)
-- **Total Composables:** 12 composables (+1: useGoals)
-- **Total Database Tables:** 19+ tables (+2: goals, goal_checklist_items)
-- **Lines of Code:** ~30,000+ (estimated)
+- **Total Pages:** 33 Vue files
+- **Total Components:** 21 Vue components (+2: CalendarView, ActivityModal)
+- **Total API Endpoints:** 37 endpoints
+- **Total Composables:** 13 composables (+1: useStudySchedule)
+- **Total Database Tables:** 19+ tables
+- **Lines of Code:** ~32,000+ (estimated)
 
 **Latest Session Stats (Fase 7 - Study Goals):**
 - **Commits:** 1 commit (pending)
@@ -825,22 +916,25 @@ setTheme(theme.value === 'dark' ? 'light' : 'dark')
 
 ---
 
-**Version:** 3.5.0
-**Last Updated:** 2025-10-21T02:30:00-0300
+**Version:** 3.6.0
+**Last Updated:** 2025-10-22T01:00:00-0300
 **Implementation Score:** 100/100 ⭐
 
-**Recent Updates (2025-10-21):**
-- ✅ **FASE 7 COMPLETA**: Study Goals System (Metas) - 100%
-  - 9 API endpoints (POST, GET, PUT, DELETE)
-  - 2 pages (list + details) + 1 component
-  - 1 composable (useGoals) com CRUD completo
-  - Database migration com triggers
-  - Confetti animations, motivational messages
-  - **CRITICAL FIX**: Authentication pattern fixed in all endpoints
-  - Changed from `event.context.user` to `supabase.auth.getUser()`
-  - Python script created for bulk fixing
-- 🔧 Mind Maps: Connection persistence fixes ongoing
-- 📊 Score: 94 → 100 (+6 pontos desde ontem)
+**Recent Updates (2025-10-22):**
+- ✅ **FASE 8 COMPLETA**: Interactive Study Calendar - 100%
+  - Composable useStudySchedule (370+ lines) with CRUD operations
+  - CalendarView component (600+ lines) with 4 visualization modes
+  - ActivityModal component (866 lines) with wizard-style interface
+  - Drag-and-drop scheduling functionality
+  - Time conflict detection
+  - Workload statistics (weekly hours, completion rate)
+  - Dashboard integration with statistics cards
+  - SVG monochromatic icons following platform standards
+  - White text in dark mode for accessibility
+  - Two activity types: Study (subject-linked) + Event (free-form)
+  - Inline subject creation with color picker
+  - Comprehensive documentation created
+- ✅ Score: 100/100 maintained (Organization pillar 95% → 100%)
 
 ---
 
