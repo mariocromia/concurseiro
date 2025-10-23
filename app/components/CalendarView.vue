@@ -14,11 +14,18 @@ const emit = defineEmits<{
   'update-activity': [activity: ScheduleActivity, updates: any]
   'delete-activity': [activity: ScheduleActivity]
   'toggle-completion': [activity: ScheduleActivity]
+  'view-changed': [viewMode: ViewMode, currentDate: Date]
 }>()
 
 const viewMode = ref<ViewMode>('week')
 const currentDate = ref(new Date())
 const searchQuery = ref('')
+
+// Watch para emitir mudanças de visualização
+watch([viewMode, currentDate], ([newViewMode, newCurrentDate]) => {
+  console.log('📺 [CalendarView] View changed:', newViewMode, newCurrentDate)
+  emit('view-changed', newViewMode, newCurrentDate)
+}, { immediate: true }) // Dispara logo na primeira renderização
 
 const { calculateEndTime, formatDuration } = useStudySchedule()
 

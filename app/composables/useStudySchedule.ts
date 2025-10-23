@@ -68,9 +68,9 @@ export const useStudySchedule = () => {
   }
 
   // Busca todas as atividades do usuário em um período
-  const fetchActivities = async (startDate: string, endDate: string) => {
+  const fetchActivities = async (startDate: string, endDate?: string) => {
     console.log('🔄🔄🔄 === INÍCIO: fetchActivities (CARREGAMENTO) === 🔄🔄🔄')
-    console.log('📅 Período solicitado:', { startDate, endDate })
+    console.log('📅 Período solicitado:', { startDate, endDate: endDate || 'SEM LIMITE' })
 
     // ✅ CORREÇÃO: Usar getSession() ao invés de user.value
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
@@ -92,18 +92,26 @@ export const useStudySchedule = () => {
       console.log('📊 Filtros aplicados:', {
         user_id: session.user.id,
         'scheduled_date >=': startDate,
-        'scheduled_date <=': endDate
+        'scheduled_date <=': endDate || 'SEM LIMITE'
       })
 
-      const { data, error: fetchError } = await supabase
+      // Construir query base
+      let query = supabase
         .from('study_schedules')
         .select(`
           *,
           subject:subjects(id, name, color, icon)
         `)
-        .eq('user_id', session.user.id)  // ✅ CORREÇÃO: usar session.user.id
+        .eq('user_id', session.user.id)
         .gte('scheduled_date', startDate)
-        .lte('scheduled_date', endDate)
+
+      // Adicionar filtro de data final APENAS se fornecido
+      if (endDate) {
+        query = query.lte('scheduled_date', endDate)
+      }
+
+      // Executar query
+      const { data, error: fetchError } = await query
         .order('scheduled_date', { ascending: true })
         // NÃO ordenar por start_time/scheduled_time - pode causar erro se coluna não existir
 
@@ -469,9 +477,16 @@ export const useStudySchedule = () => {
 
   // Obtém estatísticas de carga horária
   const getWorkloadStats = (startDate: string, endDate: string) => {
+    console.log('📊📊📊 [getWorkloadStats] Calculando estatísticas...')
+    console.log('📅 Período solicitado:', { startDate, endDate })
+    console.log('📦 Total de atividades no array:', activities.value.length)
+
     const filtered = activities.value.filter(
       a => a.scheduled_date >= startDate && a.scheduled_date <= endDate
     )
+
+    console.log('🔍 Atividades filtradas:', filtered.length)
+    console.log('📋 Datas filtradas:', filtered.map(a => ({ date: a.scheduled_date, title: a.title, completed: a.is_completed })))
 
     const totalMinutes = filtered.reduce((sum, a) => sum + a.duration, 0)
     const completedMinutes = filtered.filter(a => a.is_completed)
@@ -480,7 +495,7 @@ export const useStudySchedule = () => {
     const totalActivities = filtered.length
     const completedActivities = filtered.filter(a => a.is_completed).length
 
-    return {
+    const stats = {
       totalMinutes,
       completedMinutes,
       totalHours: Math.round(totalMinutes / 60 * 10) / 10,
@@ -491,6 +506,9 @@ export const useStudySchedule = () => {
         ? Math.round((completedActivities / totalActivities) * 100)
         : 0
     }
+
+    console.log('✅ Estatísticas calculadas:', stats)
+    return stats
   }
 
   // Obtém atividades agrupadas por data
