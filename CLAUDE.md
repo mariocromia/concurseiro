@@ -443,7 +443,49 @@ ASAAS_WEBHOOK_SECRET=xxx...
    - Interface precisa ser implementada
    - Backend já retorna dados de matéria quando disponível
 
-### ✅ Study Calendar System (FASE 8 - 100% Completa) - 2025-10-22
+### ✅ Dynamic Calendar Statistics (FASE 10 - 100% Completa) - 2025-10-23
+
+**Responsive calendar statistics that update based on view mode**
+
+1. ✅ **View-Changed Event System**
+   - CalendarView emits `view-changed` when mode or date changes
+   - Watch with `immediate: true` for initial load
+   - Dashboard listens and recalculates statistics automatically
+
+2. ✅ **Dynamic Period Calculation**
+   - Function `calculatePeriod(viewMode, currentDate)` in dashboard
+   - Calculates correct date range for each view:
+     - **Day:** Single day only
+     - **Week:** Sunday to Saturday (7 days)
+     - **Biweek:** 14 consecutive days
+     - **Month:** First to last day of month
+     - **List:** Next 10 years
+
+3. ✅ **Real-time Statistics Updates**
+   - Handler `handleViewChanged()` recalculates on every view/date change
+   - Uses `getWorkloadStats(start, end)` with dynamic dates
+   - Statistics cards update instantly:
+     - Carga Horária: Total hours for period
+     - Atividades Concluídas: X/Y format
+     - Taxa de Conclusão: Percentage
+
+4. ✅ **Data Synchronization**
+   - Added `nextTick()` to ensure Vue ref updates before calculations
+   - Extensive logging for debugging
+   - All activities loaded upfront (unlimited date range)
+
+**Files Modified:**
+- app/components/CalendarView.vue - Added `view-changed` emit
+- app/pages/dashboard.vue - `handleViewChanged()`, `calculatePeriod()`
+- app/composables/useStudySchedule.ts - Debug logs in `getWorkloadStats()`
+
+**Benefits:**
+- ✅ Statistics now 100% dynamic
+- ✅ User sees accurate data for each visualization
+- ✅ Better UX and data transparency
+- ✅ No manual refresh needed
+
+### ✅ Study Calendar System (FASE 8-9 - 100% Completa) - 2025-10-22
 
 **Complete interactive calendar with drag-and-drop scheduling and activity management**
 
@@ -916,11 +958,36 @@ setTheme(theme.value === 'dark' ? 'light' : 'dark')
 
 ---
 
-**Version:** 3.7.0
-**Last Updated:** 2025-10-22T19:30:00-0300
+**Version:** 3.8.0
+**Last Updated:** 2025-10-23T15:30:00-0300
 **Implementation Score:** 100/100 ⭐
 
-**Recent Updates (2025-10-22):**
+**Recent Updates (2025-10-23):**
+- ✅ **FASE 10: DYNAMIC CALENDAR STATISTICS (100% COMPLETA)**
+  - **Problema Resolvido**: Estatísticas fixas (sempre semana atual)
+  - **Solução Implementada**:
+    - CalendarView emite evento `view-changed` quando modo/data mudam
+    - Dashboard recalcula estatísticas automaticamente via `handleViewChanged()`
+    - Função `calculatePeriod()` calcula período correto para cada modo:
+      - **Dia**: Apenas o dia selecionado
+      - **Semana**: Domingo a sábado (7 dias)
+      - **Quinzena**: 14 dias consecutivos
+      - **Mês**: Primeiro ao último dia do mês
+      - **Lista**: Próximos 10 anos
+    - Watch com `immediate: true` para inicialização correta
+    - `nextTick()` para garantir sincronização de dados Vue
+  - **Arquivos Modificados** (3):
+    - `app/components/CalendarView.vue` - Adicionado emit `view-changed` + watch
+    - `app/pages/dashboard.vue` - `handleViewChanged()`, `calculatePeriod()`, `nextTick()`
+    - `app/composables/useStudySchedule.ts` - Logs detalhados em `getWorkloadStats()`
+  - **Benefícios**:
+    - ✅ Estatísticas 100% dinâmicas
+    - ✅ Dados precisos para cada visualização
+    - ✅ Melhor UX e transparência de dados
+    - ✅ Sem necessidade de refresh manual
+- ✅ Score mantido: 100/100 🎉
+
+**Previous Updates (2025-10-22):**
 - ✅ **CALENDÁRIO 100% COMPLETO**: Melhorias de UX e Funcionalidades
   - **Visualização em Lista Compacta**: Layout horizontal ultra-compacto (66% menos altura)
     - Cards de atividades em uma linha com todos os elementos organizados

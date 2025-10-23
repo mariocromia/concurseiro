@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP - PraPassar Platform
 
-**Última atualização:** 2025-10-22T19:30:00-0300
+**Última atualização:** 2025-10-23T15:30:00-0300
 **Autor:** Claude Code + Equipe PraPassar
-**Status Geral:** ✅ **IMPLEMENTAÇÃO COMPLETA - 9 FASES CONCLUÍDAS (100/100)** 🎉
+**Status Geral:** ✅ **IMPLEMENTAÇÃO COMPLETA - 10 FASES CONCLUÍDAS (100/100)** 🎉
 
 ---
 
@@ -17,6 +17,7 @@
 - **Fase 7 (100%):** 100/100 (2025-10-21) 🎉 (goals system)
 - **Fase 8 (100%):** 100/100 (2025-10-22) 🎉 (calendar implementation)
 - **Fase 9 (100%):** 100/100 (2025-10-22) 🎉 (calendar UX improvements)
+- **Fase 10 (100%):** 100/100 (2025-10-23) 🎉 (dynamic calendar stats)
 - **Ganho Real:** +27 pontos
 - **Meta Original:** 95/100
 - **Status:** ✅ **META 100/100 MANTIDA!** 🎉
@@ -50,6 +51,7 @@ Fase 6 - Mind Maps System:      [██████████] 100% ✅ (+3 po
 Fase 7 - Goals System:          [██████████] 100% ✅ (mantém 100)
 Fase 8 - Calendar System:       [██████████] 100% ✅ (mantém 100)
 Fase 9 - Calendar UX:           [██████████] 100% ✅ (mantém 100)
+Fase 10 - Dynamic Stats:        [██████████] 100% ✅ (mantém 100)
 
 SCORE TOTAL: 100/100 (+27 pontos desde início) 🎉
 ```
@@ -706,6 +708,71 @@ VAPID_EMAIL=...                 # NOVO
 ---
 
 ## 📝 CHANGELOG COMPLETO
+
+### 2025-10-23
+
+**[15:30] ✅ Fase 10 - Dynamic Calendar Statistics COMPLETA**
+- **Problema Identificado:** Estatísticas do calendário fixas (sempre mostravam semana atual)
+- **Solução Implementada:**
+  - CalendarView agora emite evento `view-changed` quando modo/data mudam
+  - Dashboard recalcula estatísticas automaticamente
+  - Função `calculatePeriod()` calcula período correto para cada modo:
+    - Dia: Apenas o dia selecionado
+    - Semana: Domingo a sábado (7 dias)
+    - Quinzena: 14 dias consecutivos
+    - Mês: Primeiro ao último dia do mês
+    - Lista: Próximos 10 anos
+  - Watch com `immediate: true` para inicialização correta
+  - `nextTick()` para garantir sincronização de dados
+- **Arquivos Modificados:**
+  - `app/components/CalendarView.vue` - Adicionado emit `view-changed`
+  - `app/pages/dashboard.vue` - Handler `handleViewChanged()` e `calculatePeriod()`
+  - `app/composables/useStudySchedule.ts` - Logs detalhados em `getWorkloadStats()`
+- **Benefícios:**
+  - Estatísticas agora são 100% dinâmicas
+  - Usuário vê dados precisos para cada visualização
+  - Melhor UX e transparência de dados
+- **Score:** 100/100 (mantém) ✅
+
+### 2025-10-22
+
+**[19:30] ✅ Fase 9 - Calendar UX Improvements COMPLETA**
+- Visualização em lista compacta ultra-eficiente
+- Sistema de busca inteligente com highlight
+- Modal de atividade modernizado
+- Dashboard simplificado (foco no calendário)
+- Score: 100/100 (mantém) ✅
+
+**[16:00] ✅ Fase 8 - Interactive Calendar System COMPLETA**
+- 4 modos de visualização (dia, semana, quinzena, mês)
+- Drag-and-drop scheduling
+- Modal wizard de 2 etapas
+- Integração completa no dashboard
+- Score: 100/100 (mantém) ✅
+
+### 2025-10-21
+
+**[18:00] ✅ Fase 7 - Study Goals System COMPLETA**
+- Sistema completo de metas com checklist
+- 9 endpoints de API funcionando
+- Composable useGoals com CRUD
+- 2 páginas (/metas e /metas/[id])
+- Confetti celebration e mensagens motivacionais
+- Score: 100/100 (mantém) ✅
+
+### 2025-10-20
+
+**[18:30] ✅ Fase 6 - Mind Maps System (94%)**
+- Correção crítica de bugs de conexões
+- Sistema completo de mapas mentais com IA
+- 15+ arquivos de documentação
+- Score: 94/100 → 100/100 ✅
+
+**[15:00] ✅ Fase 5 - Reports & Analytics (90%)**
+- Relatórios de estudo funcionando
+- Relatórios de exercícios IA implementados
+- Correções críticas de autenticação
+- Score: 97/100 ✅
 
 ### 2025-10-17
 
