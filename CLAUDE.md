@@ -653,6 +653,104 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 - ✅ Better dark mode integration
 - ✅ Improved accessibility with semantic SVG icons
 
+### ✅ Pomodoro Timer System (FASE 15 - 100% Completa) - 2025-10-24
+
+**Integrated Pomodoro technique with automated focus/break cycles**
+
+1. ✅ **Configuration Interface** (study.vue)
+   - Up/down arrow selectors for focus time (1-120 min, default 25)
+   - Up/down arrow selectors for break time (1-60 min, default 5)
+   - Toggle switch to enable/disable Pomodoro alarm
+   - Configuration locked during active study session
+   - Real-time countdown display showing current phase
+
+2. ✅ **Integrated Timer Logic** (useStudyTimer.ts)
+   - Pomodoro starts automatically when study timer starts
+   - Countdown runs in parallel with study timer
+   - Main timer counts up (total study time)
+   - Pomodoro counts down (remaining time in current phase)
+   - Automatic pause of study timer at end of focus phase
+   - Automatic resume when break ends
+
+3. ✅ **Global Alarm Modals** (app.vue - z-index 60)
+   - **End of Focus**: Modal appears on ANY page in app
+     - "Time for a break?" with pause duration display
+     - Options: "Sim, Pausar" or "Não, Continuar"
+     - Auto-pauses study timer if user accepts break
+   - **End of Break**: Modal appears with return prompt
+     - "Time to return?" with motivational message
+     - Options: "Sim, Voltar" or "Mais Pausa"
+     - Auto-resumes study timer if user returns
+   - Animated bell icon with ping effect
+   - Prevents repeated firing until user responds
+
+4. ✅ **Break Time Interval System**
+   - Creates dedicated `setInterval()` for break countdown
+   - Continues counting during break phase
+   - Separate from study timer interval
+   - Proper cleanup and recreation on phase changes
+   - Supports break extensions with new interval creation
+
+5. ✅ **Accurate Time Tracking**
+   - Tracks total break time in `totalBreakTime` variable
+   - Subtracts break time from final study duration
+   - Only actual focus time is saved to database
+   - Prevents inflated study time records
+   - Detailed logging for debugging
+
+6. ✅ **Continuous Cycle**
+   - Focus → Break → Focus → Break (infinite loop)
+   - Each phase triggers alarm at completion
+   - User can skip breaks to continue studying
+   - User can extend breaks for additional time
+   - Cycle resets when study session ends
+
+7. ✅ **UI/UX Fixes**
+   - Fixed inverted arrows (up now increases, down decreases)
+   - Modal "X" button exits session without saving
+   - "Sair sem Salvar" button in stop modal
+   - Red hover effects for destructive actions
+   - Tooltip on X button: "Sair sem salvar"
+
+**Files Modified:**
+- app/composables/useStudyTimer.ts (lines 61-474)
+  - Pomodoro state management
+  - Break interval creation logic
+  - handleAlarmResponse() with phase switching
+  - Time tracking with break subtraction
+- app/app.vue (lines 28-86)
+  - Global Pomodoro alarm modal
+  - Animated bell icon with ping
+  - Import useStudyTimer composable
+- app/pages/study.vue (lines 180-270, 305-368)
+  - Configuration UI with arrow selectors
+  - Countdown display
+  - Stop modal with X button
+  - exitWithoutSaving() function
+- app/plugins/01.preload.client.ts (lines 22-64)
+  - Auth timeout (2s) to prevent infinite loading
+  - Promise.race() for resilient initialization
+
+**Key Features:**
+- ✅ Fully integrated with study timer
+- ✅ Global modal visibility (any page)
+- ✅ Automated pause/resume of study timer
+- ✅ Continuous focus/break cycle
+- ✅ Accurate time tracking (breaks excluded)
+- ✅ Break countdown with dedicated interval
+- ✅ Single alarm firing per phase
+- ✅ Configurable focus/break durations
+- ✅ Visual countdown display
+- ✅ Exit without saving option
+
+**Benefits:**
+- ✅ Implements proven Pomodoro technique
+- ✅ Reduces study fatigue with regular breaks
+- ✅ Accurate study time metrics
+- ✅ Seamless integration with existing timer
+- ✅ No hydration errors or infinite loading
+- ✅ Professional UX with animations
+
 ### ✅ Study Calendar System (FASE 8-9 - 100% Completa) - 2025-10-22
 
 **Complete interactive calendar with drag-and-drop scheduling and activity management**
@@ -1031,33 +1129,31 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 
 ---
 
-**Version:** 4.0.0
-**Last Updated:** 2025-10-24T19:30:00-0300
+**Version:** 4.1.0
+**Last Updated:** 2025-10-24T20:45:00-0300
 **Implementation Score:** 100/100 ⭐
 
-**Recent Updates (2025-10-24 - Sessão 4):**
-- ✅ **FASE 12: Calendar Activity Type Filter & UI (100% COMPLETA)**
-  - Dropdown compacto para filtro de tipo (Todas/Estudar/Revisar/Evento)
-  - Estatísticas sensíveis ao período e filtros
-  - Contador de atividades em tempo real
-  - Lógica de filtro corrigida (estava invertida)
+**Recent Updates (2025-10-24 - Sessão 5):**
+- ✅ **FASE 15: Pomodoro Timer System (100% COMPLETA)**
+  - Sistema Pomodoro totalmente integrado ao timer de estudos
+  - Configuração: foco (1-120 min) e pausa (1-60 min) com setas corrigidas
+  - Modal global de alarme aparece em qualquer página do app
+  - Ciclo contínuo automático: Foco → Pausa → Foco → Pausa
+  - Timer de pausa com interval dedicado e contagem regressiva
+  - Tempo de pausas descontado do tempo total de estudo
+  - Botão X no modal de encerrar sessão (sai sem salvar)
+  - Fix: timeout de autenticação (2s) para evitar carregamento infinito
+  - Logs detalhados para debug de cada fase
 
-- ✅ **FASE 13: Dashboard Revisions Card Update (100% COMPLETA)**
-  - Card de revisões agora usa dados do calendário (`study_schedules`)
-  - Exibe X/Y (concluídas/total) e pendentes na semana
-  - Dados precisos e sincronizados com atividades de revisão
-
-- ✅ **FASE 14: AI Modal Design Consistency (100% COMPLETA)**
-  - Header do Tutor de IA com tema escuro consistente
-  - Ícones monocromáticos SVG nos cards de IA do dashboard
-  - Identidade visual unificada em todos os modais
-
-**Previous Updates:**
+**Previous Updates (2025-10-24 - Sessão 4):**
+- ✅ Fase 14: AI Modal Design Consistency (100% - Visual unificado!)
+- ✅ Fase 13: Dashboard Revisions Card Update (100% - Stats precisas!)
+- ✅ Fase 12: Calendar Activity Type Filter & UI (100% - Filtros compactos!)
 - ✅ Fase 11: Calendar List View Enhancements (100% - Filtros de data!)
 - ✅ Fase 10: Dynamic Calendar Statistics (100% - Estatísticas dinâmicas!)
 - ✅ Fase 8-9: Study Calendar System (100% - Calendário completo!)
 - ✅ Fase 7: Study Goals System (100% - Sistema de metas!)
-- ✅ Fase 6: Mind Maps System (100% - Mapas mentais!)
+- ✅ Fase 6: Mind Maps System (94% - Mapas mentais!)
 - ✅ Fase 5: Reports & Analytics (90% - Relatórios funcionando!)
 - ✅ Score: 100/100 MANTIDO! 🎉
 
