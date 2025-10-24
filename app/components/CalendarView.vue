@@ -15,11 +15,97 @@ const emit = defineEmits<{
   'delete-activity': [activity: ScheduleActivity]
   'toggle-completion': [activity: ScheduleActivity]
   'view-changed': [viewMode: ViewMode, currentDate: Date]
+  'filtered-changed': [filteredActivities: ScheduleActivity[]]
 }>()
 
 const viewMode = ref<ViewMode>('week')
 const currentDate = ref(new Date())
 const searchQuery = ref('')
+const startDateFilter = ref('')
+const endDateFilter = ref('')
+
+// ✅ Filtro de tipo de atividade (study, event, review, all)
+const selectedTypeFilter = ref<string>('all') // 'all', 'study', 'event', 'review'
+
+// Opções de filtro
+const filterOptions = [
+  { value: 'all', label: 'Todas', icon: 'M4 6h16M4 12h16M4 18h16' },
+  { value: 'study', label: 'Estudar', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+  { value: 'review', label: 'Revisar', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
+  { value: 'event', label: 'Evento', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' }
+]
+
+// ✅ CORREÇÃO: Definir filteredActivities ANTES dos watches que o utilizam
+const filteredActivities = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim()
+  let filtered = props.activities
+
+  // ✅ Filtro por tipo de atividade (corrigido)
+  if (selectedTypeFilter.value !== 'all') {
+    filtered = filtered.filter(activity => {
+      const activityType = activity.activity_type || (activity.subject_id ? 'study' : 'event')
+      const matches = activityType === selectedTypeFilter.value
+      console.log(`  🎯 Activity "${activity.title}" type="${activityType}" filterType="${selectedTypeFilter.value}" matches=${matches}`)
+      return matches
+    })
+    console.log('🎯 [filteredActivities] Filtro de tipo aplicado - Total:', filtered.length)
+  }
+
+  // Filtro de data inicial
+  if (startDateFilter.value) {
+    filtered = filtered.filter(activity => activity.scheduled_date >= startDateFilter.value)
+    console.log('📅 [filteredActivities] Filtro data inicial:', startDateFilter.value, '- Total:', filtered.length)
+  }
+
+  // Filtro de data final
+  if (endDateFilter.value) {
+    filtered = filtered.filter(activity => activity.scheduled_date <= endDateFilter.value)
+    console.log('📅 [filteredActivities] Filtro data final:', endDateFilter.value, '- Total:', filtered.length)
+  }
+
+  // Se não há busca por texto, retornar com filtros de data aplicados
+  if (!query) {
+    console.log('🔍 [filteredActivities] Sem busca de texto - retornando:', filtered.length)
+    return filtered
+  }
+
+  console.log('🔍 [filteredActivities] Buscando por:', query)
+  console.log('🔍 [filteredActivities] Total de atividades antes do filtro de texto:', filtered.length)
+
+  // Aplicar filtro de texto
+  filtered = filtered.filter(activity => {
+    // Busca no nome da matéria (prioritário - é o que exibimos como título)
+    if (activity.subject?.name.toLowerCase().includes(query)) {
+      console.log('  ✓ Match na MATÉRIA:', activity.subject.name)
+      return true
+    }
+
+    // Busca na descrição
+    if (activity.description?.toLowerCase().includes(query)) {
+      console.log('  ✓ Match na DESCRIÇÃO:', activity.subject?.name || activity.title, '-', activity.description)
+      return true
+    }
+
+    // Busca no horário
+    if (activity.start_time.includes(query)) {
+      console.log('  ✓ Match no HORÁRIO:', activity.subject?.name || activity.title, '-', activity.start_time)
+      return true
+    }
+
+    // Fallback: buscar no título original SOMENTE se não houver matéria vinculada
+    if (!activity.subject && activity.title.toLowerCase().includes(query)) {
+      console.log('  ✓ Match no TÍTULO (sem matéria):', activity.title)
+      return true
+    }
+
+    return false
+  })
+
+  console.log('🔍 [filteredActivities] Total APÓS filtro de texto:', filtered.length)
+  console.log('🔍 [filteredActivities] Títulos filtrados:', filtered.map(a => a.title).join(', '))
+
+  return filtered
+})
 
 // Watch para emitir mudanças de visualização
 watch([viewMode, currentDate], ([newViewMode, newCurrentDate]) => {
@@ -27,7 +113,19 @@ watch([viewMode, currentDate], ([newViewMode, newCurrentDate]) => {
   emit('view-changed', newViewMode, newCurrentDate)
 }, { immediate: true }) // Dispara logo na primeira renderização
 
+// ✅ Watch para emitir mudanças nas atividades filtradas
+watch(filteredActivities, (newFiltered) => {
+  console.log('🔍 [CalendarView] Filtered activities changed:', newFiltered.length)
+  emit('filtered-changed', newFiltered)
+})
+
 const { calculateEndTime, formatDuration } = useStudySchedule()
+
+// ✅ Emitir filteredActivities assim que o componente montar
+onMounted(() => {
+  console.log('🎬 [CalendarView] Componente montado, emitindo atividades filtradas iniciais')
+  emit('filtered-changed', filteredActivities.value)
+})
 
 // Navega para hoje
 const goToToday = () => {
@@ -122,10 +220,10 @@ const getWeekDays = (startDate: Date, count: number = 7): Date[] => {
   const days: Date[] = []
   const date = new Date(startDate)
 
-  // Ajusta para começar na segunda-feira
-  const dayOfWeek = date.getDay()
-  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-  date.setDate(date.getDate() + diff)
+  // ✅ CORREÇÃO: Ajusta para começar no DOMINGO (semana americana)
+  // Isso garante consistência com os cálculos dos cards de estatísticas
+  const dayOfWeek = date.getDay() // 0 = Domingo, 6 = Sábado
+  date.setDate(date.getDate() - dayOfWeek) // Volta para o domingo da semana
 
   for (let i = 0; i < count; i++) {
     days.push(new Date(date))
@@ -143,18 +241,21 @@ const getMonthDays = (): Date[] => {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
 
-  // Preenche dias anteriores para completar a primeira semana
+  // ✅ CORREÇÃO: Preenche dias anteriores para completar a primeira semana
+  // Começando no DOMINGO (0 = domingo, 6 = sábado)
   const startDay = firstDay.getDay()
-  const daysFromPrevMonth = startDay === 0 ? 6 : startDay - 1
+  const daysFromPrevMonth = startDay // Se domingo (0), não preenche; se segunda (1), preenche 1 dia, etc.
 
   const days: Date[] = []
 
   // Dias do mês anterior
-  const prevMonthLastDay = new Date(year, month, 0)
-  for (let i = daysFromPrevMonth; i > 0; i--) {
-    const day = new Date(prevMonthLastDay)
-    day.setDate(day.getDate() - i + 1)
-    days.push(day)
+  if (daysFromPrevMonth > 0) {
+    const prevMonthLastDay = new Date(year, month, 0)
+    for (let i = daysFromPrevMonth; i > 0; i--) {
+      const day = new Date(prevMonthLastDay)
+      day.setDate(prevMonthLastDay.getDate() - i + 1)
+      days.push(day)
+    }
   }
 
   // Dias do mês atual
@@ -188,12 +289,33 @@ const visibleDays = computed(() => {
   }
 })
 
-// Filtra atividades para uma data específica
+// Filtra atividades para uma data específica (usa atividades já filtradas)
 const getActivitiesForDate = (date: Date): ScheduleActivity[] => {
   const dateStr = dateToString(date)
-  return props.activities.filter(a => a.scheduled_date === dateStr)
+  return filteredActivities.value.filter(a => a.scheduled_date === dateStr)
     .sort((a, b) => a.start_time.localeCompare(b.start_time))
 }
+
+// ✅ Contador de atividades visíveis no período atual
+const visibleActivitiesCount = computed(() => {
+  // Modo lista: contar todas as atividades filtradas
+  if (viewMode.value === 'list') {
+    return filteredActivities.value.length
+  }
+
+  // Outros modos: contar apenas atividades do período visível
+  const days = visibleDays.value
+  if (!days || days.length === 0) return 0
+
+  const startDate = dateToString(days[0])
+  const endDate = dateToString(days[days.length - 1])
+
+  const count = filteredActivities.value.filter(a =>
+    a.scheduled_date >= startDate && a.scheduled_date <= endDate
+  ).length
+
+  return count
+})
 
 // Título do período atual
 const periodTitle = computed(() => {
@@ -283,31 +405,6 @@ const handleSlotDrop = (event: DragEvent, date: Date, time?: string) => {
     }
   }
 }
-
-// Funções para busca
-const filteredActivities = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return props.activities
-  }
-
-  const query = searchQuery.value.toLowerCase().trim()
-
-  return props.activities.filter(activity => {
-    // Busca no título
-    if (activity.title.toLowerCase().includes(query)) return true
-
-    // Busca na descrição
-    if (activity.description?.toLowerCase().includes(query)) return true
-
-    // Busca no nome da matéria
-    if (activity.subject?.name.toLowerCase().includes(query)) return true
-
-    // Busca no horário
-    if (activity.start_time.includes(query)) return true
-
-    return false
-  })
-})
 
 // Funções para visualização em lista
 const groupedActivities = computed(() => {
@@ -439,6 +536,54 @@ const highlightText = (text: string): string => {
         </div>
       </div>
 
+      <!-- Filtro compacto por tipo de atividade -->
+      <div class="px-4 pb-3 flex items-center gap-3">
+        <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Exibir:</label>
+
+        <div class="relative">
+          <select
+            v-model="selectedTypeFilter"
+            class="appearance-none pl-10 pr-10 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm font-medium text-gray-900 dark:text-white cursor-pointer hover:border-primary-400 dark:hover:border-primary-600"
+          >
+            <option
+              v-for="option in filterOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+
+          <!-- Ícone do tipo selecionado -->
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="filterOptions.find(o => o.value === selectedTypeFilter)?.icon || filterOptions[0].icon"
+              />
+            </svg>
+          </div>
+
+          <!-- Ícone dropdown -->
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Contador de atividades filtradas NO PERÍODO VISÍVEL -->
+        <div class="ml-auto text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-medium">{{ visibleActivitiesCount }}</span>
+          {{ visibleActivitiesCount === 1 ? 'atividade' : 'atividades' }}
+        </div>
+      </div>
+
       <!-- Barra de busca (visível apenas em modo lista) -->
       <div v-if="viewMode === 'list'" class="px-4 pt-3 pb-2">
         <div class="relative">
@@ -465,8 +610,69 @@ const highlightText = (text: string): string => {
           </button>
         </div>
 
+        <!-- Filtros de data -->
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Data inicial -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+              Data Inicial
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <input
+                v-model="startDateFilter"
+                type="date"
+                class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm text-gray-900 dark:text-white"
+              />
+              <button
+                v-if="startDateFilter"
+                @click="startDateFilter = ''"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+                title="Limpar data inicial"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Data final -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+              Data Final
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <input
+                v-model="endDateFilter"
+                type="date"
+                class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm text-gray-900 dark:text-white"
+              />
+              <button
+                v-if="endDateFilter"
+                @click="endDateFilter = ''"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+                title="Limpar data final"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Contador de resultados -->
-        <div v-if="searchQuery" class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
+        <div v-if="searchQuery || startDateFilter || endDateFilter" class="mt-3 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -474,6 +680,16 @@ const highlightText = (text: string): string => {
             {{ filteredActivities.length }}
             {{ filteredActivities.length === 1 ? 'atividade encontrada' : 'atividades encontradas' }}
           </span>
+          <button
+            v-if="searchQuery || startDateFilter || endDateFilter"
+            @click="searchQuery = ''; startDateFilter = ''; endDateFilter = ''"
+            class="ml-auto text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 font-medium flex items-center gap-1 transition"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Limpar todos os filtros
+          </button>
         </div>
       </div>
     </div>
@@ -602,7 +818,7 @@ const highlightText = (text: string): string => {
         <!-- Header dos dias da semana -->
         <div class="month-weekdays grid grid-cols-7 gap-2 mb-2">
           <div
-            v-for="day in ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']"
+            v-for="day in ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']"
             :key="day"
             class="text-center text-sm font-semibold text-gray-600 dark:text-gray-400"
           >
@@ -783,11 +999,11 @@ const highlightText = (text: string): string => {
 
                   <!-- Conteúdo principal -->
                   <div class="flex-1 min-w-0 flex items-center gap-2">
-                    <!-- Título -->
+                    <!-- Título (sempre exibe o nome da matéria) -->
                     <span
                       class="font-medium text-sm text-gray-900 dark:text-white truncate"
                       :class="{ 'line-through opacity-50': activity.is_completed }"
-                      v-html="searchQuery ? highlightText(activity.title) : activity.title"
+                      v-html="searchQuery ? highlightText(activity.subject?.name || activity.title) : (activity.subject?.name || activity.title)"
                     ></span>
                   </div>
 
@@ -964,5 +1180,27 @@ const highlightText = (text: string): string => {
 /* Smooth transitions */
 * {
   @apply transition-colors duration-200;
+}
+
+/* Date input customization for dark mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  cursor: pointer;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* For Firefox */
+input[type="date"]::-moz-calendar-picker-indicator {
+  filter: invert(0);
+  cursor: pointer;
+}
+
+.dark input[type="date"]::-moz-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
 </style>

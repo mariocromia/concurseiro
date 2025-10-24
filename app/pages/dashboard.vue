@@ -25,8 +25,8 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Revisões Pendentes</p>
-              <p class="text-2xl font-bold text-claude-text dark:text-white">{{ revisionsPending }}</p>
-              <p class="text-xs text-orange-400 mt-1">{{ urgentRevisions }} urgentes</p>
+              <p class="text-2xl font-bold text-claude-text dark:text-white">{{ completedRevisions }}/{{ totalRevisions }}</p>
+              <p class="text-xs text-orange-400 mt-1">{{ pendingRevisionsThisWeek }} pendentes esta semana</p>
             </div>
             <div class="w-12 h-12 bg-orange-500/20 rounded-claude-md flex items-center justify-center">
               <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +95,11 @@
             @click="openAITutor"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">💬</div>
+              <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -111,7 +115,11 @@
             @click="openAIExercises"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">📝</div>
+              <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -127,7 +135,11 @@
             class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">🧠</div>
+              <div class="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -143,7 +155,11 @@
             class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">🎴</div>
+              <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -241,6 +257,7 @@
           @delete-activity="handleDeleteActivity"
           @toggle-completion="handleToggleActivityCompletion"
           @view-changed="handleViewChanged"
+          @filtered-changed="handleFilteredChanged"
         />
       </div>
 
@@ -463,6 +480,10 @@ const studyGoalsCount = ref(0)
 const revisionsPending = ref(0)
 const urgentRevisions = ref(0)
 const studyStreak = ref(0)
+// ✅ Novas variáveis para revisões
+const totalRevisions = ref(0) // Total de revisões no sistema
+const completedRevisions = ref(0) // Total de revisões concluídas
+const pendingRevisionsThisWeek = ref(0) // Revisões pendentes na semana atual
 
 // Chart refs
 const weeklyChart = ref<HTMLCanvasElement>()
@@ -498,6 +519,7 @@ const selectedActivity = ref<ScheduleActivity | null>(null)
 const initialActivityDate = ref<string>()
 const initialActivityTime = ref<string>()
 const calendarStats = ref<any>(null)
+const filteredActivitiesFromCalendar = ref<ScheduleActivity[]>([]) // ✅ Atividades filtradas pela busca
 
 // AI Modals
 const showExercisesConfig = ref(false)
@@ -744,11 +766,63 @@ const loadStats = async () => {
     console.error('[Dashboard] Exception in loadStats:', err)
   }
 
-  // Revisions - scheduled_date is DATE format (YYYY-MM-DD)
+  // ✅ Revisões do calendário (study_schedules com activity_type='review')
   try {
     const todayDate = new Date().toISOString().split('T')[0]
     console.log('[Dashboard] Revisions query date:', todayDate)
 
+    // Calcular período da semana atual
+    const weekStart = new Date()
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay()) // Domingo
+    weekStart.setHours(0, 0, 0, 0)
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekEnd.getDate() + 6) // Sábado
+    weekEnd.setHours(23, 59, 59, 999)
+
+    const weekStartDate = weekStart.toISOString().split('T')[0]
+    const weekEndDate = weekEnd.toISOString().split('T')[0]
+
+    console.log('[Dashboard] 📆 Semana atual:', {
+      start: weekStartDate,
+      end: weekEndDate
+    })
+
+    // ✅ Buscar revisões da tabela study_schedules
+    const { data: allReviewActivities, error: reviewsError } = await supabase
+      .from('study_schedules')
+      .select('id, scheduled_date, status, is_completed, activity_type')
+      .eq('user_id', userId)
+      .eq('activity_type', 'review')
+      .order('scheduled_date', { ascending: true })
+
+    if (reviewsError) {
+      console.error('[Dashboard] Error loading review activities:', reviewsError)
+    } else {
+      console.log('[Dashboard] 📋 TODAS as atividades de revisão:', allReviewActivities)
+
+      // ✅ 1. Total de revisões no sistema (todas com activity_type='review')
+      totalRevisions.value = allReviewActivities?.length || 0
+
+      // ✅ 2. Total de revisões concluídas
+      completedRevisions.value = allReviewActivities?.filter(r =>
+        r.is_completed === true || r.status === 'completed'
+      ).length || 0
+
+      // ✅ 3. Revisões pendentes na semana atual
+      pendingRevisionsThisWeek.value = allReviewActivities?.filter(r =>
+        (r.is_completed === false || r.status === 'pending') &&
+        r.scheduled_date >= weekStartDate &&
+        r.scheduled_date <= weekEndDate
+      ).length || 0
+
+      console.log('[Dashboard] 📊 Resumo de revisões:', {
+        total: totalRevisions.value,
+        completed: completedRevisions.value,
+        pendingThisWeek: pendingRevisionsThisWeek.value
+      })
+    }
+
+    // ✅ Manter lógica antiga da tabela 'revisions' para compatibilidade (sistema R1-R7)
     const { count: pendingCount, error: revError } = await supabase
       .from('revisions')
       .select('id', { count: 'exact', head: true })
@@ -1236,10 +1310,10 @@ const calculatePeriod = (viewMode: ViewMode, currentDate: Date): { start: string
       break
 
     case 'list':
-      // Lista mostra tudo
-      startDate = new Date(date)
-      endDate = new Date(date)
-      endDate.setFullYear(endDate.getFullYear() + 10) // 10 anos no futuro
+      // ✅ Lista mostra TUDO (passado e futuro)
+      // Usar range muito amplo para incluir todas as atividades
+      startDate = new Date('1900-01-01') // Data muito antiga
+      endDate = new Date('2100-12-31')   // Data muito futura
       break
 
     default:
@@ -1253,32 +1327,82 @@ const calculatePeriod = (viewMode: ViewMode, currentDate: Date): { start: string
   }
 }
 
-// Handler para mudanças de visualização do calendário
-const handleViewChanged = (viewMode: ViewMode, currentDate: Date) => {
-  console.log('🔄 Visualização mudou:', viewMode, currentDate)
+// ✅ Estado para armazenar o modo/data do calendário
+const currentCalendarView = ref<{ viewMode: ViewMode; currentDate: Date }>({
+  viewMode: 'week',
+  currentDate: new Date()
+})
 
+// ✅ Função para recalcular estatísticas baseado em atividades filtradas + período
+const recalculateStats = () => {
+  const { viewMode, currentDate } = currentCalendarView.value
+  const filtered = filteredActivitiesFromCalendar.value
+
+  console.log(`📊 Recalculando stats - Modo: ${viewMode}, Filtradas: ${filtered.length}`)
+
+  // Modo lista: usar TODAS as atividades filtradas (sem restrição de período)
+  if (viewMode === 'list') {
+    const totalMinutes = filtered.reduce((sum, a) => sum + a.duration, 0)
+    const completedActivities = filtered.filter(a => a.is_completed).length
+
+    calendarStats.value = {
+      totalMinutes,
+      totalHours: Math.round(totalMinutes / 60 * 10) / 10,
+      totalActivities: filtered.length,
+      completedActivities,
+      completionRate: filtered.length > 0
+        ? Math.round((completedActivities / filtered.length) * 100)
+        : 0
+    }
+    console.log('📈 Stats (lista - todas filtradas):', calendarStats.value)
+    return
+  }
+
+  // Outros modos: filtrar pelo período visível
   const period = calculatePeriod(viewMode, currentDate)
-  console.log('📅 Novo período:', period)
+  const visibleActivities = filtered.filter(a =>
+    a.scheduled_date >= period.start && a.scheduled_date <= period.end
+  )
 
-  calendarStats.value = getWorkloadStats(period.start, period.end)
-  console.log('📈 Novas estatísticas:', JSON.stringify(calendarStats.value, null, 2))
+  const totalMinutes = visibleActivities.reduce((sum, a) => sum + a.duration, 0)
+  const completedActivities = visibleActivities.filter(a => a.is_completed).length
+
+  calendarStats.value = {
+    totalMinutes,
+    totalHours: Math.round(totalMinutes / 60 * 10) / 10,
+    totalActivities: visibleActivities.length,
+    completedActivities,
+    completionRate: visibleActivities.length > 0
+      ? Math.round((completedActivities / visibleActivities.length) * 100)
+      : 0
+  }
+
+  console.log(`📈 Stats (${viewMode} - período ${period.start} a ${period.end}):`, calendarStats.value)
+}
+
+// Handler para mudanças nas atividades filtradas (tipo/busca)
+const handleFilteredChanged = (filtered: ScheduleActivity[]) => {
+  console.log('🔍 Filtros mudaram:', filtered.length)
+  filteredActivitiesFromCalendar.value = filtered
+  recalculateStats() // ✅ Recalcular sempre que filtro muda
+}
+
+// Handler para mudanças de visualização (modo/data)
+const handleViewChanged = (viewMode: ViewMode, currentDate: Date) => {
+  console.log('🔄 View mudou:', viewMode, currentDate)
+  currentCalendarView.value = { viewMode, currentDate }
+  recalculateStats() // ✅ Recalcular sempre que período muda
 }
 
 const loadCalendarData = async () => {
   console.log('📅📅📅 === INÍCIO: loadCalendarData (Dashboard) === 📅📅📅')
 
-  // Carregar TODOS os dados a partir de hoje (sem limite superior)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const startStr = today.toISOString().split('T')[0]
+  // ✅ CORREÇÃO: Carregar TODAS as atividades (passado, presente e futuro)
+  // SEM filtro de data - o filtro será aplicado apenas na VISUALIZAÇÃO
+  console.log('📆 Carregando TODAS as atividades (passado, presente e futuro)...')
+  console.log('🔄 Chamando fetchActivities SEM filtros de data...')
 
-  // Sem data final - vai carregar TUDO que existe no futuro
-  const endStr = undefined
-
-  console.log('📆 Carregando TODAS as atividades a partir de:', startStr)
-  console.log('🔄 Chamando fetchActivities (sem limite de data)...')
-
-  await fetchActivities(startStr, endStr)
+  await fetchActivities() // Sem parâmetros = carrega TUDO
 
   // Aguardar Vue atualizar o DOM/refs
   await nextTick()
@@ -1286,6 +1410,8 @@ const loadCalendarData = async () => {
   console.log('✅ Atividades carregadas:', calendarActivities.value.length)
 
   // Calcular estatísticas para a semana atual (padrão é week view)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
   const period = calculatePeriod('week', today)
 
   console.log('📊 Calculando estatísticas iniciais (semana atual)...')
@@ -1299,6 +1425,7 @@ const loadCalendarData = async () => {
   // Debug: mostrar datas das atividades
   const uniqueDates = [...new Set(calendarActivities.value.map((a: any) => a.scheduled_date))].sort()
   console.log('📆 Datas com atividades:', uniqueDates)
+  console.log(`📊 Range de datas: ${uniqueDates[0] || 'N/A'} até ${uniqueDates[uniqueDates.length - 1] || 'N/A'}`)
   console.log('🏁 === FIM: loadCalendarData ===')
 }
 

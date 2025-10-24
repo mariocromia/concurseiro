@@ -4,7 +4,7 @@ type StudySchedule = Database['public']['Tables']['study_schedules']['Row']
 type StudyScheduleInsert = Database['public']['Tables']['study_schedules']['Insert']
 type StudyScheduleUpdate = Database['public']['Tables']['study_schedules']['Update']
 
-export type ScheduleType = 'study' | 'event'
+export type ScheduleType = 'study' | 'event' | 'review'
 
 export interface ScheduleActivity {
   id?: string
@@ -18,6 +18,7 @@ export interface ScheduleActivity {
   is_completed: boolean
   color?: string | null
   type?: ScheduleType
+  activity_type?: ScheduleType
   subject?: {
     id: string
     name: string
@@ -68,9 +69,12 @@ export const useStudySchedule = () => {
   }
 
   // Busca todas as atividades do usuário em um período
-  const fetchActivities = async (startDate: string, endDate?: string) => {
+  const fetchActivities = async (startDate?: string, endDate?: string) => {
     console.log('🔄🔄🔄 === INÍCIO: fetchActivities (CARREGAMENTO) === 🔄🔄🔄')
-    console.log('📅 Período solicitado:', { startDate, endDate: endDate || 'SEM LIMITE' })
+    console.log('📅 Período solicitado:', {
+      startDate: startDate || 'SEM LIMITE (TODAS AS DATAS)',
+      endDate: endDate || 'SEM LIMITE'
+    })
 
     // ✅ CORREÇÃO: Usar getSession() ao invés de user.value
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
@@ -91,7 +95,7 @@ export const useStudySchedule = () => {
       console.log('🔍 Buscando na tabela study_schedules...')
       console.log('📊 Filtros aplicados:', {
         user_id: session.user.id,
-        'scheduled_date >=': startDate,
+        'scheduled_date >=': startDate || 'SEM FILTRO (TODAS)',
         'scheduled_date <=': endDate || 'SEM LIMITE'
       })
 
@@ -103,7 +107,11 @@ export const useStudySchedule = () => {
           subject:subjects(id, name, color, icon)
         `)
         .eq('user_id', session.user.id)
-        .gte('scheduled_date', startDate)
+
+      // ✅ CORREÇÃO: Adicionar filtro de data inicial APENAS se fornecido
+      if (startDate) {
+        query = query.gte('scheduled_date', startDate)
+      }
 
       // Adicionar filtro de data final APENAS se fornecido
       if (endDate) {
@@ -151,7 +159,9 @@ export const useStudySchedule = () => {
           // Garantir que is_completed existe (pode vir como is_completed ou derivar de status)
           is_completed: item.is_completed !== undefined ? item.is_completed : (item.status === 'completed'),
           subject: item.subject ? (Array.isArray(item.subject) ? item.subject[0] : item.subject) : null,
-          type: item.subject_id ? 'study' : 'event'
+          // ✅ Usar activity_type do banco ou deduzir pelo subject_id (retrocompatibilidade)
+          type: item.activity_type || (item.subject_id ? 'study' : 'event'),
+          activity_type: item.activity_type || (item.subject_id ? 'study' : 'event')
         }
 
         return mapped
@@ -226,7 +236,8 @@ export const useStudySchedule = () => {
         status: 'pending',                        // Campo antigo (se existir) - OBRIGATÓRIO!
 
         // Tipo de estudo (se campo existir)
-        study_type: payload.type === 'study' ? 'conteudo' : 'revisao',  // Campo antigo - OBRIGATÓRIO!
+        study_type: payload.type === 'review' ? 'revisao' : 'conteudo',  // Campo antigo - OBRIGATÓRIO!
+        activity_type: payload.type,             // ✅ Campo novo - 'study', 'event', 'review'
 
         color: payload.color || null
       }
@@ -356,7 +367,8 @@ export const useStudySchedule = () => {
 
       // ✅ Tipo de estudo (se for passado)
       if (updates.type) {
-        updateData.study_type = updates.type === 'study' ? 'conteudo' : 'revisao'
+        updateData.study_type = updates.type === 'review' ? 'revisao' : 'conteudo'
+        updateData.activity_type = updates.type  // ✅ 'study', 'event', 'review'
       }
 
       const { data, error: updateError } = await supabase

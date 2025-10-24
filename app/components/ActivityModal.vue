@@ -245,23 +245,32 @@ const handleSave = async () => {
   console.log('🎬🎬🎬 === INÍCIO: handleSave (ActivityModal) === 🎬🎬🎬')
   console.log('📋 Estado do formulário:', JSON.stringify(formData.value, null, 2))
 
-  // VALIDAÇÃO 1: Título
-  console.log('✔️ VALIDAÇÃO 1: Verificando título...')
+  // VALIDAÇÃO 1: Matéria (para estudos e revisões) - VALIDAR PRIMEIRO!
+  console.log('✔️ VALIDAÇÃO 1: Verificando matéria...')
+  if ((formData.value.type === 'study' || formData.value.type === 'review') && !formData.value.subject_id) {
+    console.warn('❌ Validação falhou: estudo/revisão sem matéria')
+    alert('Por favor, selecione uma matéria')
+    return
+  }
+  console.log('✅ Matéria OK:', formData.value.subject_id || 'N/A (evento)')
+
+  // ✅ Gerar título automaticamente para revisões (DEPOIS de validar matéria)
+  if (formData.value.type === 'review' && !formData.value.title.trim()) {
+    const selectedSubject = subjects.value.find(s => s.id === formData.value.subject_id)
+    if (selectedSubject) {
+      formData.value.title = selectedSubject.name
+      console.log('🔧 Título gerado automaticamente para revisão:', formData.value.title)
+    }
+  }
+
+  // VALIDAÇÃO 2: Título (agora com título já gerado para review)
+  console.log('✔️ VALIDAÇÃO 2: Verificando título...')
   if (!formData.value.title.trim()) {
     console.warn('❌ Validação falhou: título vazio')
     alert('Por favor, preencha o título da atividade')
     return
   }
   console.log('✅ Título OK:', formData.value.title)
-
-  // VALIDAÇÃO 2: Matéria (apenas para estudos)
-  console.log('✔️ VALIDAÇÃO 2: Verificando matéria...')
-  if (formData.value.type === 'study' && !formData.value.subject_id) {
-    console.warn('❌ Validação falhou: estudo sem matéria')
-    alert('Por favor, selecione uma matéria para atividades de estudo')
-    return
-  }
-  console.log('✅ Matéria OK:', formData.value.subject_id || 'N/A (evento)')
 
   // VALIDAÇÃO 3: Data e horário
   console.log('✔️ VALIDAÇÃO 3: Verificando data e horário...')
@@ -286,7 +295,7 @@ const handleSave = async () => {
   console.log('📦 Preparando payload...')
   const payload: CreateActivityPayload = {
     type: formData.value.type,
-    subject_id: formData.value.type === 'study' ? formData.value.subject_id : null,
+    subject_id: (formData.value.type === 'study' || formData.value.type === 'review') ? formData.value.subject_id : null,
     title: formData.value.title.trim(),
     description: formData.value.description.trim() || null,
     scheduled_date: formData.value.scheduled_date,
@@ -444,7 +453,7 @@ const prevStep = () => {
                   <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
                     O que você vai fazer?
                   </label>
-                  <div class="grid grid-cols-2 gap-4">
+                  <div class="grid grid-cols-3 gap-4">
                     <button
                       @click="formData.type = 'study'"
                       :class="[
@@ -464,6 +473,32 @@ const prevStep = () => {
                       <div
                         v-if="formData.type === 'study'"
                         class="absolute top-3 right-3 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center"
+                      >
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                    </button>
+
+                    <button
+                      @click="formData.type = 'review'"
+                      :class="[
+                        'group relative p-6 rounded-xl border-2 transition-all duration-200',
+                        formData.type === 'review'
+                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 shadow-lg scale-105'
+                          : 'border-gray-200 dark:border-dark-600 hover:border-orange-300 dark:hover:border-orange-700 hover:shadow-md'
+                      ]"
+                    >
+                      <div class="mb-3">
+                        <svg class="w-12 h-12 mx-auto text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                      </div>
+                      <div class="font-bold text-gray-900 dark:text-white mb-1">Revisar</div>
+                      <div class="text-sm text-gray-600 dark:text-gray-400">R1-R7, revisão guiada</div>
+                      <div
+                        v-if="formData.type === 'review'"
+                        class="absolute top-3 right-3 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center"
                       >
                         <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -499,8 +534,8 @@ const prevStep = () => {
                   </div>
                 </div>
 
-                <!-- Matéria (se tipo = study) -->
-                <div v-if="formData.type === 'study'" class="space-y-4">
+                <!-- Matéria (se tipo = study ou review) -->
+                <div v-if="formData.type === 'study' || formData.type === 'review'" class="space-y-4">
                   <div v-if="!showNewSubjectForm">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
                       Selecione a matéria

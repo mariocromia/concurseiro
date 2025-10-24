@@ -463,7 +463,34 @@ Retorne APENAS um JSON válido:
   }
 
   /**
-   * Chat com tutor IA
+   * Chat com tutor IA (conversação com histórico)
+   */
+  const chat = async (
+    messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+    context?: string
+  ): Promise<string> => {
+    // Concatenar todas as mensagens anteriores
+    const conversationHistory = messages
+      .map(m => `${m.role === 'user' ? 'Aluno' : 'Tutor'}: ${m.content}`)
+      .join('\n\n')
+
+    const systemInstruction = context ||
+      'Você é um tutor educacional brasileiro especializado em concursos e vestibulares. ' +
+      'Responda de forma clara, didática e em português do Brasil. ' +
+      'Use exemplos práticos e seja encorajador.'
+
+    // Construir prompt com histórico
+    const prompt = conversationHistory
+
+    return await generateContent(prompt, {
+      systemInstruction,
+      temperature: 0.7,
+      maxTokens: 1024
+    })
+  }
+
+  /**
+   * Enviar mensagem única (sem histórico)
    */
   const sendMessage = async (
     message: string,
@@ -549,6 +576,7 @@ Use linguagem acessível em português brasileiro.`
     generateExercises,
     generateSummary,
     generateFlashcards,
+    chat,
     sendMessage,
     generateMindMap,
     explainSelection
