@@ -1,8 +1,8 @@
 # 🗺️ ROADMAP - PraPassar Platform
 
-**Última atualização:** 2025-10-23T15:30:00-0300
+**Última atualização:** 2025-10-24T16:45:00-0300
 **Autor:** Claude Code + Equipe PraPassar
-**Status Geral:** ✅ **IMPLEMENTAÇÃO COMPLETA - 10 FASES CONCLUÍDAS (100/100)** 🎉
+**Status Geral:** ✅ **IMPLEMENTAÇÃO COMPLETA - 11 FASES CONCLUÍDAS (100/100)** 🎉
 
 ---
 
@@ -18,6 +18,7 @@
 - **Fase 8 (100%):** 100/100 (2025-10-22) 🎉 (calendar implementation)
 - **Fase 9 (100%):** 100/100 (2025-10-22) 🎉 (calendar UX improvements)
 - **Fase 10 (100%):** 100/100 (2025-10-23) 🎉 (dynamic calendar stats)
+- **Fase 11 (100%):** 100/100 (2025-10-24) 🎉 (calendar list view filters)
 - **Ganho Real:** +27 pontos
 - **Meta Original:** 95/100
 - **Status:** ✅ **META 100/100 MANTIDA!** 🎉
@@ -52,6 +53,7 @@ Fase 7 - Goals System:          [██████████] 100% ✅ (mant�
 Fase 8 - Calendar System:       [██████████] 100% ✅ (mantém 100)
 Fase 9 - Calendar UX:           [██████████] 100% ✅ (mantém 100)
 Fase 10 - Dynamic Stats:        [██████████] 100% ✅ (mantém 100)
+Fase 11 - List View Filters:    [██████████] 100% ✅ (mantém 100)
 
 SCORE TOTAL: 100/100 (+27 pontos desde início) 🎉
 ```
@@ -64,9 +66,10 @@ IA Ativa:           [███████▓░░] 75% ✅ (+25% desde início
 ```
 
 ### Commits Realizados
-- **Total:** 12 commits
-- **Sessão Anterior (Fases 1-2):** 10 commits
-- **Sessão Atual (Fases 3-4):** 2 commits
+- **Total:** 19+ commits
+- **Sessão 1 (Fases 1-2):** 10 commits
+- **Sessão 2 (Fases 3-4):** 2 commits
+- **Sessão 3 (Fases 5-11):** 7+ commits
 - **Branch:** main
 - **Remote:** ✅ Sincronizado
 
@@ -708,6 +711,41 @@ VAPID_EMAIL=...                 # NOVO
 ---
 
 ## 📝 CHANGELOG COMPLETO
+
+### 2025-10-24
+
+**[16:45] ✅ Fase 11 - Calendar List View Filters COMPLETA**
+- **Problema Identificado:**
+  - Lista não tinha filtros de data (mostrava todas as atividades)
+  - Busca retornava resultados inconsistentes com títulos exibidos
+  - Ícones de calendário pretos no modo escuro
+- **Solução Implementada:**
+  - **Filtros de Data:** Adicionados campos de data inicial e final
+    - Grid responsivo (2 colunas desktop, 1 mobile)
+    - Ícones de calendário com cor adaptativa (branco em dark mode)
+    - Botão X individual para cada campo
+    - Botão "Limpar todos os filtros" global
+  - **Busca Inteligente:** Prioriza nome da matéria
+    - Ordem: Subject name → Description → Time → Title (fallback)
+    - Remove busca por título original para evitar confusão
+  - **Título Consistente:** Lista sempre exibe nome da matéria
+    - Format: `activity.subject?.name || activity.title`
+    - Elimina confusão entre título e matéria
+  - **Dark Mode:** CSS customizado para inputs de data
+    - `filter: invert(1)` para `::-webkit-calendar-picker-indicator`
+    - Suporte Firefox com `::-moz-calendar-picker-indicator`
+- **Arquivos Modificados:**
+  - `app/components/CalendarView.vue` (linhas 24-25, 28-86, 522-602, 1094-1115)
+    - 2 refs: `startDateFilter`, `endDateFilter`
+    - Computed `filteredActivities` com filtro de data
+    - UI de filtros com ícones e botões clear
+    - CSS para dark mode
+- **Benefícios:**
+  - Usuários filtram por intervalo de datas customizado
+  - Busca coerente com o que está visível na tela
+  - Melhor UX com indicadores visuais de filtros ativos
+  - Performance otimizada (filtro data antes de texto)
+- **Score:** 100/100 (mantém) ✅
 
 ### 2025-10-23
 

@@ -485,6 +485,67 @@ ASAAS_WEBHOOK_SECRET=xxx...
 - ✅ Better UX and data transparency
 - ✅ No manual refresh needed
 
+### ✅ Calendar List View Enhancements (FASE 11 - 100% Completa) - 2025-10-24
+
+**Smart filtering and improved search for calendar list view**
+
+1. ✅ **Date Range Filters**
+   - Added start date and end date filter inputs
+   - Responsive grid layout (2 columns on desktop, 1 on mobile)
+   - Calendar icon indicators (white in dark mode, gray in light mode)
+   - Individual clear buttons (X) for each date field
+   - Combined "Clear all filters" button
+   - Date filters apply BEFORE text search for better performance
+
+2. ✅ **Enhanced Search Logic**
+   - Search now prioritizes **subject name** (what's displayed as title)
+   - Removed search by original title field to avoid confusion
+   - Search fields: Subject name → Description → Time → Title (fallback if no subject)
+   - Real-time results counter updates with any filter change
+   - Highlight feature for search matches
+
+3. ✅ **Title Display Fix**
+   - List view now always displays **subject name** as title instead of custom title
+   - Format: `activity.subject?.name || activity.title`
+   - Eliminates confusion when search results don't match visible titles
+   - Consistent with user expectations
+
+4. ✅ **Dark Mode Styling**
+   - Date input calendar icons: white in dark mode (`filter: invert(1)`)
+   - Cross-browser support: `::-webkit-calendar-picker-indicator` and `::-moz-calendar-picker-indicator`
+   - Date field backgrounds: `dark:bg-dark-700`
+   - Borders: `dark:border-dark-600`
+   - Labels: `dark:text-gray-400`
+
+**Files Modified:**
+- app/components/CalendarView.vue (lines 24-25, 28-86, 522-602, 1094-1115)
+  - Added `startDateFilter` and `endDateFilter` refs
+  - Updated `filteredActivities` computed with date filtering logic
+  - Added date filter UI components with icons and clear buttons
+  - CSS for dark mode date picker icons
+
+**Technical Implementation:**
+```typescript
+// Date filtering (applies first)
+if (startDateFilter.value) {
+  filtered = filtered.filter(activity =>
+    activity.scheduled_date >= startDateFilter.value
+  )
+}
+
+// Text search (prioritizes subject name)
+if (activity.subject?.name.toLowerCase().includes(query)) {
+  return true
+}
+```
+
+**Benefits:**
+- ✅ Users can filter activities by custom date range
+- ✅ Search matches what's displayed on screen
+- ✅ Better UX with clear filter indicators
+- ✅ Dark mode consistency throughout
+- ✅ Performance optimized (date filter before text search)
+
 ### ✅ Study Calendar System (FASE 8-9 - 100% Completa) - 2025-10-22
 
 **Complete interactive calendar with drag-and-drop scheduling and activity management**
@@ -863,22 +924,26 @@ ASAAS_WEBHOOK_SECRET=xxx...
 
 ---
 
-**Version:** 3.3.0
-**Last Updated:** 2025-10-20T18:30:00-0300
+**Version:** 3.9.0
+**Last Updated:** 2025-10-24T16:45:00-0300
 **Implementation Score:** 100/100 ⭐
 
-**Recent Updates:**
-- ✅ Fase 5: Reports & Analytics (90% - Relatórios de exercícios IA funcionando!)
-- ✅ Fase 6: Mind Maps System (100% - Sistema completo de mapas mentais!)
-- ✅ AI-powered generation com Google Gemini (Pro users)
-- ✅ Manual creation mode (todos os usuários)
-- ✅ Visual editor com Vue Flow (drag-and-drop, auto-save)
-- ✅ 15+ arquivos de documentação criados
-- ✅ 3 migration scripts (database schema updates)
-- ✅ Debugging tools e SQL scripts de verificação
-- ✅ Commit c2d50dc: 38 arquivos, 5,956 linhas
-- ✅ Score: 97 → 100 (+3 pontos) - META 100/100 ALCANÇADA! 🎉
-- 📖 Ver LEIA_ME_PRIMEIRO.md e PASSO_A_PASSO_SIMPLES.md para começar
+**Recent Updates (2025-10-24):**
+- ✅ **FASE 11: Calendar List View Enhancements (100% COMPLETA)**
+  - Filtros de data inicial e final na visualização em lista
+  - Busca inteligente por nome da matéria (prioridade)
+  - Título da lista sempre exibe nome da matéria
+  - Ícones de calendário brancos no modo escuro
+  - Botão "Limpar todos os filtros"
+  - Performance otimizada (filtro de data antes de texto)
+
+**Previous Updates:**
+- ✅ Fase 10: Dynamic Calendar Statistics (100% - Estatísticas dinâmicas!)
+- ✅ Fase 8-9: Study Calendar System (100% - Calendário completo!)
+- ✅ Fase 7: Study Goals System (100% - Sistema de metas!)
+- ✅ Fase 6: Mind Maps System (100% - Mapas mentais!)
+- ✅ Fase 5: Reports & Analytics (90% - Relatórios funcionando!)
+- ✅ Score: 100/100 MANTIDO! 🎉
 
 ## Quick Reference
 
