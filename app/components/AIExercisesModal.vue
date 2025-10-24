@@ -589,6 +589,18 @@ const close = () => {
     savedToReports.value = false
   }, 300)
 }
+
+// ✅ AUTO-GENERATE: Watch para gerar exercícios automaticamente quando o modal abre
+watch(() => props.isOpen, async (newVal) => {
+  if (newVal && props.content && !generated.value && !loading.value) {
+    console.log('[AIExercisesModal] 🚀 Modal opened with content, auto-generating exercises...')
+    console.log('[AIExercisesModal] Content length:', props.content.length)
+    console.log('[AIExercisesModal] Chapter:', props.chapterTitle)
+
+    // Auto-generate exercises
+    await generateExercises()
+  }
+})
 </script>
 
 <style scoped>

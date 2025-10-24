@@ -25,8 +25,8 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-claude-text-secondary dark:text-gray-400 mb-1">Revisões Pendentes</p>
-              <p class="text-2xl font-bold text-claude-text dark:text-white">{{ revisionsPending }}</p>
-              <p class="text-xs text-orange-400 mt-1">{{ urgentRevisions }} urgentes</p>
+              <p class="text-2xl font-bold text-claude-text dark:text-white">{{ completedRevisions }}/{{ totalRevisions }}</p>
+              <p class="text-xs text-orange-400 mt-1">{{ pendingRevisionsThisWeek }} pendentes esta semana</p>
             </div>
             <div class="w-12 h-12 bg-orange-500/20 rounded-claude-md flex items-center justify-center">
               <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,20 +89,24 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- AI Tutor -->
-          <NuxtLink
-            to="/notebook"
+          <button
             data-tour="ai-chat"
-            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
+            class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group text-left"
+            @click="openAITutor"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">💬</div>
+              <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
             <h4 class="font-semibold text-[#2C2C2C] dark:text-white mb-1">Tutor de IA</h4>
             <p class="text-sm text-[#6B6B6B] dark:text-gray-400">Tire dúvidas em tempo real</p>
-          </NuxtLink>
+          </button>
 
           <!-- AI Exercises -->
           <button
@@ -111,7 +115,11 @@
             @click="openAIExercises"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">📝</div>
+              <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -127,7 +135,11 @@
             class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">🧠</div>
+              <div class="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -143,7 +155,11 @@
             class="p-4 bg-[#f5e4dd] dark:bg-dark-800/50 border border-[#E5E5E5] dark:border-purple-500/30 rounded-lg hover:border-[#ca643f] dark:hover:border-purple-500 hover:bg-[#eeddd4] dark:hover:bg-purple-500/10 transition-all group"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="text-3xl">🎴</div>
+              <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
               <svg class="w-5 h-5 text-[#ca643f] dark:text-purple-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -240,6 +256,8 @@
           @update-activity="handleUpdateActivity"
           @delete-activity="handleDeleteActivity"
           @toggle-completion="handleToggleActivityCompletion"
+          @view-changed="handleViewChanged"
+          @filtered-changed="handleFilteredChanged"
         />
       </div>
 
@@ -410,6 +428,28 @@
 
     <!-- AI Onboarding Tour -->
     <AIOnboardingTour ref="aiTourRef" />
+
+    <!-- AI Exercises Config Modal -->
+    <AIExercisesConfigModal
+      :is-open="showExercisesConfig"
+      @close="showExercisesConfig = false"
+      @generate="handleGenerateExercises"
+    />
+
+    <!-- AI Exercises Modal -->
+    <AIExercisesModal
+      :is-open="showExercisesModal"
+      :content="exercisesContent"
+      :chapter-title="exercisesChapter"
+      :subject-id="exercisesSubjectId"
+      @close="showExercisesModal = false"
+    />
+
+    <!-- AI Tutor Modal -->
+    <AITutorModal
+      :is-open="showTutorModal"
+      @close="showTutorModal = false"
+    />
   </div>
 </template>
 
@@ -440,6 +480,10 @@ const studyGoalsCount = ref(0)
 const revisionsPending = ref(0)
 const urgentRevisions = ref(0)
 const studyStreak = ref(0)
+// ✅ Novas variáveis para revisões
+const totalRevisions = ref(0) // Total de revisões no sistema
+const completedRevisions = ref(0) // Total de revisões concluídas
+const pendingRevisionsThisWeek = ref(0) // Revisões pendentes na semana atual
 
 // Chart refs
 const weeklyChart = ref<HTMLCanvasElement>()
@@ -475,6 +519,15 @@ const selectedActivity = ref<ScheduleActivity | null>(null)
 const initialActivityDate = ref<string>()
 const initialActivityTime = ref<string>()
 const calendarStats = ref<any>(null)
+const filteredActivitiesFromCalendar = ref<ScheduleActivity[]>([]) // ✅ Atividades filtradas pela busca
+
+// AI Modals
+const showExercisesConfig = ref(false)
+const showExercisesModal = ref(false)
+const exercisesContent = ref('')
+const exercisesChapter = ref('')
+const exercisesSubjectId = ref('')
+const showTutorModal = ref(false)
 
 
 // Computed properties for Kanban columns
@@ -497,39 +550,51 @@ const formatDate = (dateString: string) => {
 // Buscar dados do usuário e estatísticas
 onMounted(async () => {
   console.log('📍📍📍 === DASHBOARD MOUNTED === 📍📍📍')
-  console.log('👤 user.value:', user.value)
-  console.log('👤 user.value?.id:', user.value?.id)
-  console.log('👤 typeof user.value:', typeof user.value)
   console.log('⏰ Timestamp:', new Date().toISOString())
 
-  // ✅ CORREÇÃO CRÍTICA: Verificar explicitamente se user.value.id existe
-  if (user.value?.id) {
-    console.log('✅ user.value.id disponível:', user.value.id)
-    const { data } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.value.id)
-      .single()
+  // ✅ CORREÇÃO: Buscar user_id da sessão ao invés de user.value
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-    if (data) {
-      console.log('✅ Dados do usuário carregados')
-      userData.value = data
-      subscriptionType.value = data.subscription_type || 'freemium'
-      await loadStats()
-      await loadTasks()
-      await loadSubjects()
-      await initCharts()
-      console.log('📅 Chamando loadCalendarData no onMounted...')
-      await loadCalendarData()
-      console.log('✅ onMounted concluído COM loadCalendarData')
-    } else {
-      console.warn('⚠️ Dados do usuário não encontrados no banco')
-    }
-  } else {
-    console.warn('⚠️⚠️⚠️ user.value.id NÃO disponível no onMounted ⚠️⚠️⚠️')
-    console.warn('❌ loadCalendarData NÃO será chamado agora')
-    console.warn('⏳ Aguardando watch detectar usuário...')
+  if (sessionError || !session?.user?.id) {
+    console.warn('⚠️⚠️⚠️ Sessão não encontrada no onMounted ⚠️⚠️⚠️', sessionError)
+    console.warn('⏳ Aguardando watchEffect detectar usuário...')
+    console.log('🏁 === FIM: onMounted (sem sessão) ===')
+    return
   }
+
+  const userId = session.user.id
+  console.log('✅ user_id da sessão disponível:', userId)
+
+  // Buscar dados do usuário
+  const { data: userData_result } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  if (userData_result) {
+    console.log('✅ Dados do usuário carregados')
+    userData.value = userData_result
+    subscriptionType.value = userData_result.subscription_type || 'freemium'
+
+    // Carregar todos os dados
+    console.log('📊 Carregando estatísticas...')
+    await loadStats()
+
+    console.log('📋 Carregando tarefas...')
+    await loadTasks()
+
+    console.log('📚 Carregando matérias...')
+    await loadSubjects()
+
+    console.log('📈 Inicializando gráficos...')
+    await initCharts()
+
+    console.log('✅ onMounted concluído com sucesso!')
+  } else {
+    console.warn('⚠️ Dados do usuário não encontrados no banco')
+  }
+
   console.log('🏁 === FIM: onMounted ===')
 })
 
@@ -613,116 +678,250 @@ watchEffect(async () => {
 })
 
 const loadStats = async () => {
-  if (!user.value) return
+  // Get user_id from session instead of user.value
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-  // Subjects count
-  const { count } = await supabase
-    .from('subjects')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.value.id)
-  subjectsCount.value = count || 0
-
-  // Study goals count
-  const { count: goalsCount } = await supabase
-    .from('study_goals')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.value.id)
-  studyGoalsCount.value = goalsCount || 0
-
-  // Daily study time
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const { data: dailySessions } = await supabase
-    .from('study_sessions')
-    .select('duration, started_at')
-    .eq('user_id', user.value.id)
-    .gte('started_at', today.toISOString())
-
-  dailyStudySeconds.value = (dailySessions || []).reduce((sum: number, s: any) => sum + (s.duration || 0), 0)
-
-  // Weekly study time
-  const weekStart = new Date()
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay())
-  weekStart.setHours(0, 0, 0, 0)
-  const { data: weeklySessions } = await supabase
-    .from('study_sessions')
-    .select('duration, started_at')
-    .eq('user_id', user.value.id)
-    .gte('started_at', weekStart.toISOString())
-
-  weeklyStudySeconds.value = (weeklySessions || []).reduce((sum: number, s: any) => sum + (s.duration || 0), 0)
-
-  // Revisions
-  const now = new Date()
-  const { count: pendingCount } = await supabase
-    .from('revisions')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.value.id)
-    .eq('status', 'pending')
-    .lte('scheduled_date', now.toISOString())
-
-  revisionsPending.value = pendingCount || 0
-
-  // Urgent revisions (due today)
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  tomorrow.setHours(0, 0, 0, 0)
-  const { count: urgentCount } = await supabase
-    .from('revisions')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.value.id)
-    .eq('status', 'pending')
-    .lte('scheduled_date', tomorrow.toISOString())
-
-  urgentRevisions.value = urgentCount || 0
-
-  // Study streak calculation
-  let streak = 0
-  let currentDate = new Date()
-  currentDate.setHours(0, 0, 0, 0)
-
-  while (true) {
-    const nextDay = new Date(currentDate)
-    nextDay.setDate(nextDay.getDate() + 1)
-
-    const { data: daySession } = await supabase
-      .from('study_sessions')
-      .select('id')
-      .eq('user_id', user.value.id)
-      .gte('started_at', currentDate.toISOString())
-      .lt('started_at', nextDay.toISOString())
-      .limit(1)
-
-    if (daySession && daySession.length > 0) {
-      streak++
-      currentDate.setDate(currentDate.getDate() - 1)
-    } else {
-      break
-    }
+  if (sessionError || !session?.user?.id) {
+    console.warn('[Dashboard] loadStats: No user session found', sessionError)
+    return
   }
 
-  studyStreak.value = streak
+  const userId = session.user.id
+  console.log('[Dashboard] loadStats: Loading statistics for user:', userId)
+
+  try {
+    // Subjects count
+    const { count, error: subjectsError } = await supabase
+      .from('subjects')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+
+    if (subjectsError) {
+      console.error('[Dashboard] Error loading subjects count:', subjectsError)
+    } else {
+      console.log('[Dashboard] Subjects count:', count)
+      subjectsCount.value = count || 0
+    }
+
+    // Study goals count
+    const { count: goalsCount, error: goalsError } = await supabase
+      .from('study_goals')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+
+    if (goalsError) {
+      console.error('[Dashboard] Error loading goals count:', goalsError)
+    } else {
+      console.log('[Dashboard] Goals count:', goalsCount)
+      studyGoalsCount.value = goalsCount || 0
+    }
+
+    // Daily study time
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    console.log('[Dashboard] Daily query range:', {
+      start: today.toISOString(),
+      end: tomorrow.toISOString()
+    })
+
+    const { data: dailySessions, error: dailyError } = await supabase
+      .from('study_sessions')
+      .select('duration, started_at')
+      .eq('user_id', userId)
+      .gte('started_at', today.toISOString())
+      .lt('started_at', tomorrow.toISOString())
+
+    if (dailyError) {
+      console.error('[Dashboard] Error loading daily sessions:', dailyError)
+    } else {
+      console.log('[Dashboard] Daily sessions:', dailySessions?.length || 0, dailySessions)
+      dailyStudySeconds.value = (dailySessions || []).reduce((sum: number, s: any) => sum + (s.duration || 0), 0)
+      console.log('[Dashboard] Daily study seconds:', dailyStudySeconds.value)
+    }
+
+    // Weekly study time
+    const weekStart = new Date()
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+    weekStart.setHours(0, 0, 0, 0)
+
+    console.log('[Dashboard] Weekly query start:', weekStart.toISOString())
+
+    const { data: weeklySessions, error: weeklyError } = await supabase
+      .from('study_sessions')
+      .select('duration, started_at')
+      .eq('user_id', userId)
+      .gte('started_at', weekStart.toISOString())
+
+    if (weeklyError) {
+      console.error('[Dashboard] Error loading weekly sessions:', weeklyError)
+    } else {
+      console.log('[Dashboard] Weekly sessions:', weeklySessions?.length || 0)
+      weeklyStudySeconds.value = (weeklySessions || []).reduce((sum: number, s: any) => sum + (s.duration || 0), 0)
+      console.log('[Dashboard] Weekly study seconds:', weeklyStudySeconds.value)
+    }
+  } catch (err) {
+    console.error('[Dashboard] Exception in loadStats:', err)
+  }
+
+  // ✅ Revisões do calendário (study_schedules com activity_type='review')
+  try {
+    const todayDate = new Date().toISOString().split('T')[0]
+    console.log('[Dashboard] Revisions query date:', todayDate)
+
+    // Calcular período da semana atual
+    const weekStart = new Date()
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay()) // Domingo
+    weekStart.setHours(0, 0, 0, 0)
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekEnd.getDate() + 6) // Sábado
+    weekEnd.setHours(23, 59, 59, 999)
+
+    const weekStartDate = weekStart.toISOString().split('T')[0]
+    const weekEndDate = weekEnd.toISOString().split('T')[0]
+
+    console.log('[Dashboard] 📆 Semana atual:', {
+      start: weekStartDate,
+      end: weekEndDate
+    })
+
+    // ✅ Buscar revisões da tabela study_schedules
+    const { data: allReviewActivities, error: reviewsError } = await supabase
+      .from('study_schedules')
+      .select('id, scheduled_date, status, is_completed, activity_type')
+      .eq('user_id', userId)
+      .eq('activity_type', 'review')
+      .order('scheduled_date', { ascending: true })
+
+    if (reviewsError) {
+      console.error('[Dashboard] Error loading review activities:', reviewsError)
+    } else {
+      console.log('[Dashboard] 📋 TODAS as atividades de revisão:', allReviewActivities)
+
+      // ✅ 1. Total de revisões no sistema (todas com activity_type='review')
+      totalRevisions.value = allReviewActivities?.length || 0
+
+      // ✅ 2. Total de revisões concluídas
+      completedRevisions.value = allReviewActivities?.filter(r =>
+        r.is_completed === true || r.status === 'completed'
+      ).length || 0
+
+      // ✅ 3. Revisões pendentes na semana atual
+      pendingRevisionsThisWeek.value = allReviewActivities?.filter(r =>
+        (r.is_completed === false || r.status === 'pending') &&
+        r.scheduled_date >= weekStartDate &&
+        r.scheduled_date <= weekEndDate
+      ).length || 0
+
+      console.log('[Dashboard] 📊 Resumo de revisões:', {
+        total: totalRevisions.value,
+        completed: completedRevisions.value,
+        pendingThisWeek: pendingRevisionsThisWeek.value
+      })
+    }
+
+    // ✅ Manter lógica antiga da tabela 'revisions' para compatibilidade (sistema R1-R7)
+    const { count: pendingCount, error: revError } = await supabase
+      .from('revisions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .lte('scheduled_date', todayDate)
+
+    if (revError) {
+      console.error('[Dashboard] Error loading pending revisions:', revError)
+    } else {
+      console.log('[Dashboard] Pending revisions count:', pendingCount)
+      revisionsPending.value = pendingCount || 0
+    }
+
+    // Urgent revisions (due today)
+    const { count: urgentCount, error: urgentError } = await supabase
+      .from('revisions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('status', 'pending')
+      .eq('scheduled_date', todayDate)
+
+    if (urgentError) {
+      console.error('[Dashboard] Error loading urgent revisions:', urgentError)
+    } else {
+      console.log('[Dashboard] Urgent revisions count:', urgentCount)
+      urgentRevisions.value = urgentCount || 0
+    }
+  } catch (err) {
+    console.error('[Dashboard] Exception loading revisions:', err)
+  }
+
+  // Study streak calculation
+  try {
+    let streak = 0
+    let currentDate = new Date()
+    currentDate.setHours(0, 0, 0, 0)
+
+    console.log('[Dashboard] Calculating study streak starting from:', currentDate.toISOString())
+
+    while (true) {
+      const nextDay = new Date(currentDate)
+      nextDay.setDate(nextDay.getDate() + 1)
+
+      const { data: daySession, error: streakError } = await supabase
+        .from('study_sessions')
+        .select('id')
+        .eq('user_id', userId)
+        .gte('started_at', currentDate.toISOString())
+        .lt('started_at', nextDay.toISOString())
+        .limit(1)
+
+      if (streakError) {
+        console.error('[Dashboard] Error in streak calculation:', streakError)
+        break
+      }
+
+      if (daySession && daySession.length > 0) {
+        streak++
+        currentDate.setDate(currentDate.getDate() - 1)
+      } else {
+        break
+      }
+
+      // Safety: prevent infinite loop
+      if (streak > 365) {
+        console.warn('[Dashboard] Streak exceeded 365 days, breaking loop')
+        break
+      }
+    }
+
+    console.log('[Dashboard] Final study streak:', streak)
+    studyStreak.value = streak
+  } catch (err) {
+    console.error('[Dashboard] Exception in streak calculation:', err)
+  }
 }
 
 const loadTasks = async () => {
-  if (!user.value) return
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.id) return
 
   const { data } = await supabase
     .from('tasks')
     .select('*')
-    .eq('user_id', user.value.id)
+    .eq('user_id', session.user.id)
     .order('created_at', { ascending: false })
 
   tasks.value = data || []
 }
 
 const loadSubjects = async () => {
-  if (!user.value) return
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.id) return
 
   const { data } = await supabase
     .from('subjects')
     .select('*')
-    .eq('user_id', user.value.id)
+    .eq('user_id', session.user.id)
     .order('name')
 
   subjects.value = data || []
@@ -813,11 +1012,15 @@ const initCharts = async () => {
 }
 
 const getWeeklyStudyData = async () => {
-  if (!user.value) return Array(7).fill(0)
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.id) return Array(7).fill(0)
 
+  const userId = session.user.id
   const weekStart = new Date()
   weekStart.setDate(weekStart.getDate() - weekStart.getDay())
   weekStart.setHours(0, 0, 0, 0)
+
+  console.log('[Dashboard] getWeeklyStudyData: Week start:', weekStart.toISOString())
 
   const weeklyData = []
 
@@ -827,28 +1030,64 @@ const getWeeklyStudyData = async () => {
     const dayEnd = new Date(dayStart)
     dayEnd.setDate(dayEnd.getDate() + 1)
 
-    const { data: sessions } = await supabase
+    console.log(`[Dashboard] Day ${i} (${dayStart.toLocaleDateString()}):`, {
+      start: dayStart.toISOString(),
+      end: dayEnd.toISOString()
+    })
+
+    const { data: sessions, error } = await supabase
       .from('study_sessions')
-      .select('duration')
-      .eq('user_id', user.value.id)
+      .select('duration, started_at')
+      .eq('user_id', userId)
       .gte('started_at', dayStart.toISOString())
       .lt('started_at', dayEnd.toISOString())
 
+    if (error) {
+      console.error(`[Dashboard] Error loading day ${i}:`, error)
+    } else {
+      console.log(`[Dashboard] Day ${i} sessions found:`, sessions?.length || 0, sessions)
+    }
+
     const totalSeconds = (sessions || []).reduce((sum: number, s: any) => sum + (s.duration || 0), 0)
-    weeklyData.push(Math.round(totalSeconds / 3600 * 10) / 10)
+    const hours = Math.round(totalSeconds / 3600 * 10) / 10
+    console.log(`[Dashboard] Day ${i} total hours:`, hours)
+    weeklyData.push(hours)
   }
 
+  console.log('[Dashboard] Final weekly data:', weeklyData)
   return weeklyData
 }
 
 const getSubjectStudyData = async () => {
-  if (!user.value) return { labels: [], data: [] }
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.id) return { labels: [], data: [] }
 
-  const { data: sessions } = await supabase
+  const userId = session.user.id
+  console.log('[Dashboard] getSubjectStudyData: Loading ALL sessions for user:', userId)
+
+  const { data: sessions, error } = await supabase
     .from('study_sessions')
-    .select('duration, subject_id, subjects(name)')
-    .eq('user_id', user.value.id)
+    .select('duration, subject_id, started_at, subjects(name)')
+    .eq('user_id', userId)
     .not('subject_id', 'is', null)
+    .order('started_at', { ascending: false })
+
+  if (error) {
+    console.error('[Dashboard] Error loading subject sessions:', error)
+    return { labels: [], data: [] }
+  }
+
+  console.log('[Dashboard] Total sessions found:', sessions?.length || 0)
+  console.log('[Dashboard] First 5 sessions:', sessions?.slice(0, 5))
+  console.log('[Dashboard] Last 5 sessions:', sessions?.slice(-5))
+
+  // Log sessions after Oct 25, 2025
+  const sessionsAfterOct25 = sessions?.filter((s: any) => {
+    const date = new Date(s.started_at)
+    const oct25 = new Date('2025-10-25T23:59:59Z')
+    return date > oct25
+  })
+  console.log('[Dashboard] Sessions AFTER Oct 25, 2025:', sessionsAfterOct25?.length || 0, sessionsAfterOct25)
 
   const subjectTotals: { [key: string]: number } = {}
 
@@ -860,6 +1099,7 @@ const getSubjectStudyData = async () => {
   const labels = Object.keys(subjectTotals)
   const data = Object.values(subjectTotals).map(seconds => Math.round(seconds / 3600 * 10) / 10)
 
+  console.log('[Dashboard] Subject totals:', { labels, data })
   return { labels, data }
 }
 
@@ -1034,28 +1274,158 @@ const handleToggleActivityCompletion = async (activityOrId: ScheduleActivity | s
   await loadCalendarData()
 }
 
+// Função para calcular período baseado no viewMode
+type ViewMode = 'day' | 'week' | 'biweek' | 'month' | 'list'
+
+const calculatePeriod = (viewMode: ViewMode, currentDate: Date): { start: string, end: string } => {
+  const date = new Date(currentDate)
+  date.setHours(0, 0, 0, 0)
+
+  let startDate: Date
+  let endDate: Date
+
+  switch (viewMode) {
+    case 'day':
+      startDate = new Date(date)
+      endDate = new Date(date)
+      break
+
+    case 'week':
+      startDate = new Date(date)
+      startDate.setDate(date.getDate() - date.getDay()) // Domingo
+      endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 6) // Sábado
+      break
+
+    case 'biweek':
+      startDate = new Date(date)
+      startDate.setDate(date.getDate() - date.getDay()) // Domingo
+      endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 13) // 14 dias
+      break
+
+    case 'month':
+      startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+      endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+      break
+
+    case 'list':
+      // ✅ Lista mostra TUDO (passado e futuro)
+      // Usar range muito amplo para incluir todas as atividades
+      startDate = new Date('1900-01-01') // Data muito antiga
+      endDate = new Date('2100-12-31')   // Data muito futura
+      break
+
+    default:
+      startDate = new Date(date)
+      endDate = new Date(date)
+  }
+
+  return {
+    start: startDate.toISOString().split('T')[0],
+    end: endDate.toISOString().split('T')[0]
+  }
+}
+
+// ✅ Estado para armazenar o modo/data do calendário
+const currentCalendarView = ref<{ viewMode: ViewMode; currentDate: Date }>({
+  viewMode: 'week',
+  currentDate: new Date()
+})
+
+// ✅ Função para recalcular estatísticas baseado em atividades filtradas + período
+const recalculateStats = () => {
+  const { viewMode, currentDate } = currentCalendarView.value
+  const filtered = filteredActivitiesFromCalendar.value
+
+  console.log(`📊 Recalculando stats - Modo: ${viewMode}, Filtradas: ${filtered.length}`)
+
+  // Modo lista: usar TODAS as atividades filtradas (sem restrição de período)
+  if (viewMode === 'list') {
+    const totalMinutes = filtered.reduce((sum, a) => sum + a.duration, 0)
+    const completedActivities = filtered.filter(a => a.is_completed).length
+
+    calendarStats.value = {
+      totalMinutes,
+      totalHours: Math.round(totalMinutes / 60 * 10) / 10,
+      totalActivities: filtered.length,
+      completedActivities,
+      completionRate: filtered.length > 0
+        ? Math.round((completedActivities / filtered.length) * 100)
+        : 0
+    }
+    console.log('📈 Stats (lista - todas filtradas):', calendarStats.value)
+    return
+  }
+
+  // Outros modos: filtrar pelo período visível
+  const period = calculatePeriod(viewMode, currentDate)
+  const visibleActivities = filtered.filter(a =>
+    a.scheduled_date >= period.start && a.scheduled_date <= period.end
+  )
+
+  const totalMinutes = visibleActivities.reduce((sum, a) => sum + a.duration, 0)
+  const completedActivities = visibleActivities.filter(a => a.is_completed).length
+
+  calendarStats.value = {
+    totalMinutes,
+    totalHours: Math.round(totalMinutes / 60 * 10) / 10,
+    totalActivities: visibleActivities.length,
+    completedActivities,
+    completionRate: visibleActivities.length > 0
+      ? Math.round((completedActivities / visibleActivities.length) * 100)
+      : 0
+  }
+
+  console.log(`📈 Stats (${viewMode} - período ${period.start} a ${period.end}):`, calendarStats.value)
+}
+
+// Handler para mudanças nas atividades filtradas (tipo/busca)
+const handleFilteredChanged = (filtered: ScheduleActivity[]) => {
+  console.log('🔍 Filtros mudaram:', filtered.length)
+  filteredActivitiesFromCalendar.value = filtered
+  recalculateStats() // ✅ Recalcular sempre que filtro muda
+}
+
+// Handler para mudanças de visualização (modo/data)
+const handleViewChanged = (viewMode: ViewMode, currentDate: Date) => {
+  console.log('🔄 View mudou:', viewMode, currentDate)
+  currentCalendarView.value = { viewMode, currentDate }
+  recalculateStats() // ✅ Recalcular sempre que período muda
+}
+
 const loadCalendarData = async () => {
   console.log('📅📅📅 === INÍCIO: loadCalendarData (Dashboard) === 📅📅📅')
 
-  const now = new Date()
-  const weekStart = new Date(now)
-  weekStart.setDate(now.getDate() - now.getDay())
-  const weekEnd = new Date(weekStart)
-  weekEnd.setDate(weekStart.getDate() + 6)
+  // ✅ CORREÇÃO: Carregar TODAS as atividades (passado, presente e futuro)
+  // SEM filtro de data - o filtro será aplicado apenas na VISUALIZAÇÃO
+  console.log('📆 Carregando TODAS as atividades (passado, presente e futuro)...')
+  console.log('🔄 Chamando fetchActivities SEM filtros de data...')
 
-  const startStr = weekStart.toISOString().split('T')[0]
-  const endStr = weekEnd.toISOString().split('T')[0]
+  await fetchActivities() // Sem parâmetros = carrega TUDO
 
-  console.log('📆 Período da semana:', { startStr, endStr })
-  console.log('🔄 Chamando fetchActivities...')
+  // Aguardar Vue atualizar o DOM/refs
+  await nextTick()
 
-  await fetchActivities(startStr, endStr)
+  console.log('✅ Atividades carregadas:', calendarActivities.value.length)
 
-  console.log('📊 Calculando estatísticas...')
-  calendarStats.value = getWorkloadStats(startStr, endStr)
+  // Calcular estatísticas para a semana atual (padrão é week view)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const period = calculatePeriod('week', today)
 
+  console.log('📊 Calculando estatísticas iniciais (semana atual)...')
+  console.log('📅 Período:', period)
+
+  calendarStats.value = getWorkloadStats(period.start, period.end)
+
+  console.log('📈 Estatísticas calculadas:', JSON.stringify(calendarStats.value, null, 2))
   console.log('✅ loadCalendarData concluído')
-  console.log('📊 calendarActivities.length:', calendarActivities.value.length)
+
+  // Debug: mostrar datas das atividades
+  const uniqueDates = [...new Set(calendarActivities.value.map((a: any) => a.scheduled_date))].sort()
+  console.log('📆 Datas com atividades:', uniqueDates)
+  console.log(`📊 Range de datas: ${uniqueDates[0] || 'N/A'} até ${uniqueDates[uniqueDates.length - 1] || 'N/A'}`)
   console.log('🏁 === FIM: loadCalendarData ===')
 }
 
@@ -1077,7 +1447,17 @@ const startAITour = () => {
 }
 
 const openAIExercises = () => {
-  // TODO: Open AI exercises modal (currently managed elsewhere)
-  alert('Recurso de exercícios de IA em desenvolvimento. Acesse via Caderno Virtual!')
+  showExercisesConfig.value = true
+}
+
+const handleGenerateExercises = (config: any) => {
+  exercisesContent.value = config.content
+  exercisesChapter.value = config.subjectName
+  exercisesSubjectId.value = config.subjectId
+  showExercisesModal.value = true
+}
+
+const openAITutor = () => {
+  showTutorModal.value = true
 }
 </script>

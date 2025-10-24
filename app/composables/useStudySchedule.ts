@@ -4,7 +4,7 @@ type StudySchedule = Database['public']['Tables']['study_schedules']['Row']
 type StudyScheduleInsert = Database['public']['Tables']['study_schedules']['Insert']
 type StudyScheduleUpdate = Database['public']['Tables']['study_schedules']['Update']
 
-export type ScheduleType = 'study' | 'event'
+export type ScheduleType = 'study' | 'event' | 'review'
 
 export interface ScheduleActivity {
   id?: string
@@ -18,6 +18,7 @@ export interface ScheduleActivity {
   is_completed: boolean
   color?: string | null
   type?: ScheduleType
+  activity_type?: ScheduleType
   subject?: {
     id: string
     name: string
@@ -68,9 +69,12 @@ export const useStudySchedule = () => {
   }
 
   // Busca todas as atividades do usuário em um período
-  const fetchActivities = async (startDate: string, endDate: string) => {
+  const fetchActivities = async (startDate?: string, endDate?: string) => {
     console.log('🔄🔄🔄 === INÍCIO: fetchActivities (CARREGAMENTO) === 🔄🔄🔄')
-    console.log('📅 Período solicitado:', { startDate, endDate })
+    console.log('📅 Período solicitado:', {
+      startDate: startDate || 'SEM LIMITE (TODAS AS DATAS)',
+      endDate: endDate || 'SEM LIMITE'
+    })
 
     // ✅ CORREÇÃO: Usar getSession() ao invés de user.value
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
@@ -91,19 +95,31 @@ export const useStudySchedule = () => {
       console.log('🔍 Buscando na tabela study_schedules...')
       console.log('📊 Filtros aplicados:', {
         user_id: session.user.id,
-        'scheduled_date >=': startDate,
-        'scheduled_date <=': endDate
+        'scheduled_date >=': startDate || 'SEM FILTRO (TODAS)',
+        'scheduled_date <=': endDate || 'SEM LIMITE'
       })
 
-      const { data, error: fetchError } = await supabase
+      // Construir query base
+      let query = supabase
         .from('study_schedules')
         .select(`
           *,
           subject:subjects(id, name, color, icon)
         `)
-        .eq('user_id', session.user.id)  // ✅ CORREÇÃO: usar session.user.id
-        .gte('scheduled_date', startDate)
-        .lte('scheduled_date', endDate)
+        .eq('user_id', session.user.id)
+
+      // ✅ CORREÇÃO: Adicionar filtro de data inicial APENAS se fornecido
+      if (startDate) {
+        query = query.gte('scheduled_date', startDate)
+      }
+
+      // Adicionar filtro de data final APENAS se fornecido
+      if (endDate) {
+        query = query.lte('scheduled_date', endDate)
+      }
+
+      // Executar query
+      const { data, error: fetchError } = await query
         .order('scheduled_date', { ascending: true })
         // NÃO ordenar por start_time/scheduled_time - pode causar erro se coluna não existir
 
@@ -143,7 +159,9 @@ export const useStudySchedule = () => {
           // Garantir que is_completed existe (pode vir como is_completed ou derivar de status)
           is_completed: item.is_completed !== undefined ? item.is_completed : (item.status === 'completed'),
           subject: item.subject ? (Array.isArray(item.subject) ? item.subject[0] : item.subject) : null,
-          type: item.subject_id ? 'study' : 'event'
+          // ✅ Usar activity_type do banco ou deduzir pelo subject_id (retrocompatibilidade)
+          type: item.activity_type || (item.subject_id ? 'study' : 'event'),
+          activity_type: item.activity_type || (item.subject_id ? 'study' : 'event')
         }
 
         return mapped
@@ -218,7 +236,8 @@ export const useStudySchedule = () => {
         status: 'pending',                        // Campo antigo (se existir) - OBRIGATÓRIO!
 
         // Tipo de estudo (se campo existir)
-        study_type: payload.type === 'study' ? 'conteudo' : 'revisao',  // Campo antigo - OBRIGATÓRIO!
+        study_type: payload.type === 'review' ? 'revisao' : 'conteudo',  // Campo antigo - OBRIGATÓRIO!
+        activity_type: payload.type,             // ✅ Campo novo - 'study', 'event', 'review'
 
         color: payload.color || null
       }
@@ -348,7 +367,8 @@ export const useStudySchedule = () => {
 
       // ✅ Tipo de estudo (se for passado)
       if (updates.type) {
-        updateData.study_type = updates.type === 'study' ? 'conteudo' : 'revisao'
+        updateData.study_type = updates.type === 'review' ? 'revisao' : 'conteudo'
+        updateData.activity_type = updates.type  // ✅ 'study', 'event', 'review'
       }
 
       const { data, error: updateError } = await supabase
@@ -469,9 +489,16 @@ export const useStudySchedule = () => {
 
   // Obtém estatísticas de carga horária
   const getWorkloadStats = (startDate: string, endDate: string) => {
+    console.log('📊📊📊 [getWorkloadStats] Calculando estatísticas...')
+    console.log('📅 Período solicitado:', { startDate, endDate })
+    console.log('📦 Total de atividades no array:', activities.value.length)
+
     const filtered = activities.value.filter(
       a => a.scheduled_date >= startDate && a.scheduled_date <= endDate
     )
+
+    console.log('🔍 Atividades filtradas:', filtered.length)
+    console.log('📋 Datas filtradas:', filtered.map(a => ({ date: a.scheduled_date, title: a.title, completed: a.is_completed })))
 
     const totalMinutes = filtered.reduce((sum, a) => sum + a.duration, 0)
     const completedMinutes = filtered.filter(a => a.is_completed)
@@ -480,7 +507,7 @@ export const useStudySchedule = () => {
     const totalActivities = filtered.length
     const completedActivities = filtered.filter(a => a.is_completed).length
 
-    return {
+    const stats = {
       totalMinutes,
       completedMinutes,
       totalHours: Math.round(totalMinutes / 60 * 10) / 10,
@@ -491,6 +518,9 @@ export const useStudySchedule = () => {
         ? Math.round((completedActivities / totalActivities) * 100)
         : 0
     }
+
+    console.log('✅ Estatísticas calculadas:', stats)
+    return stats
   }
 
   // Obtém atividades agrupadas por data
