@@ -546,6 +546,113 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 - ✅ Dark mode consistency throughout
 - ✅ Performance optimized (date filter before text search)
 
+### ✅ Calendar Activity Type Filter & UI Improvements (FASE 12 - 100% Completa) - 2025-10-24
+
+**Compact dropdown filter and period-aware statistics**
+
+1. ✅ **Compact Activity Type Filter**
+   - Replaced 3 large buttons with elegant dropdown selector
+   - Options: Todas, Estudar, Revisar, Evento
+   - Icon indicators for each type with color coding
+   - Real-time activity counter shows filtered results
+   - Period-aware: only counts activities in visible date range
+
+2. ✅ **Period-Aware Statistics**
+   - Dashboard statistics now respect both filters AND visible period
+   - Stats update automatically when:
+     - User changes activity type filter (Todas/Estudar/Revisar/Evento)
+     - User changes view mode (day/week/biweek/month/list)
+     - User navigates to different dates
+   - List mode shows ALL filtered activities (no period restriction)
+   - Other modes show only activities within visible period
+
+3. ✅ **Centralized Stats Calculation**
+   - Function `recalculateStats()` in dashboard.vue
+   - Called by both `handleFilteredChanged()` and `handleViewChanged()`
+   - Accurate calculations for:
+     - Carga Horária (Total hours)
+     - Atividades Concluídas (X/Y format)
+     - Taxa de Conclusão (Percentage)
+
+**Files Modified:**
+- app/components/CalendarView.vue (lines 27-36, 43-68)
+  - Replaced button filters with dropdown selector
+  - Added `visibleActivitiesCount` computed property
+  - Fixed filter logic (was inverted)
+- app/pages/dashboard.vue (lines 1258-1323)
+  - Added `recalculateStats()` function
+  - Modified `handleFilteredChanged()` and `handleViewChanged()`
+  - Added `currentCalendarView` state tracking
+
+**Benefits:**
+- ✅ Cleaner, more compact UI
+- ✅ Statistics always accurate and synchronized
+- ✅ Better UX with real-time feedback
+- ✅ Period-aware filtering prevents confusion
+
+### ✅ Dashboard Revisions Card Update (FASE 13 - 100% Completa) - 2025-10-24
+
+**Accurate revision statistics from calendar activities**
+
+1. ✅ **Data Source Fix**
+   - Changed from `revisions` table → `study_schedules` table
+   - Now tracks activities with `activity_type='review'`
+   - Correctly reflects calendar revision activities
+
+2. ✅ **New Statistics Display**
+   - **Line 1**: `completedRevisions/totalRevisions` (ex: "2/10")
+   - **Line 2**: `pendingRevisionsThisWeek` (ex: "2 pendentes esta semana")
+   - Week calculation: Sunday to Saturday
+
+3. ✅ **Variables Added**
+   - `totalRevisions` - Total review activities in system
+   - `completedRevisions` - Total with `is_completed=true`
+   - `pendingRevisionsThisWeek` - Pending reviews in current week
+
+**Files Modified:**
+- app/pages/dashboard.vue (lines 468-470, 28-29, 753-840)
+  - Added 3 new reactive variables
+  - Updated card HTML to show X/Y format
+  - Modified query to use `study_schedules` table
+
+**Benefits:**
+- ✅ Accurate data from calendar system
+- ✅ Clear progress visualization (X/Y format)
+- ✅ Weekly context for pending reviews
+- ✅ Consistent with user's calendar activities
+
+### ✅ AI Modal Design Consistency (FASE 14 - 100% Completa) - 2025-10-24
+
+**Unified visual design across AI modals**
+
+1. ✅ **AI Tutor Modal Header**
+   - Removed colorful gradient (`from-primary-600 to-purple-600`)
+   - Applied consistent dark theme (`bg-dark-800 border-b border-dark-700`)
+   - Icon with subtle background (`bg-primary-500/20`)
+   - Subtitle color: `text-gray-400` (instead of `text-primary-100`)
+
+2. ✅ **Dashboard AI Cards - Monochromatic Icons**
+   - Replaced emoji icons with SVG monochromatic icons
+   - **Tutor de IA**: Purple chat icon (`text-purple-600 dark:text-purple-400`)
+   - **Gerar Exercícios**: Blue document icon (`text-blue-600 dark:text-blue-400`)
+   - **Mapas Mentais**: Pink lightbulb icon (`text-pink-600 dark:text-pink-400`)
+   - **Flashcards IA**: Orange cards icon (`text-orange-600 dark:text-orange-400`)
+   - Each icon in container with 20% opacity background
+
+**Files Modified:**
+- app/components/AITutorModal.vue (lines 11-32)
+  - Header background changed to dark theme
+  - Icon styling updated for consistency
+- app/pages/dashboard.vue (lines 97-170)
+  - All 4 emoji icons replaced with SVG icons
+  - Color-coded containers added
+
+**Benefits:**
+- ✅ Consistent visual identity across all modals
+- ✅ Professional, modern appearance
+- ✅ Better dark mode integration
+- ✅ Improved accessibility with semantic SVG icons
+
 ### ✅ Study Calendar System (FASE 8-9 - 100% Completa) - 2025-10-22
 
 **Complete interactive calendar with drag-and-drop scheduling and activity management**
@@ -924,20 +1031,29 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 
 ---
 
-**Version:** 3.9.0
-**Last Updated:** 2025-10-24T16:45:00-0300
+**Version:** 4.0.0
+**Last Updated:** 2025-10-24T19:30:00-0300
 **Implementation Score:** 100/100 ⭐
 
-**Recent Updates (2025-10-24):**
-- ✅ **FASE 11: Calendar List View Enhancements (100% COMPLETA)**
-  - Filtros de data inicial e final na visualização em lista
-  - Busca inteligente por nome da matéria (prioridade)
-  - Título da lista sempre exibe nome da matéria
-  - Ícones de calendário brancos no modo escuro
-  - Botão "Limpar todos os filtros"
-  - Performance otimizada (filtro de data antes de texto)
+**Recent Updates (2025-10-24 - Sessão 4):**
+- ✅ **FASE 12: Calendar Activity Type Filter & UI (100% COMPLETA)**
+  - Dropdown compacto para filtro de tipo (Todas/Estudar/Revisar/Evento)
+  - Estatísticas sensíveis ao período e filtros
+  - Contador de atividades em tempo real
+  - Lógica de filtro corrigida (estava invertida)
+
+- ✅ **FASE 13: Dashboard Revisions Card Update (100% COMPLETA)**
+  - Card de revisões agora usa dados do calendário (`study_schedules`)
+  - Exibe X/Y (concluídas/total) e pendentes na semana
+  - Dados precisos e sincronizados com atividades de revisão
+
+- ✅ **FASE 14: AI Modal Design Consistency (100% COMPLETA)**
+  - Header do Tutor de IA com tema escuro consistente
+  - Ícones monocromáticos SVG nos cards de IA do dashboard
+  - Identidade visual unificada em todos os modais
 
 **Previous Updates:**
+- ✅ Fase 11: Calendar List View Enhancements (100% - Filtros de data!)
 - ✅ Fase 10: Dynamic Calendar Statistics (100% - Estatísticas dinâmicas!)
 - ✅ Fase 8-9: Study Calendar System (100% - Calendário completo!)
 - ✅ Fase 7: Study Goals System (100% - Sistema de metas!)
