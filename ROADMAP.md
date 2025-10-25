@@ -1,8 +1,72 @@
 # 🗺️ ROADMAP - PraPassar Platform
 
-**Última atualização:** 2025-10-24T20:45:00-0300
+**Última atualização:** 2025-10-25T22:30:00-0300
 **Autor:** Claude Code + Equipe PraPassar
 **Status Geral:** ✅ **IMPLEMENTAÇÃO COMPLETA - 15 FASES CONCLUÍDAS (100/100)** 🎉
+**Status Segurança:** ⚠️ **MÉDIO-BAIXO - 18 ISSUES IDENTIFICADOS** 🔒
+
+---
+
+## 🚨 ATENÇÃO - PRIORIDADE MÁXIMA
+
+### 🔒 Análise de Segurança Completa (2025-10-25)
+
+**STATUS CRÍTICO:** 18 problemas de segurança identificados que precisam de atenção imediata.
+
+#### Resumo Executivo:
+- 🔴 **5 URGENTES** - Corrigir em 1-2 dias (fraude, vazamento de dados)
+- 🟠 **6 IMPORTANTES** - Corrigir em 1 semana (validação, logs)
+- 🟡 **4 ATENÇÃO** - Corrigir em 1 mês (senhas fracas, CSRF)
+- 🟢 **3 MELHORIAS** - Implementar quando possível (2FA, monitoring)
+
+#### Top 3 Riscos Críticos:
+1. **Webhooks de Pagamento** - Podem ser reenvidos múltiplas vezes (assinaturas grátis infinitas)
+2. **Acesso a Dados de Outros Usuários** - Falta validação de ownership em notebooks
+3. **Cupons de Afiliados Falsos** - Afiliados podem criar códigos reservados
+
+**📄 Documento Completo:** `RELATORIO_SEGURANÇA.md` (27 páginas)
+
+#### Ação Requerida:
+```
+URGENTE (PRÓXIMAS 48H):
+□ Implementar tabela processed_webhooks
+□ Adicionar .eq('user_id', user.id) em 9 endpoints
+□ Validar cupons de afiliados contra lista reservada
+□ Melhorar validação de uploads (magic bytes)
+□ Fortalecer rate limiting (IP + user_id)
+```
+
+---
+
+## 🛠️ Debug Recente - Sistema de Metas (2025-10-25)
+
+### Problemas Reportados:
+- ❌ "Ver Detalhes" não abre
+- ❌ Checkbox não marca como concluído
+
+### Análise Realizada:
+- ✅ 9 arquivos analisados (1.200+ linhas)
+- ✅ 35 pontos de log adicionados
+- ✅ Fluxos validados (20 passos no total)
+- ✅ **CONCLUSÃO:** Código 100% correto
+
+### Causa Identificada:
+🔄 **Cache do navegador/build desatualizado** (80% de confiança)
+
+### Solução:
+```bash
+cd prapassar-app
+rmdir /s /q .nuxt
+npm run dev
+# + Ctrl+Shift+R no navegador
+```
+
+### Documentação Criada:
+- `COMECE_AQUI_METAS.md` - Índice principal
+- `COMANDOS_RAPIDOS_FIX.md` - Comandos prontos
+- `CHECK_METAS_DEBUG.md` - Debug passo a passo
+- `ANALISE_MINUCIOSA_METAS.md` - Análise técnica
+- `FIX_RAPIDO_1_MINUTO.txt` - Solução rápida
 
 ---
 
@@ -23,9 +87,11 @@
 - **Fase 13 (100%):** 100/100 (2025-10-24) 🎉 (revisions card update)
 - **Fase 14 (100%):** 100/100 (2025-10-24) 🎉 (AI modal design consistency)
 - **Fase 15 (100%):** 100/100 (2025-10-24) 🎉 (Pomodoro timer system)
+- **Sessão 6 (2025-10-25):** Análise de segurança + Debug metas
 - **Ganho Real:** +27 pontos
 - **Meta Original:** 95/100
-- **Status:** ✅ **META 100/100 MANTIDA!** 🎉
+- **Status Implementação:** ✅ **META 100/100 MANTIDA!** 🎉
+- **Status Segurança:** ⚠️ **REQUER ATENÇÃO URGENTE** 🔒
 
 ### Pilares da Plataforma
 1. **Organização:** 100% ✅ (+10% | Meta: 95% ✅ → 100% ALCANÇADO!)

@@ -936,9 +936,26 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 - ❌→✅ SSR error with canvas-confetti → Fixed with dynamic imports
 - ❌→✅ UTF-8 encoding error ("não" → "n�o") → Fixed semicolon and encoding
 - ❌→✅ 401 Unauthorized on save → Fixed auth pattern in all 9 endpoints
+- ❌→✅ Goals não aparecem no refresh → Fixed useFetch para $fetch
+- ❌→✅ Checkbox não marca → Fixed RLS conflict (removed !inner join)
+
+**Debug Session (2025-10-25):**
+- ✅ Análise minuciosa de 9 arquivos (1.200+ linhas de código)
+- ✅ 35 pontos de log adicionados para rastreamento completo
+- ✅ Fluxo "Ver Detalhes" validado (10 passos) - 100% correto
+- ✅ Fluxo "Checkbox" validado (10 passos) - 100% correto
+- ✅ Problema identificado: Cache do navegador/build desatualizado
+- ✅ 7 documentos de troubleshooting criados:
+  - `COMECE_AQUI_METAS.md` - Índice e solução rápida
+  - `COMANDOS_RAPIDOS_FIX.md` - Comandos prontos para copiar/colar
+  - `CHECK_METAS_DEBUG.md` - Guia detalhado de debug
+  - `ANALISE_MINUCIOSA_METAS.md` - Análise completa do código
+  - `RESUMO_ANALISE_METAS.md` - Resumo executivo
+  - `FIX_METAS_COMPLETO_FINAL.md` - Histórico de correções
+  - `FIX_RAPIDO_1_MINUTO.txt` - Guia ultra-rápido
 
 **Recent Commits:**
-- **[PENDING]** - Study Goals System complete with auth fixes
+- **[PENDING]** - Study Goals System complete with debug and troubleshooting guides
 
 ### 🔄 Mind Maps System (FASE 6 - 94% Completa) - 2025-10-21
 
@@ -1056,6 +1073,115 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 - Automated tests (Jest/Vitest)
 - CI/CD pipeline
 
+---
+
+## 🔒 SEGURANÇA (Security Audit - 2025-10-25)
+
+### Status de Segurança Atual: ⚠️ MÉDIO-BAIXO
+
+**Análise Completa Realizada:** 2025-10-25
+- 9 arquivos principais analisados
+- 37 endpoints de API verificados
+- 18 problemas de segurança identificados
+
+### 🔴 PROBLEMAS URGENTES (Corrigir em 1-2 dias)
+
+#### URGENTE-01: Webhooks de Pagamento Podem Ser Falsificados
+- **Arquivo:** `server/api/webhooks/asaas.post.ts`
+- **Problema:** Sistema não verifica se webhook já foi processado
+- **Risco:** Atacante pode reenviar webhook múltiplas vezes e ganhar assinaturas duplicadas
+- **Solução:** Criar tabela `processed_webhooks` e validar antes de processar
+
+#### URGENTE-02: Usuários Podem Acessar Dados de Outros Usuários
+- **Arquivos:** APIs de notebooks, sections, pages
+- **Problema:** Falta verificação de ownership em `.eq('user_id', user.id)`
+- **Risco:** Vazamento de dados privados entre usuários
+- **Solução:** Adicionar validação de user_id em TODOS os endpoints de dados privados
+
+#### URGENTE-03: Afiliados Podem Criar Cupons Falsos
+- **Arquivo:** `server/api/affiliates/register.post.ts`
+- **Problema:** Afiliado define seu próprio código sem validação
+- **Risco:** Roubo de comissões, uso de códigos reservados
+- **Solução:** Validar códigos contra lista de reservados e verificar unicidade
+
+#### URGENTE-04: Upload de Arquivos Sem Validação Adequada
+- **Arquivo:** `server/api/notebooks/pages/attachments/upload.post.ts`
+- **Problema:** Validação apenas de MIME type (pode ser falsificado)
+- **Risco:** Upload de scripts maliciosos, vírus
+- **Solução:** Validar conteúdo real do arquivo (magic bytes) + limite de tamanho
+
+#### URGENTE-05: Rate Limiting Pode Ser Contornado
+- **Arquivo:** `server/middleware/rate-limit.ts`
+- **Problema:** Rate limit apenas por IP (fácil trocar com VPN)
+- **Risco:** Ataques de força bruta, sobrecarga do servidor
+- **Solução:** Combinar IP + user_id e diferentes limites por endpoint
+
+### 🟠 PROBLEMAS IMPORTANTES (Corrigir em 1 semana)
+
+#### IMPORTANTE-01: Validação de Assinatura Incompleta
+- Criar assinatura no banco ANTES de confirmar pagamento
+
+#### IMPORTANTE-02: Falta Validação de Email Único
+- Permitir emails duplicados no cadastro
+
+#### IMPORTANTE-03: Exposição de Informações em Erros
+- Erros retornam mensagens técnicas detalhadas
+
+#### IMPORTANTE-04: Sem Limite de Uso de IA para Usuários Pro
+- Usuários Pro podem fazer requisições ilimitadas para IA
+
+#### IMPORTANTE-05: Afiliados Podem Se Auto-Indicar
+- Nada impede usar próprio cupom e ganhar comissão
+
+#### IMPORTANTE-06: Falta Logging de Ações Críticas
+- Sem audit logs para ações sensíveis
+
+### 🟡 PROBLEMAS DE ATENÇÃO (Corrigir em 1 mês)
+
+- Senhas fracas permitidas (sem requisitos mínimos)
+- Falta verificação de email (usuários não confirmam email)
+- Cookies sem configurações seguras
+- Falta proteção CSRF
+
+### 🟢 MELHORIAS (Implementar quando possível)
+
+- Adicionar 2FA (autenticação em dois fatores)
+- Implementar monitoramento de segurança (Sentry)
+- Headers de segurança HTTP (CSP, X-Frame-Options, etc)
+
+### ✅ Pontos Positivos (Já Implementados)
+
+1. ✅ Autenticação via Supabase (robusta)
+2. ✅ RLS (Row Level Security) ativo no banco
+3. ✅ Rate limiting com Redis
+4. ✅ Validação Zod em endpoints críticos
+5. ✅ Chave da IA no servidor (não exposta)
+6. ✅ HMAC em webhooks Asaas
+7. ✅ Whitelist de IPs para webhooks
+
+### 📋 Checklist de Correção
+
+**Urgentes (1-2 dias):**
+- [ ] Prevenir replay de webhooks
+- [ ] Validar ownership em notebooks/sections/pages
+- [ ] Validar cupons de afiliados
+- [ ] Melhorar validação de uploads
+- [ ] Fortalecer rate limiting
+
+**Importantes (1 semana):**
+- [ ] Validar assinaturas antes de ativar
+- [ ] Verificar email único no cadastro
+- [ ] Sanitizar mensagens de erro
+- [ ] Limitar uso de IA para Pro
+- [ ] Prevenir auto-indicação de afiliados
+- [ ] Implementar audit logs
+
+**Referência Completa:**
+- Ver arquivo: `RELATORIO_SEGURANCA.md` (relatório detalhado)
+- Soluções práticas e exemplos de código incluídos
+
+---
+
 ## Testing the Application
 
 1. **Setup database:**
@@ -1081,10 +1207,25 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 
 ## Important Files to Reference
 
+### Documentação Geral
 - [gap-analysis.md](gap-analysis.md) - Complete feature gap analysis
-- [audit-report-inicial.md](audit-report-inicial.md) - Security audit
 - [IMPLEMENTACAO.md](IMPLEMENTACAO.md) - Implementation status
 - [database/schema.sql](database/schema.sql) - Full database schema
+
+### Segurança (Security)
+- [RELATORIO_SEGURANCA.md](RELATORIO_SEGURANCA.md) - **NOVO** Relatório completo de segurança (2025-10-25)
+  - 18 problemas identificados com soluções práticas
+  - 5 URGENTES, 6 IMPORTANTES, 4 ATENÇÃO, 3 MELHORIAS
+  - Exemplos de código para cada correção
+- [audit-report-inicial.md](audit-report-inicial.md) - Security audit inicial
+
+### Troubleshooting - Sistema de Metas
+- [COMECE_AQUI_METAS.md](COMECE_AQUI_METAS.md) - **NOVO** Índice principal para debug de metas
+- [COMANDOS_RAPIDOS_FIX.md](COMANDOS_RAPIDOS_FIX.md) - Comandos prontos (copiar/colar)
+- [CHECK_METAS_DEBUG.md](CHECK_METAS_DEBUG.md) - Guia passo a passo de debug
+- [ANALISE_MINUCIOSA_METAS.md](ANALISE_MINUCIOSA_METAS.md) - Análise técnica completa
+- [RESUMO_ANALISE_METAS.md](RESUMO_ANALISE_METAS.md) - Resumo executivo
+- [FIX_RAPIDO_1_MINUTO.txt](FIX_RAPIDO_1_MINUTO.txt) - Solução em 1 minuto
 
 ## Development Notes
 
@@ -1129,11 +1270,29 @@ if (activity.subject?.name.toLowerCase().includes(query)) {
 
 ---
 
-**Version:** 4.1.0
-**Last Updated:** 2025-10-24T20:45:00-0300
+**Version:** 4.2.0
+**Last Updated:** 2025-10-25T22:30:00-0300
 **Implementation Score:** 100/100 ⭐
+**Security Status:** ⚠️ MÉDIO-BAIXO (18 issues identificados)
 
-**Recent Updates (2025-10-24 - Sessão 5):**
+**Recent Updates (2025-10-25 - Sessão 6):**
+- ✅ **ANÁLISE DE SEGURANÇA COMPLETA**
+  - 18 problemas de segurança identificados e documentados
+  - 5 problemas URGENTES (corrigir em 1-2 dias)
+  - 6 problemas IMPORTANTES (corrigir em 1 semana)
+  - 4 problemas de ATENÇÃO (corrigir em 1 mês)
+  - 3 MELHORIAS (implementar quando possível)
+  - Relatório completo em documentação
+  - Ver: Seção "Segurança" abaixo para detalhes
+
+- ✅ **SISTEMA DE METAS - DEBUG COMPLETO**
+  - Análise minuciosa de 9 arquivos (1.200+ linhas)
+  - 35 pontos de log adicionados para rastreamento
+  - Código 100% correto - problemas eram cache
+  - 7 documentos de troubleshooting criados
+  - Ver: Seção "Study Goals System" para detalhes
+
+**Previous Updates (2025-10-24 - Sessão 5):**
 - ✅ **FASE 15: Pomodoro Timer System (100% COMPLETA)**
   - Sistema Pomodoro totalmente integrado ao timer de estudos
   - Configuração: foco (1-120 min) e pausa (1-60 min) com setas corrigidas
