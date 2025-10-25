@@ -1,3 +1,5 @@
+import { serverSupabaseClient } from '#supabase/server'
+
 // PUT /api/goals/[id] - Atualiza uma meta existente
 export default defineEventHandler(async (event) => {
   try {

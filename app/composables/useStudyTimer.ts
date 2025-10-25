@@ -16,6 +16,18 @@ export const useStudyTimer = () => {
     plannedQuestions: null as number | null,
   }))
 
+  // Estado Pomodoro (integrado ao timer de estudo)
+  const pomodoro = useState('pomodoro-state', () => ({
+    focusMinutes: 25,
+    breakMinutes: 5,
+    alarmEnabled: false, // Desabilitado por padrão
+    isFocusPhase: true, // true = foco, false = pausa
+    remainingSeconds: 25 * 60, // tempo restante no ciclo atual
+    showAlarmModal: false,
+    pomodoroStartTime: 0, // Quando o ciclo atual começou
+    totalBreakTime: 0, // Total de tempo em pausa (para subtrair do tempo de estudo)
+  }))
+
   const now = useState('study-timer-now', () => Date.now())
 
   // Guarda o ID do interval no estado global também
@@ -56,6 +68,14 @@ export const useStudyTimer = () => {
     timer.value.startedAt = new Date()
     now.value = Date.now()
 
+    // Inicia Pomodoro se estiver habilitado
+    if (pomodoro.value.alarmEnabled) {
+      pomodoro.value.isFocusPhase = true
+      pomodoro.value.pomodoroStartTime = Date.now()
+      pomodoro.value.remainingSeconds = pomodoro.value.focusMinutes * 60
+      console.log('🍅 Pomodoro iniciado - Fase: FOCO')
+    }
+
     // Limpa interval anterior se existir
     if (intervalId.value) {
       clearInterval(intervalId.value)
@@ -65,6 +85,41 @@ export const useStudyTimer = () => {
     // Cria novo interval
     intervalId.value = setInterval(() => {
       now.value = Date.now()
+
+      // Atualiza Pomodoro se estiver ativo
+      if (pomodoro.value.alarmEnabled) {
+        // Atualiza se:
+        // - Timer rodando E não pausado (fase FOCO)
+        // - OU timer pausado E fase PAUSA (continua contando durante pausa)
+        const shouldUpdatePomodoro =
+          (timer.value.isRunning && !timer.value.isPaused) ||
+          (timer.value.isPaused && !pomodoro.value.isFocusPhase)
+
+        if (shouldUpdatePomodoro) {
+          const pomodoroElapsed = Math.floor((Date.now() - pomodoro.value.pomodoroStartTime) / 1000)
+          const targetSeconds = pomodoro.value.isFocusPhase
+            ? pomodoro.value.focusMinutes * 60
+            : pomodoro.value.breakMinutes * 60
+
+          pomodoro.value.remainingSeconds = Math.max(0, targetSeconds - pomodoroElapsed)
+
+          // Alarme dispara ao chegar em 0
+          if (pomodoro.value.remainingSeconds === 0 && !pomodoro.value.showAlarmModal) {
+            console.log('🍅 Alarme Pomodoro disparado!')
+            console.log('  - Fase:', pomodoro.value.isFocusPhase ? 'FOCO' : 'PAUSA')
+            pomodoro.value.showAlarmModal = true
+
+            // Pausa automaticamente o timer de estudo se for fim do foco
+            if (pomodoro.value.isFocusPhase && timer.value.isRunning) {
+              pauseTimer()
+            }
+
+            // IMPORTANTE: Define remainingSeconds para -1 para NÃO disparar novamente
+            // Só volta a contar quando usuário responder ao modal
+            pomodoro.value.remainingSeconds = -1
+          }
+        }
+      }
     }, 1000)
     console.log('⏱️ Interval criado:', intervalId.value)
   }
@@ -82,10 +137,16 @@ export const useStudyTimer = () => {
 
     console.log('  - Tempo elapsed depois:', timer.value.elapsed, 's')
 
-    if (intervalId.value) {
-      clearInterval(intervalId.value)
-      intervalId.value = null
-      console.log('⏱️ Interval pausado e limpo')
+    // NÃO limpa o interval se Pomodoro estiver em fase de PAUSA
+    // Precisa continuar rodando para contar o tempo de pausa
+    if (!pomodoro.value.alarmEnabled || pomodoro.value.isFocusPhase) {
+      if (intervalId.value) {
+        clearInterval(intervalId.value)
+        intervalId.value = null
+        console.log('⏱️ Interval pausado e limpo')
+      }
+    } else {
+      console.log('⏱️ Timer pausado, mas interval continua (Pomodoro em pausa)')
     }
   }
 
@@ -99,9 +160,50 @@ export const useStudyTimer = () => {
     timer.value.startTime = Date.now()
     now.value = Date.now()
 
+    // Retoma Pomodoro se estiver habilitado
+    if (pomodoro.value.alarmEnabled) {
+      pomodoro.value.pomodoroStartTime = Date.now()
+      console.log('🍅 Pomodoro retomado - Fase:', pomodoro.value.isFocusPhase ? 'FOCO' : 'PAUSA')
+    }
+
     if (intervalId.value) clearInterval(intervalId.value)
     intervalId.value = setInterval(() => {
       now.value = Date.now()
+
+      // Atualiza Pomodoro se estiver ativo
+      if (pomodoro.value.alarmEnabled) {
+        // Atualiza se:
+        // - Timer rodando E não pausado (fase FOCO)
+        // - OU timer pausado E fase PAUSA (continua contando durante pausa)
+        const shouldUpdatePomodoro =
+          (timer.value.isRunning && !timer.value.isPaused) ||
+          (timer.value.isPaused && !pomodoro.value.isFocusPhase)
+
+        if (shouldUpdatePomodoro) {
+          const pomodoroElapsed = Math.floor((Date.now() - pomodoro.value.pomodoroStartTime) / 1000)
+          const targetSeconds = pomodoro.value.isFocusPhase
+            ? pomodoro.value.focusMinutes * 60
+            : pomodoro.value.breakMinutes * 60
+
+          pomodoro.value.remainingSeconds = Math.max(0, targetSeconds - pomodoroElapsed)
+
+          // Alarme dispara ao chegar em 0
+          if (pomodoro.value.remainingSeconds === 0 && !pomodoro.value.showAlarmModal) {
+            console.log('🍅 Alarme Pomodoro disparado!')
+            console.log('  - Fase:', pomodoro.value.isFocusPhase ? 'FOCO' : 'PAUSA')
+            pomodoro.value.showAlarmModal = true
+
+            // Pausa automaticamente o timer de estudo se for fim do foco
+            if (pomodoro.value.isFocusPhase && timer.value.isRunning) {
+              pauseTimer()
+            }
+
+            // IMPORTANTE: Define remainingSeconds para -1 para NÃO disparar novamente
+            // Só volta a contar quando usuário responder ao modal
+            pomodoro.value.remainingSeconds = -1
+          }
+        }
+      }
     }, 1000)
     console.log('⏱️ Interval retomado:', intervalId.value)
   }
@@ -109,7 +211,18 @@ export const useStudyTimer = () => {
   const stopTimer = async (notes?: string) => {
     if (!timer.value.isRunning && !timer.value.isPaused) return null
     console.log('⏱️ Encerrando timer')
-    const duration = timer.value.elapsed + (timer.value.isRunning ? Math.floor((Date.now() - timer.value.startTime) / 1000) : 0)
+
+    // Calcula tempo total
+    let duration = timer.value.elapsed + (timer.value.isRunning ? Math.floor((Date.now() - timer.value.startTime) / 1000) : 0)
+
+    // Se Pomodoro estava ativo, desconta o tempo de pausas
+    if (pomodoro.value.alarmEnabled && pomodoro.value.totalBreakTime > 0) {
+      console.log('⏱️ Tempo total bruto:', duration, 's')
+      console.log('⏱️ Tempo em pausas Pomodoro:', pomodoro.value.totalBreakTime, 's')
+      duration = Math.max(0, duration - pomodoro.value.totalBreakTime)
+      console.log('⏱️ Tempo efetivo de estudo:', duration, 's')
+    }
+
     const startedAt = timer.value.startedAt || new Date()
     const endedAt = new Date()
 
@@ -131,6 +244,11 @@ export const useStudyTimer = () => {
     timer.value.elapsed = 0
     timer.value.studyType = 'conteudo'
     timer.value.plannedQuestions = null
+
+    // Reset Pomodoro
+    pomodoro.value.totalBreakTime = 0
+    pomodoro.value.isFocusPhase = true
+    pomodoro.value.remainingSeconds = pomodoro.value.focusMinutes * 60
 
     if (!user.value) return { duration }
 
@@ -208,6 +326,153 @@ export const useStudyTimer = () => {
     return { duration }
   }
 
+  // ============================================
+  // FUNÇÕES POMODORO (INTEGRADAS AO TIMER)
+  // ============================================
+
+  const formattedPomodoroTime = computed(() => {
+    const mins = Math.floor(pomodoro.value.remainingSeconds / 60)
+    const secs = pomodoro.value.remainingSeconds % 60
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+  })
+
+  const setFocusMinutes = (minutes: number) => {
+    if (minutes < 1 || minutes > 120) return
+    pomodoro.value.focusMinutes = minutes
+    if (!timer.value.isRunning && pomodoro.value.isFocusPhase) {
+      pomodoro.value.remainingSeconds = minutes * 60
+    }
+  }
+
+  const setBreakMinutes = (minutes: number) => {
+    if (minutes < 1 || minutes > 60) return
+    pomodoro.value.breakMinutes = minutes
+    if (!timer.value.isRunning && !pomodoro.value.isFocusPhase) {
+      pomodoro.value.remainingSeconds = minutes * 60
+    }
+  }
+
+  const toggleAlarm = () => {
+    pomodoro.value.alarmEnabled = !pomodoro.value.alarmEnabled
+    if (pomodoro.value.alarmEnabled) {
+      console.log('🍅 Pomodoro ATIVADO')
+      // Se já está rodando, inicia o Pomodoro agora
+      if (timer.value.isRunning && !timer.value.isPaused) {
+        pomodoro.value.isFocusPhase = true
+        pomodoro.value.pomodoroStartTime = Date.now()
+        pomodoro.value.remainingSeconds = pomodoro.value.focusMinutes * 60
+      }
+    } else {
+      console.log('🍅 Pomodoro DESATIVADO')
+    }
+  }
+
+  const handleAlarmResponse = (acceptAction: boolean) => {
+    pomodoro.value.showAlarmModal = false
+
+    if (pomodoro.value.isFocusPhase) {
+      // Fim do FOCO
+      if (acceptAction) {
+        // Usuário aceita fazer PAUSA
+        console.log('🍅 Iniciando pausa de', pomodoro.value.breakMinutes, 'minutos')
+        pomodoro.value.isFocusPhase = false
+        pomodoro.value.pomodoroStartTime = Date.now()
+        pomodoro.value.remainingSeconds = pomodoro.value.breakMinutes * 60
+
+        // IMPORTANTE: Criar interval para contar a pausa
+        if (!intervalId.value) {
+          console.log('⏱️ Criando interval para fase de PAUSA')
+          intervalId.value = setInterval(() => {
+            now.value = Date.now()
+
+            if (pomodoro.value.alarmEnabled && !pomodoro.value.isFocusPhase) {
+              // Atualiza countdown da pausa
+              const pomodoroElapsed = Math.floor((Date.now() - pomodoro.value.pomodoroStartTime) / 1000)
+              const targetSeconds = pomodoro.value.breakMinutes * 60
+              pomodoro.value.remainingSeconds = Math.max(0, targetSeconds - pomodoroElapsed)
+
+              // Alarme dispara ao fim da pausa
+              if (pomodoro.value.remainingSeconds === 0 && !pomodoro.value.showAlarmModal) {
+                console.log('🍅 Alarme Pomodoro disparado!')
+                console.log('  - Fase: PAUSA')
+                pomodoro.value.showAlarmModal = true
+                pomodoro.value.remainingSeconds = -1
+              }
+            }
+          }, 1000)
+          console.log('⏱️ Interval de pausa criado:', intervalId.value)
+        }
+      } else {
+        // Usuário quer continuar estudando (ignora Pomodoro)
+        console.log('🍅 Usuário ignorou pausa - retomando estudo')
+        if (timer.value.isPaused) {
+          resumeTimer()
+        }
+        // Reinicia ciclo de foco
+        pomodoro.value.isFocusPhase = true
+        pomodoro.value.pomodoroStartTime = Date.now()
+        pomodoro.value.remainingSeconds = pomodoro.value.focusMinutes * 60
+      }
+    } else {
+      // Fim da PAUSA
+      const breakDuration = pomodoro.value.breakMinutes * 60 // Tempo total da pausa em segundos
+
+      if (acceptAction) {
+        // Usuário aceita VOLTAR a estudar
+        console.log('🍅 Voltando aos estudos - iniciando foco')
+        console.log('  - Tempo de pausa completado:', breakDuration, 's')
+
+        // Registra tempo de pausa para descontar do tempo total
+        pomodoro.value.totalBreakTime += breakDuration
+
+        pomodoro.value.isFocusPhase = true
+        pomodoro.value.pomodoroStartTime = Date.now()
+        pomodoro.value.remainingSeconds = pomodoro.value.focusMinutes * 60
+        // Retoma timer de estudo
+        if (timer.value.isPaused) {
+          resumeTimer()
+        }
+      } else {
+        // Usuário quer continuar na pausa
+        console.log('🍅 Usuário quer mais pausa - reiniciando timer de pausa')
+
+        // Registra a pausa que acabou de completar
+        pomodoro.value.totalBreakTime += breakDuration
+
+        // Reinicia countdown de pausa
+        pomodoro.value.pomodoroStartTime = Date.now()
+        pomodoro.value.remainingSeconds = pomodoro.value.breakMinutes * 60
+
+        // IMPORTANTE: Limpar interval anterior e criar novo
+        if (intervalId.value) {
+          clearInterval(intervalId.value)
+          intervalId.value = null
+        }
+
+        console.log('⏱️ Criando novo interval para fase de PAUSA (extensão)')
+        intervalId.value = setInterval(() => {
+          now.value = Date.now()
+
+          if (pomodoro.value.alarmEnabled && !pomodoro.value.isFocusPhase) {
+            // Atualiza countdown da pausa
+            const pomodoroElapsed = Math.floor((Date.now() - pomodoro.value.pomodoroStartTime) / 1000)
+            const targetSeconds = pomodoro.value.breakMinutes * 60
+            pomodoro.value.remainingSeconds = Math.max(0, targetSeconds - pomodoroElapsed)
+
+            // Alarme dispara ao fim da pausa
+            if (pomodoro.value.remainingSeconds === 0 && !pomodoro.value.showAlarmModal) {
+              console.log('🍅 Alarme Pomodoro disparado!')
+              console.log('  - Fase: PAUSA (extensão)')
+              pomodoro.value.showAlarmModal = true
+              pomodoro.value.remainingSeconds = -1
+            }
+          }
+        }, 1000)
+        console.log('⏱️ Interval de pausa (extensão) criado:', intervalId.value)
+      }
+    }
+  }
+
   // NÃO fazemos cleanup on unmount porque o timer precisa continuar
   // rodando globalmente entre as páginas. O interval só deve ser limpo
   // quando o usuário explicitamente pausa ou encerra o timer.
@@ -219,5 +484,12 @@ export const useStudyTimer = () => {
     pauseTimer,
     resumeTimer,
     stopTimer,
+    // Pomodoro (integrado ao timer)
+    pomodoro,
+    formattedPomodoroTime,
+    setFocusMinutes,
+    setBreakMinutes,
+    toggleAlarm,
+    handleAlarmResponse,
   }
 }

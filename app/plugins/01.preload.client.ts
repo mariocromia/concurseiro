@@ -22,27 +22,39 @@ export default defineNuxtPlugin({
     try {
       // Stage 1: Theme already initialized by 00.init-theme.client.ts
       loadingStage.value = 'theme'
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 50))
 
-      // Stage 2: Wait for auth to be ready
+      // Stage 2: Wait for auth to be ready (with timeout)
       loadingStage.value = 'auth'
-      const client = useSupabaseClient()
 
-      // Get session synchronously if available
-      const { data: { session } } = await client.auth.getSession()
+      // Timeout para evitar travamento infinito
+      const authTimeout = new Promise<void>((resolve) => setTimeout(() => {
+        console.warn('⚠️ Auth timeout - continuing anyway')
+        resolve()
+      }, 2000))
 
-      // Small delay to ensure everything is ready
-      await new Promise(resolve => setTimeout(resolve, 100))
+      const authCheck = (async () => {
+        try {
+          const client = useSupabaseClient()
+          const { data: { session } } = await client.auth.getSession()
+          console.log('✅ Session loaded:', session?.user?.email || 'no session')
+        } catch (err) {
+          console.warn('⚠️ Auth check error:', err)
+        }
+      })()
+
+      // Espera auth check OU timeout (o que vier primeiro)
+      await Promise.race([authCheck, authTimeout])
 
       // Stage 3: Ready
       loadingStage.value = 'ready'
-      await new Promise(resolve => setTimeout(resolve, 150))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Show content
       document.body.style.visibility = 'visible'
       isAppReady.value = true
 
-      console.log('✅ App preload complete, session:', session?.user?.email || 'no session')
+      console.log('✅ App preload complete')
 
     } catch (error) {
       console.error('❌ Preload error:', error)

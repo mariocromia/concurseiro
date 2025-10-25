@@ -1,3 +1,5 @@
+import { serverSupabaseClient } from '#supabase/server'
+
 // DELETE /api/goals/checklist/[id] - Remove um item do checklist
 export default defineEventHandler(async (event) => {
   try {

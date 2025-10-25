@@ -1,3 +1,5 @@
+import { serverSupabaseClient } from '#supabase/server'
+
 // GET /api/goals - Lista todas as metas do usuário
 export default defineEventHandler(async (event) => {
   try {
@@ -5,7 +7,10 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient(event)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('🔷 [Goals API] Authentication check:', { userId: user?.id, authError })
+
     if (authError || !user) {
+      console.error('❌ [Goals API] Unauthorized')
       throw createError({ statusCode: 401, message: 'Unauthorized' })
     }
 
@@ -13,8 +18,9 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const status = query.status as string | undefined
 
-    // 3. Fetch goals from database
+    console.log('🔷 [Goals API] Fetching goals for user:', user.id, 'with status filter:', status)
 
+    // 3. Fetch goals from database
     let queryBuilder = supabase
       .from('goals')
       .select(`
@@ -39,7 +45,14 @@ export default defineEventHandler(async (event) => {
 
     const { data, error } = await queryBuilder
 
+    console.log('🔷 [Goals API] Query result:', {
+      dataCount: data?.length || 0,
+      error,
+      firstGoal: data?.[0]
+    })
+
     if (error) {
+      console.error('❌ [Goals API] Database error:', error)
       throw createError({
         statusCode: 500,
         message: `Database error: ${error.message}`
@@ -67,6 +80,8 @@ export default defineEventHandler(async (event) => {
         days_remaining: daysRemaining
       }
     })
+
+    console.log('✅ [Goals API] Returning:', goalsWithProgress.length, 'goals')
 
     return {
       success: true,

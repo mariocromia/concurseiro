@@ -55,60 +55,81 @@ export const useGoals = () => {
 
   // Fetch all goals
   const fetchGoals = async (status?: 'in_progress' | 'completed' | 'overdue') => {
+    console.log('🔷 [useGoals] fetchGoals called with status:', status)
     loading.value = true
     error.value = null
 
     try {
       const query = status ? `?status=${status}` : ''
-      const { data, error: fetchError } = await useFetch<{ success: boolean; data: Goal[] }>(
+      console.log('🔷 [useGoals] Fetching goals from:', `/api/goals${query}`)
+
+      // Use $fetch instead of useFetch for manual async calls
+      const response = await $fetch<{ success: boolean; data: Goal[] }>(
         `/api/goals${query}`,
         {
           method: 'GET'
         }
       )
 
-      if (fetchError.value) {
-        throw new Error(fetchError.value.message || 'Erro ao carregar metas')
-      }
+      console.log('🔷 [useGoals] Fetch result:', response)
 
-      if (data.value?.success) {
-        goals.value = data.value.data
+      if (response.success && response.data) {
+        console.log('✅ [useGoals] Goals loaded:', response.data.length, 'goals')
+        goals.value = response.data
+      } else {
+        console.warn('⚠️  [useGoals] Unexpected response:', response)
       }
     } catch (e: any) {
       error.value = e.message
-      console.error('Error fetching goals:', e)
+      console.error('❌ [useGoals] Exception fetching goals:', e)
     } finally {
       loading.value = false
+      console.log('🔷 [useGoals] Final state - goals count:', goals.value.length)
     }
   }
 
   // Fetch a single goal by ID
   const fetchGoalById = async (goalId: string) => {
+    console.log('🔷 [useGoals] fetchGoalById called with id:', goalId)
     loading.value = true
     error.value = null
 
     try {
-      const { data, error: fetchError } = await useFetch<{ success: boolean; data: Goal }>(
+      console.log('🔷 [useGoals] Making request to:', `/api/goals/${goalId}`)
+
+      const response = await $fetch<{ success: boolean; data: Goal }>(
         `/api/goals/${goalId}`,
         {
           method: 'GET'
         }
       )
 
-      if (fetchError.value) {
-        throw new Error(fetchError.value.message || 'Erro ao carregar meta')
-      }
+      console.log('🔷 [useGoals] fetchGoalById raw response:', response)
 
-      if (data.value?.success) {
-        currentGoal.value = data.value.data
-        return data.value.data
+      if (response.success && response.data) {
+        console.log('✅ [useGoals] Goal loaded successfully:', {
+          id: response.data.id,
+          name: response.data.name,
+          checklist_items_count: response.data.checklist_items?.length || 0
+        })
+        currentGoal.value = response.data
+        return response.data
+      } else {
+        console.warn('⚠️  [useGoals] Unexpected response format:', response)
+        return null
       }
     } catch (e: any) {
       error.value = e.message
-      console.error('Error fetching goal:', e)
+      console.error('❌ [useGoals] Exception fetching goal:', {
+        message: e.message,
+        statusCode: e.statusCode,
+        data: e.data,
+        stack: e.stack
+      })
       return null
     } finally {
       loading.value = false
+      console.log('🔷 [useGoals] fetchGoalById finished. Loading:', loading.value)
     }
   }
 
@@ -118,7 +139,9 @@ export const useGoals = () => {
     error.value = null
 
     try {
-      const { data, error: createError } = await useFetch<{ success: boolean; data: Goal; message: string }>(
+      console.log('🔷 [useGoals] Iniciando criação de meta:', goalData)
+
+      const response = await $fetch<{ success: boolean; data: Goal; message: string }>(
         '/api/goals',
         {
           method: 'POST',
@@ -126,21 +149,36 @@ export const useGoals = () => {
         }
       )
 
-      if (createError.value) {
-        throw new Error(createError.value.message || 'Erro ao criar meta')
-      }
+      console.log('🔷 [useGoals] Resposta da API:', response)
 
-      if (data.value?.success && data.value.data) {
+      if (response.success && response.data) {
+        console.log('✅ [useGoals] Meta criada com sucesso:', response.data)
         // Add to local state
-        goals.value.unshift(data.value.data)
-        return { success: true, data: data.value.data, message: data.value.message }
+        goals.value.unshift(response.data)
+        return { success: true, data: response.data, message: response.message }
       }
 
+      console.warn('⚠️  [useGoals] Resposta inesperada da API:', response)
       return { success: false, message: 'Erro ao criar meta' }
     } catch (e: any) {
       error.value = e.message
-      console.error('Error creating goal:', e)
-      return { success: false, message: e.message }
+      console.error('❌ [useGoals] Exceção ao criar meta:', {
+        message: e.message,
+        statusCode: e.statusCode,
+        data: e.data
+      })
+
+      // Better error handling for $fetch
+      let userMessage = 'Erro ao criar meta'
+      if (e.statusCode === 401) {
+        userMessage = 'Sessão expirada. Faça login novamente.'
+      } else if (e.statusCode === 400) {
+        userMessage = e.data?.message || 'Dados inválidos'
+      } else if (e.statusCode >= 500) {
+        userMessage = 'Erro no servidor. Tente novamente.'
+      }
+
+      return { success: false, message: userMessage }
     } finally {
       loading.value = false
     }
@@ -152,7 +190,7 @@ export const useGoals = () => {
     error.value = null
 
     try {
-      const { data, error: updateError } = await useFetch<{ success: boolean; data: Goal; message: string }>(
+      const response = await $fetch<{ success: boolean; data: Goal; message: string }>(
         `/api/goals/${goalId}`,
         {
           method: 'PUT',
@@ -160,27 +198,23 @@ export const useGoals = () => {
         }
       )
 
-      if (updateError.value) {
-        throw new Error(updateError.value.message || 'Erro ao atualizar meta')
-      }
-
-      if (data.value?.success && data.value.data) {
+      if (response.success && response.data) {
         // Update local state
         const index = goals.value.findIndex(g => g.id === goalId)
         if (index !== -1) {
-          goals.value[index] = data.value.data
+          goals.value[index] = response.data
         }
         if (currentGoal.value?.id === goalId) {
-          currentGoal.value = data.value.data
+          currentGoal.value = response.data
         }
-        return { success: true, data: data.value.data, message: data.value.message }
+        return { success: true, data: response.data, message: response.message }
       }
 
       return { success: false, message: 'Erro ao atualizar meta' }
     } catch (e: any) {
-      error.value = e.message
+      error.value = e.message || 'Erro ao atualizar meta'
       console.error('Error updating goal:', e)
-      return { success: false, message: e.message }
+      return { success: false, message: e.data?.message || e.message || 'Erro ao atualizar meta' }
     } finally {
       loading.value = false
     }
@@ -192,31 +226,27 @@ export const useGoals = () => {
     error.value = null
 
     try {
-      const { data, error: deleteError } = await useFetch<{ success: boolean; message: string }>(
+      const response = await $fetch<{ success: boolean; message: string }>(
         `/api/goals/${goalId}`,
         {
           method: 'DELETE'
         }
       )
 
-      if (deleteError.value) {
-        throw new Error(deleteError.value.message || 'Erro ao deletar meta')
-      }
-
-      if (data.value?.success) {
+      if (response.success) {
         // Remove from local state
         goals.value = goals.value.filter(g => g.id !== goalId)
         if (currentGoal.value?.id === goalId) {
           currentGoal.value = null
         }
-        return { success: true, message: data.value.message }
+        return { success: true, message: response.message }
       }
 
       return { success: false, message: 'Erro ao deletar meta' }
     } catch (e: any) {
-      error.value = e.message
+      error.value = e.message || 'Erro ao deletar meta'
       console.error('Error deleting goal:', e)
-      return { success: false, message: e.message }
+      return { success: false, message: e.data?.message || e.message || 'Erro ao deletar meta' }
     } finally {
       loading.value = false
     }
@@ -225,7 +255,9 @@ export const useGoals = () => {
   // Toggle checklist item completion
   const toggleChecklistItem = async (itemId: string) => {
     try {
-      const { data, error: toggleError } = await useFetch<{ success: boolean; data: Goal; message: string }>(
+      console.log('🔷 [useGoals] Toggling checklist item:', itemId)
+
+      const response = await $fetch<{ success: boolean; data: Goal; message: string }>(
         '/api/goals/checklist/toggle',
         {
           method: 'POST',
@@ -233,33 +265,34 @@ export const useGoals = () => {
         }
       )
 
-      if (toggleError.value) {
-        throw new Error(toggleError.value.message || 'Erro ao atualizar item')
-      }
+      console.log('🔷 [useGoals] Toggle response:', response)
 
-      if (data.value?.success && data.value.data) {
+      if (response.success && response.data) {
+        console.log('✅ [useGoals] Toggle successful, updating local state')
         // Update local state
-        const index = goals.value.findIndex(g => g.id === data.value.data.id)
+        const index = goals.value.findIndex(g => g.id === response.data.id)
         if (index !== -1) {
-          goals.value[index] = data.value.data
+          goals.value[index] = response.data
         }
-        if (currentGoal.value?.id === data.value.data.id) {
-          currentGoal.value = data.value.data
+        if (currentGoal.value?.id === response.data.id) {
+          currentGoal.value = response.data
+          console.log('✅ [useGoals] Current goal updated:', currentGoal.value)
         }
-        return { success: true, data: data.value.data, message: data.value.message }
+        return { success: true, data: response.data, message: response.message }
       }
 
+      console.warn('⚠️  [useGoals] Unexpected response:', response)
       return { success: false, message: 'Erro ao atualizar item' }
     } catch (e: any) {
-      console.error('Error toggling checklist item:', e)
-      return { success: false, message: e.message }
+      console.error('❌ [useGoals] Exception toggling checklist item:', e)
+      return { success: false, message: e.data?.message || e.message || 'Erro ao atualizar item' }
     }
   }
 
   // Add new checklist item
   const addChecklistItem = async (goalId: string, description: string) => {
     try {
-      const { data, error: addError } = await useFetch<{ success: boolean; data: Goal; message: string }>(
+      const response = await $fetch<{ success: boolean; data: Goal; message: string }>(
         '/api/goals/checklist/add',
         {
           method: 'POST',
@@ -267,33 +300,29 @@ export const useGoals = () => {
         }
       )
 
-      if (addError.value) {
-        throw new Error(addError.value.message || 'Erro ao adicionar item')
-      }
-
-      if (data.value?.success && data.value.data) {
+      if (response.success && response.data) {
         // Update local state
         const index = goals.value.findIndex(g => g.id === goalId)
         if (index !== -1) {
-          goals.value[index] = data.value.data
+          goals.value[index] = response.data
         }
         if (currentGoal.value?.id === goalId) {
-          currentGoal.value = data.value.data
+          currentGoal.value = response.data
         }
-        return { success: true, data: data.value.data, message: data.value.message }
+        return { success: true, data: response.data, message: response.message }
       }
 
       return { success: false, message: 'Erro ao adicionar item' }
     } catch (e: any) {
       console.error('Error adding checklist item:', e)
-      return { success: false, message: e.message }
+      return { success: false, message: e.data?.message || e.message || 'Erro ao adicionar item' }
     }
   }
 
   // Update checklist item description
   const updateChecklistItem = async (itemId: string, description: string) => {
     try {
-      const { data, error: updateError } = await useFetch<{ success: boolean; data: Goal; message: string }>(
+      const response = await $fetch<{ success: boolean; data: Goal; message: string }>(
         '/api/goals/checklist/update',
         {
           method: 'POST',
@@ -301,59 +330,51 @@ export const useGoals = () => {
         }
       )
 
-      if (updateError.value) {
-        throw new Error(updateError.value.message || 'Erro ao atualizar item')
-      }
-
-      if (data.value?.success && data.value.data) {
+      if (response.success && response.data) {
         // Update local state
-        const index = goals.value.findIndex(g => g.id === data.value.data.id)
+        const index = goals.value.findIndex(g => g.id === response.data.id)
         if (index !== -1) {
-          goals.value[index] = data.value.data
+          goals.value[index] = response.data
         }
-        if (currentGoal.value?.id === data.value.data.id) {
-          currentGoal.value = data.value.data
+        if (currentGoal.value?.id === response.data.id) {
+          currentGoal.value = response.data
         }
-        return { success: true, data: data.value.data, message: data.value.message }
+        return { success: true, data: response.data, message: response.message }
       }
 
       return { success: false, message: 'Erro ao atualizar item' }
     } catch (e: any) {
       console.error('Error updating checklist item:', e)
-      return { success: false, message: e.message }
+      return { success: false, message: e.data?.message || e.message || 'Erro ao atualizar item' }
     }
   }
 
   // Delete checklist item
   const deleteChecklistItem = async (itemId: string) => {
     try {
-      const { data, error: deleteError } = await useFetch<{ success: boolean; data: Goal; message: string }>(
+      const response = await $fetch<{ success: boolean; data: Goal; message: string }>(
         `/api/goals/checklist/${itemId}`,
         {
           method: 'DELETE'
         }
       )
 
-      if (deleteError.value) {
-        throw new Error(deleteError.value.message || 'Erro ao deletar item')
-      }
-
-      if (data.value?.success && data.value.data) {
+      if (response.success && response.data) {
         // Update local state
-        const index = goals.value.findIndex(g => g.id === data.value.data.id)
+        const index = goals.value.findIndex(g => g.id === response.data.id)
         if (index !== -1) {
-          goals.value[index] = data.value.data
+          goals.value[index] = response.data
         }
-        if (currentGoal.value?.id === data.value.data.id) {
-          currentGoal.value = data.value.data
+        if (currentGoal.value?.id === response.data.id) {
+          currentGoal.value = response.data
         }
-        return { success: true, data: data.value.data, message: data.value.message }
+        return { success: true, data: response.data, message: response.message }
       }
 
       return { success: false, message: 'Erro ao deletar item' }
     } catch (e: any) {
       console.error('Error deleting checklist item:', e)
-      return { success: false, message: e.message }
+      return { success: false, message: e.data?.message || e.message || 'Erro ao deletar item' }
     }
   }
 

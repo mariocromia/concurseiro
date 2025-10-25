@@ -76,6 +76,36 @@ export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event)
 
   try {
+    // SECURITY FIX: Check if webhook was already processed (prevent replay attacks)
+    const { data: existingWebhook } = await supabase
+      .from('asaas_webhooks')
+      .select('id, processed, created_at')
+      .eq('asaas_event_id', body.id)
+      .single()
+
+    if (existingWebhook) {
+      logWebhookSecurityEvent('replay_attempt_blocked', {
+        ip: clientIP,
+        eventId: body.id,
+        eventType: body.event,
+        originalCreatedAt: existingWebhook.created_at,
+        wasProcessed: existingWebhook.processed
+      })
+
+      console.warn('[WEBHOOK-ASAAS] Replay attack blocked:', {
+        eventId: body.id,
+        eventType: body.event,
+        originalCreatedAt: existingWebhook.created_at,
+        wasProcessed: existingWebhook.processed
+      })
+
+      // Return success to prevent attacker from knowing we detected the replay
+      return {
+        success: true,
+        message: 'Webhook already processed'
+      }
+    }
+
     // Salvar webhook no banco
     const { data: webhook, error: webhookError } = await supabase
       .from('asaas_webhooks')

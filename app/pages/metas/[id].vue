@@ -27,33 +27,63 @@ const showAddItem = ref(false)
 
 // Load goal data
 onMounted(async () => {
+  console.log('🔷 [Meta Details Page] onMounted - goal ID:', goalId)
   await loadGoal()
+  console.log('🔷 [Meta Details Page] Goal loaded:', currentGoal.value)
 })
 
 const loadGoal = async () => {
+  console.log('🔷 [Meta Details Page] loadGoal called for ID:', goalId)
   const goal = await fetchGoalById(goalId)
+  console.log('🔷 [Meta Details Page] fetchGoalById result:', goal)
+
   if (!goal) {
+    console.error('❌ [Meta Details Page] Goal not found')
     addToast({
       type: 'error',
       message: 'Meta não encontrada'
     })
     router.push('/metas')
+  } else {
+    console.log('✅ [Meta Details Page] Goal loaded successfully:', goal.name)
   }
 };
 
 // Handle checkbox toggle with celebration
 const handleToggleItem = async (itemId: string, willBeCompleted: boolean) => {
+  console.log('🔷 [Meta Details] Toggling item:', { itemId, willBeCompleted })
+
   const result = await toggleChecklistItem(itemId)
 
-  if (result.success && willBeCompleted) {
-    // Check if this completion finished the goal
-    if (currentGoal.value?.status === 'completed') {
-      // Celebrate goal completion
-      celebrateGoalCompletion()
-    } else {
-      // Celebrate item completion
-      celebrateItemCompletion()
+  console.log('🔷 [Meta Details] Toggle result:', result)
+
+  if (result.success) {
+    console.log('✅ [Meta Details] Item toggled successfully')
+
+    if (willBeCompleted) {
+      // Check if this completion finished the goal
+      if (currentGoal.value?.status === 'completed') {
+        console.log('🎉 [Meta Details] Goal completed! Celebrating...')
+        // Celebrate goal completion
+        celebrateGoalCompletion()
+      } else {
+        console.log('🎉 [Meta Details] Item completed! Celebrating...')
+        // Celebrate item completion
+        celebrateItemCompletion()
+      }
     }
+
+    // Show success toast
+    addToast({
+      type: 'success',
+      message: result.message || 'Item atualizado com sucesso!'
+    })
+  } else {
+    console.error('❌ [Meta Details] Failed to toggle item:', result.message)
+    addToast({
+      type: 'error',
+      message: result.message || 'Erro ao atualizar item'
+    })
   }
 }
 
@@ -153,7 +183,7 @@ const statusBadge = computed(() => {
 
   switch (currentGoal.value.status) {
     case 'completed':
-      return { label: 'Conclu�da', color: 'green' }
+      return { label: 'Concluída', color: 'green' }
     case 'overdue':
       return { label: 'Atrasada', color: 'red' }
     case 'in_progress':
@@ -286,7 +316,7 @@ const daysRemainingText = computed(() => {
             </div>
 
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              Voc� completou <strong>{{ currentGoal.completed_items }}</strong> de <strong>{{ currentGoal.total_items }}</strong> itens
+              Você completou <strong>{{ currentGoal.completed_items }}</strong> de <strong>{{ currentGoal.total_items }}</strong> itens
             </p>
           </div>
 
@@ -326,7 +356,7 @@ const daysRemainingText = computed(() => {
               <input
                 v-model="newItemDescription"
                 type="text"
-                placeholder="Digite a descri��o do novo item..."
+                placeholder="Digite a descrição do novo item..."
                 class="flex-1 px-4 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white"
                 @keyup.enter="handleAddItem"
               />

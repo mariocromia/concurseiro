@@ -173,25 +173,124 @@
             </ul>
           </div>
 
-          <!-- Pomodoro Timer Suggestion -->
+          <!-- Pomodoro Timer System (Integrado) -->
           <div class="bg-claude-bg dark:bg-dark-800/50 backdrop-blur-sm border border-claude-border dark:border-dark-700 rounded-claude-lg p-6">
-            <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-3 flex items-center">
+            <h3 class="text-lg font-semibold text-claude-text dark:text-white mb-4 flex items-center">
               <svg class="w-5 h-5 mr-2 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              Sugestão Pomodoro
+              Timer Pomodoro
             </h3>
-            <p class="text-claude-text-secondary dark:text-gray-400 text-sm mb-3">Configure um alarme para:</p>
-            <div class="grid grid-cols-2 gap-2">
-              <div class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-3 text-center">
-                <div class="text-2xl font-bold text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors">25</div>
-                <div class="text-xs text-claude-text-secondary dark:text-gray-400">minutos foco</div>
+
+            <!-- Configurações -->
+            <div class="space-y-3 mb-4">
+              <!-- Foco -->
+              <div>
+                <label class="text-xs text-claude-text-secondary dark:text-gray-400 mb-1 block">Tempo de Foco (min)</label>
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="setFocusMinutes(pomodoro.focusMinutes + 1)"
+                    :disabled="timer.isRunning"
+                    class="w-8 h-8 bg-dark-700 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-md flex items-center justify-center text-white transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                  </button>
+                  <input
+                    v-model.number="pomodoro.focusMinutes"
+                    @change="setFocusMinutes(pomodoro.focusMinutes)"
+                    type="number"
+                    min="1"
+                    max="120"
+                    :disabled="timer.isRunning"
+                    class="flex-1 text-center px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-md text-claude-text dark:text-white font-mono disabled:opacity-50"
+                  />
+                  <button
+                    @click="setFocusMinutes(pomodoro.focusMinutes - 1)"
+                    :disabled="timer.isRunning"
+                    class="w-8 h-8 bg-dark-700 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-md flex items-center justify-center text-white transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div class="bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-claude-md p-3 text-center">
-                <div class="text-2xl font-bold text-yellow-400">5</div>
-                <div class="text-xs text-claude-text-secondary dark:text-gray-400">minutos pausa</div>
+
+              <!-- Pausa -->
+              <div>
+                <label class="text-xs text-claude-text-secondary dark:text-gray-400 mb-1 block">Tempo de Pausa (min)</label>
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="setBreakMinutes(pomodoro.breakMinutes + 1)"
+                    :disabled="timer.isRunning"
+                    class="w-8 h-8 bg-dark-700 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-md flex items-center justify-center text-white transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                  </button>
+                  <input
+                    v-model.number="pomodoro.breakMinutes"
+                    @change="setBreakMinutes(pomodoro.breakMinutes)"
+                    type="number"
+                    min="1"
+                    max="60"
+                    :disabled="timer.isRunning"
+                    class="flex-1 text-center px-3 py-2 bg-white dark:bg-dark-900 border border-claude-border-input dark:border-dark-700 rounded-md text-claude-text dark:text-white font-mono disabled:opacity-50"
+                  />
+                  <button
+                    @click="setBreakMinutes(pomodoro.breakMinutes - 1)"
+                    :disabled="timer.isRunning"
+                    class="w-8 h-8 bg-dark-700 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-md flex items-center justify-center text-white transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Toggle Alarme -->
+              <div class="flex items-center justify-between">
+                <label class="text-xs text-claude-text-secondary dark:text-gray-400">Ativar Pomodoro</label>
+                <button
+                  @click="toggleAlarm"
+                  :class="[
+                    'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                    pomodoro.alarmEnabled ? 'bg-primary-500' : 'bg-gray-600'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                      pomodoro.alarmEnabled ? 'translate-x-6' : 'translate-x-1'
+                    ]"
+                  />
+                </button>
               </div>
             </div>
+
+            <!-- Timer Display (só mostra se Pomodoro ativado E timer rodando) -->
+            <div v-if="pomodoro.alarmEnabled && (timer.isRunning || timer.isPaused)" class="bg-gradient-to-br from-primary-500/10 to-primary-600/10 border border-primary-500/30 rounded-lg p-4">
+              <div class="text-center">
+                <div class="text-sm font-medium text-claude-text dark:text-white mb-1">
+                  {{ pomodoro.isFocusPhase ? '🎯 Foco' : '☕ Pausa' }}
+                </div>
+                <div class="text-4xl font-mono font-bold text-primary-500">
+                  {{ formattedPomodoroTime }}
+                </div>
+                <div class="text-xs text-claude-text-secondary dark:text-gray-400 mt-2">
+                  {{ pomodoro.isFocusPhase ? 'Próxima pausa em' : 'Voltar aos estudos em' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Mensagem informativa quando desativado -->
+            <p v-else class="text-xs text-claude-text-secondary dark:text-gray-400 text-center italic">
+              Ative o Pomodoro antes de iniciar sua sessão de estudo
+            </p>
           </div>
         </div>
       </div>
@@ -203,7 +302,18 @@
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       @click.self="cancelStop"
     >
-      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-md w-full p-6 shadow-2xl animate-scale-in">
+      <div class="bg-dark-800 border border-dark-700 rounded-claude-lg max-w-md w-full p-6 shadow-2xl animate-scale-in relative">
+        <!-- Botão Fechar (X) - Encerra sem salvar -->
+        <button
+          @click="exitWithoutSaving"
+          class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500/20 transition-colors group"
+          title="Sair sem salvar"
+        >
+          <svg class="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+
         <div class="flex items-center gap-3 mb-4">
           <div class="w-12 h-12 bg-claude-primary/20 dark:bg-primary-500/20 rounded-full flex items-center justify-center">
             <svg class="w-6 h-6 text-claude-text-link dark:text-primary-400 hover:text-claude-hover dark:hover:text-primary-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,19 +341,30 @@
           Deseja salvar esta sessão de estudo? Suas anotações e o tempo serão registrados.
         </p>
 
-        <div class="flex gap-3">
+        <div class="space-y-3">
+          <!-- Botões principais -->
+          <div class="flex gap-3">
+            <button
+              @click="cancelStop"
+              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition-colors font-medium"
+            >
+              Cancelar
+            </button>
+            <button
+              @click="stop"
+              :disabled="loading"
+              class="flex-1 px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 rounded-claude-md disabled:opacity-50 font-medium"
+            >
+              {{ loading ? 'Salvando...' : 'Salvar Sessão' }}
+            </button>
+          </div>
+
+          <!-- Botão sair sem salvar -->
           <button
-            @click="cancelStop"
-            class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition-colors"
+            @click="exitWithoutSaving"
+            class="w-full px-4 py-2 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500 rounded-claude-md transition-colors font-medium text-sm"
           >
-            Cancelar
-          </button>
-          <button
-            @click="stop"
-            :disabled="loading"
-            class="flex-1 px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 text-claude-text dark:text-white rounded-claude-md transition-colors disabled:opacity-50"
-          >
-            {{ loading ? 'Salvando...' : 'Salvar Sessão' }}
+            Sair sem Salvar
           </button>
         </div>
       </div>
@@ -348,7 +469,21 @@ import type { Database } from '~/types/database.types'
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
-const { timer, formattedTime, startTimer, pauseTimer, resumeTimer, stopTimer } = useStudyTimer()
+const {
+  timer,
+  formattedTime,
+  startTimer,
+  pauseTimer,
+  resumeTimer,
+  stopTimer,
+  // Pomodoro (integrado ao timer)
+  pomodoro,
+  formattedPomodoroTime,
+  setFocusMinutes,
+  setBreakMinutes,
+  toggleAlarm,
+  handleAlarmResponse,
+} = useStudyTimer()
 
 const subjects = ref<Array<{ id: string, name: string }>>([])
 const selectedSubjectId = ref<string>('')
@@ -466,6 +601,29 @@ const stop = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const exitWithoutSaving = () => {
+  // Limpa o interval
+  if (timer.isRunning || timer.isPaused) {
+    // Reset state do timer
+    timer.isRunning = false
+    timer.isPaused = false
+    timer.startTime = 0
+    timer.elapsed = 0
+
+    // Reset Pomodoro
+    pomodoro.totalBreakTime = 0
+    pomodoro.isFocusPhase = true
+    pomodoro.remainingSeconds = pomodoro.focusMinutes * 60
+    pomodoro.showAlarmModal = false
+  }
+
+  // Fecha o modal
+  showStopModal.value = false
+  notes.value = ''
+
+  showToast('Sessão descartada', 'success')
 }
 
 const showToast = (message: string, type: 'success' | 'error') => {

@@ -1,3 +1,5 @@
+import { serverSupabaseClient } from '#supabase/server'
+
 // POST /api/goals/checklist/add - Adiciona um novo item ao checklist
 export default defineEventHandler(async (event) => {
   try {

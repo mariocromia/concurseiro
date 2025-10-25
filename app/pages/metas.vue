@@ -15,7 +15,7 @@ const {
   deleteGoal
 } = useGoals()
 
-const { addToast } = useToast()
+const { success: showSuccess, error: showError } = useToast()
 const router = useRouter()
 const supabase = useSupabaseClient()
 
@@ -34,12 +34,24 @@ const formData = ref<CreateGoalData>({
   checklist_items: [{ description: '' }]
 })
 
+// Watch goals changes
+watch(() => goals.value, (newGoals, oldGoals) => {
+  console.log('🔷 [Metas Page] Goals changed:', {
+    oldCount: oldGoals?.length || 0,
+    newCount: newGoals?.length || 0,
+    newGoals
+  })
+}, { deep: true })
+
 // Load data on mount
 onMounted(async () => {
+  console.log('🔷 [Metas Page] onMounted - loading data')
+  console.log('🔷 [Metas Page] Current goals state:', goals.value)
   await Promise.all([
     fetchGoals(),
     loadSubjects()
   ])
+  console.log('🔷 [Metas Page] Data loaded - goals count:', goals.value.length)
 })
 
 // Load subjects
@@ -55,10 +67,7 @@ const loadSubjects = async () => {
     subjects.value = data || []
   } catch (e: any) {
     console.error('Error loading subjects:', e)
-    addToast({
-      type: 'error',
-      message: 'Erro ao carregar matérias'
-    })
+    showError('Erro ao carregar matérias')
   } finally {
     loadingSubjects.value = false
   }
@@ -157,54 +166,123 @@ const validateForm = (): string | null => {
 const submitForm = async () => {
   const error = validateForm()
   if (error) {
-    addToast({ type: 'error', message: error })
+    showError(error)
     return
   }
 
   const validItems = formData.value.checklist_items.filter(item => item.description.trim())
 
   if (editingGoal.value) {
+    console.log('📝 [METAS] Modo edição - Informação:', 'Edição de meta só atualiza nome, matéria e data')
+    console.log('📝 [METAS] Para editar itens do checklist, use a página de detalhes da meta')
+
     const updateData: UpdateGoalData = {
       name: formData.value.name,
       subject_id: formData.value.subject_id,
       target_date: formData.value.target_date
     }
 
+    console.log('📝 [METAS] Atualizando meta:', {
+      goal_id: editingGoal.value.id,
+      updateData
+    })
+
     const result = await updateGoal(editingGoal.value.id, updateData)
+
+    console.log('📝 [METAS] Resultado da atualização:', result)
+
     if (result.success) {
-      addToast({ type: 'success', message: 'Meta atualizada com sucesso!' })
+      showSuccess('Meta atualizada com sucesso!')
       closeModal()
+      // Recarregar metas para mostrar dados atualizados
+      await fetchGoals()
     } else {
-      addToast({ type: 'error', message: result.message || 'Erro ao atualizar meta' })
+      console.error('❌ [METAS] Erro ao atualizar meta:', result)
+      showError(result.message || 'Erro ao atualizar meta')
     }
   } else {
     const createData: CreateGoalData = { ...formData.value, checklist_items: validItems }
+
+    console.log('📝 [METAS] Criando nova meta:', {
+      name: createData.name,
+      subject_id: createData.subject_id,
+      target_date: createData.target_date,
+      checklist_items_count: createData.checklist_items.length,
+      checklist_items: createData.checklist_items
+    })
+
     const result = await createGoal(createData)
 
+    console.log('📝 [METAS] Resultado da criação:', result)
+
     if (result.success) {
-      addToast({ type: 'success', message: 'Meta criada com sucesso! Você deu o primeiro passo rumo à sua aprovação!' })
+      console.log('✅ [METAS] Meta criada com sucesso!', result.data)
+      showSuccess('Meta criada com sucesso! Você deu o primeiro passo rumo à sua aprovação!')
       closeModal()
     } else {
-      addToast({ type: 'error', message: result.message || 'Erro ao criar meta' })
+      console.error('❌ [METAS] Erro ao criar meta:', {
+        message: result.message,
+        fullResult: result
+      })
+      showError(result.message || 'Erro ao criar meta')
     }
   }
 }
 
-// Delete goal
-const handleDeleteGoal = async (goal: Goal) => {
-  if (!confirm(`Tem certeza que deseja deletar a meta "${goal.name}"?`)) return
+// State for delete confirmation modal
+const showDeleteModal = ref(false)
+const goalToDelete = ref<Goal | null>(null)
 
-  const result = await deleteGoal(goal.id)
+// Delete goal - open confirmation modal
+const handleDeleteGoal = (goal: Goal) => {
+  console.log('🔷 [Metas Page] Opening delete modal for goal:', goal.name)
+  goalToDelete.value = goal
+  showDeleteModal.value = true
+}
+
+// Confirm delete
+const confirmDelete = async () => {
+  if (!goalToDelete.value) return
+
+  console.log('🔷 [Metas Page] Confirming delete for goal:', goalToDelete.value.name)
+
+  const result = await deleteGoal(goalToDelete.value.id)
+
+  console.log('🔷 [Metas Page] Delete result:', result)
+
   if (result.success) {
-    addToast({ type: 'success', message: 'Meta deletada com sucesso' })
+    showSuccess('Meta deletada com sucesso')
   } else {
-    addToast({ type: 'error', message: result.message || 'Erro ao deletar meta' })
+    showError(result.message || 'Erro ao deletar meta')
   }
+
+  // Close modal
+  showDeleteModal.value = false
+  goalToDelete.value = null
+}
+
+// Cancel delete
+const cancelDelete = () => {
+  console.log('🔷 [Metas Page] Canceling delete')
+  showDeleteModal.value = false
+  goalToDelete.value = null
 }
 
 // View goal details
 const viewGoalDetails = (goal: Goal) => {
-  router.push(`/metas/${goal.id}`)
+  console.log('🔷 [Metas Page] viewGoalDetails called for goal:', {
+    id: goal.id,
+    name: goal.name
+  })
+  const targetPath = `/metas/${goal.id}`
+  console.log('🔷 [Metas Page] Pushing to path:', targetPath)
+  router.push(targetPath)
+    .then(() => {
+      console.log('✅ [Metas Page] Navigation successful to:', targetPath)
+    })
+    .catch(err => {
+      console.error('❌ [Metas Page] Navigation error:', err)
+    })
 }
 
 // Get minimum date
@@ -437,10 +515,13 @@ const minDate = computed(() => {
                   </label>
                   <select
                     v-model="formData.subject_id"
-                    class="w-full px-4 py-3 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white"
+                    :disabled="loadingSubjects"
+                    class="w-full px-4 py-3 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                   >
-                    <option value="" disabled>Selecione uma matéria</option>
+                    <option value="" disabled>
+                      {{ loadingSubjects ? 'Carregando matérias...' : 'Selecione uma matéria' }}
+                    </option>
                     <option
                       v-for="subject in subjects"
                       :key="subject.id"
@@ -449,7 +530,14 @@ const minDate = computed(() => {
                       {{ subject.name }}
                     </option>
                   </select>
-                  <p v-if="subjects.length === 0" class="mt-1 text-xs text-orange-600 dark:text-orange-400">
+                  <p v-if="loadingSubjects" class="mt-1 text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                    <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Carregando suas matérias...
+                  </p>
+                  <p v-else-if="subjects.length === 0" class="mt-1 text-xs text-orange-600 dark:text-orange-400">
                     Você ainda não tem matérias cadastradas. Cadastre uma matéria primeiro!
                   </p>
                 </div>
@@ -473,6 +561,24 @@ const minDate = computed(() => {
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     O que você precisa fazer para alcançar essa meta? <span class="text-red-500">*</span>
                   </label>
+
+                  <!-- Warning for edit mode -->
+                  <div v-if="editingGoal" class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-start gap-2">
+                      <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                      </svg>
+                      <div class="flex-1">
+                        <p class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                          Modo de Edição
+                        </p>
+                        <p class="text-xs text-blue-700 dark:text-blue-400 mt-1">
+                          Para adicionar, editar ou remover itens do checklist, clique em "Ver detalhes" da meta após salvar.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="space-y-3">
                     <div
                       v-for="(item, index) in formData.checklist_items"
@@ -558,6 +664,106 @@ const minDate = computed(() => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Delete Confirmation Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showDeleteModal"
+          class="fixed inset-0 z-50 overflow-y-auto"
+          @click.self="cancelDelete"
+        >
+          <div class="flex min-h-screen items-center justify-center p-4">
+            <!-- Overlay -->
+            <div
+              class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              @click="cancelDelete"
+            ></div>
+
+            <!-- Modal Content -->
+            <div
+              class="relative bg-white dark:bg-dark-800 rounded-2xl shadow-2xl max-w-md w-full"
+              @click.stop
+            >
+              <!-- Modal Header -->
+              <div class="p-6">
+                <div class="flex items-center gap-4">
+                  <!-- Warning Icon -->
+                  <div class="flex-shrink-0 w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                      Confirmar Exclusão
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Esta ação não pode ser desfeita
+                    </p>
+                  </div>
+
+                  <!-- Close Button -->
+                  <button
+                    @click="cancelDelete"
+                    class="flex-shrink-0 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="mt-6 space-y-4">
+                  <p class="text-gray-700 dark:text-gray-300">
+                    Você está prestes a deletar a meta:
+                  </p>
+
+                  <div class="p-4 bg-gray-50 dark:bg-dark-700/50 rounded-lg border border-gray-200 dark:border-dark-600">
+                    <p class="font-semibold text-gray-900 dark:text-white">
+                      {{ goalToDelete?.name }}
+                    </p>
+                    <p v-if="goalToDelete?.subject" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Matéria: {{ goalToDelete.subject.name }}
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {{ goalToDelete?.total_items }} item(s) no checklist
+                    </p>
+                  </div>
+
+                  <div class="flex items-start gap-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <p class="text-sm text-red-800 dark:text-red-300">
+                      Todos os dados desta meta, incluindo itens do checklist e progresso, serão permanentemente apagados.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="mt-6 flex items-center justify-end gap-3">
+                  <button
+                    @click="cancelDelete"
+                    class="px-6 py-2.5 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    @click="confirmDelete"
+                    class="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    Sim, Deletar Meta
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

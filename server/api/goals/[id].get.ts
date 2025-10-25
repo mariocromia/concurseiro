@@ -1,3 +1,5 @@
+import { serverSupabaseClient } from '#supabase/server'
+
 // GET /api/goals/[id] - Busca uma meta específica com todos os detalhes
 export default defineEventHandler(async (event) => {
   try {
@@ -5,19 +7,24 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient(event)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
+    console.log('🔷 [Goal by ID API] Authentication check:', { userId: user?.id, authError })
+
     if (authError || !user) {
+      console.error('❌ [Goal by ID API] Unauthorized')
       throw createError({ statusCode: 401, message: 'Unauthorized' })
     }
+
     // 2. Get goal ID from params
     const goalId = getRouterParam(event, 'id')
 
+    console.log('🔷 [Goal by ID API] Fetching goal:', goalId, 'for user:', user.id)
+
     if (!goalId) {
+      console.error('❌ [Goal by ID API] Missing goal ID')
       throw createError({ statusCode: 400, message: 'ID da meta é obrigatório' })
     }
 
     // 3. Fetch goal from database
-
-
     const { data, error } = await supabase
       .from('goals')
       .select(`
@@ -36,7 +43,14 @@ export default defineEventHandler(async (event) => {
       .eq('user_id', user.id)
       .single()
 
+    console.log('🔷 [Goal by ID API] Query result:', {
+      hasData: !!data,
+      error,
+      goalName: data?.name
+    })
+
     if (error) {
+      console.error('❌ [Goal by ID API] Database error:', error)
       if (error.code === 'PGRST116') {
         throw createError({
           statusCode: 404,
@@ -66,15 +80,25 @@ export default defineEventHandler(async (event) => {
       data.checklist_items.sort((a: any, b: any) => a.order_index - b.order_index)
     }
 
+    const responseData = {
+      ...data,
+      total_items: totalItems,
+      completed_items: completedItems,
+      progress_percentage: progressPercentage,
+      days_remaining: daysRemaining
+    }
+
+    console.log('✅ [Goal by ID API] Returning goal:', {
+      id: responseData.id,
+      name: responseData.name,
+      totalItems,
+      completedItems,
+      progressPercentage
+    })
+
     return {
       success: true,
-      data: {
-        ...data,
-        total_items: totalItems,
-        completed_items: completedItems,
-        progress_percentage: progressPercentage,
-        days_remaining: daysRemaining
-      }
+      data: responseData
     }
   } catch (error: any) {
     throw createError({

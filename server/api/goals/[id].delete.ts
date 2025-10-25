@@ -1,3 +1,5 @@
+import { serverSupabaseClient } from '#supabase/server'
+
 // DELETE /api/goals/[id] - Deleta uma meta
 export default defineEventHandler(async (event) => {
   try {

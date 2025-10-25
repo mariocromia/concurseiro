@@ -183,7 +183,7 @@ const hasMoreItems = computed(() => {
     <div class="px-5 py-3 bg-gray-50 dark:bg-dark-700/50 rounded-b-xl flex items-center justify-between">
       <!-- View Details Button -->
       <button
-        @click="emit('viewDetails')"
+        @click="console.log('🔷 [GoalCard] View Details clicked for goal:', goal.id); emit('viewDetails')"
         class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
       >
         Ver detalhes
