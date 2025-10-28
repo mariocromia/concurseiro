@@ -1167,10 +1167,23 @@ const openChapterForm = async (subject: any) => {
   try {
     loading.value = true
 
+    // Obter user_id com fallback robusto
+    const { data: currentUser, error: userError } = await supabase.auth.getUser()
+    const userId = user.value?.id || currentUser?.user?.id
+
+    if (!userId) {
+      console.error('❌ Usuário não autenticado')
+      alert('Você precisa estar autenticado para criar um capítulo')
+      return
+    }
+
+    console.log('✅ User ID encontrado:', userId)
+
     // Criar capítulo com título padrão
     const { data, error } = await supabase
       .from('chapters')
       .insert({
+        user_id: userId,
         subject_id: subject.id,
         title: 'Novo Capítulo',
         order_index: getChaptersBySubject(subject.id).length
@@ -1218,9 +1231,22 @@ const createChapter = async () => {
     console.log('Subject ID:', chapterForm.value.subject_id)
     console.log('Título:', chapterForm.value.title)
 
+    // Obter user_id com fallback robusto
+    const { data: currentUser, error: userError } = await supabase.auth.getUser()
+    const userId = user.value?.id || currentUser?.user?.id
+
+    if (!userId) {
+      console.error('❌ Usuário não autenticado')
+      alert('Você precisa estar autenticado para criar um capítulo')
+      return
+    }
+
+    console.log('✅ User ID encontrado:', userId)
+
     const { data, error } = await supabase
       .from('chapters')
       .insert({
+        user_id: userId,
         subject_id: chapterForm.value.subject_id,
         title: chapterForm.value.title,
         order_index: getChaptersBySubject(chapterForm.value.subject_id).length
@@ -1283,10 +1309,21 @@ const selectChapter = async (chapter: any) => {
       chapterContent.value = data.content || ''
     } else {
       console.log('⚠️ Nenhuma página encontrada, criando nova...')
+
+      // Obter user_id com fallback robusto
+      const { data: currentUser } = await supabase.auth.getUser()
+      const userId = user.value?.id || currentUser?.user?.id
+
+      if (!userId) {
+        console.error('❌ Usuário não autenticado para criar página')
+        return
+      }
+
       // Create first page for chapter
       const { data: newPage, error: createError } = await supabase
         .from('pages')
         .insert({
+          user_id: userId,
           chapter_id: chapter.id,
           title: 'Conteúdo',
           content: '',
@@ -1336,9 +1373,20 @@ const saveChapterContent = async () => {
       console.log('✅ Conteúdo atualizado com sucesso!')
     } else {
       console.log('💾 Criando nova página para o capítulo')
+
+      // Obter user_id com fallback robusto
+      const { data: currentUser } = await supabase.auth.getUser()
+      const userId = user.value?.id || currentUser?.user?.id
+
+      if (!userId) {
+        console.error('❌ Usuário não autenticado para criar página')
+        return
+      }
+
       const { error } = await supabase
         .from('pages')
         .insert({
+          user_id: userId,
           chapter_id: selectedChapter.value.id,
           title: 'Conteúdo',
           content: chapterContent.value,
