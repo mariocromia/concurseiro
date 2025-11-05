@@ -582,6 +582,7 @@
         ref="editorRef"
         contenteditable="true"
         @input="handleInput"
+        @blur="handleBlur"
         @mouseup="handleTextSelection"
         @mousedown="handleEditorMouseDown"
         @keyup="handleTextSelection"
@@ -1084,6 +1085,8 @@ interface Emits {
   'update:modelValue': [value: string]
   'ai-action': [action: string, selectedText: string]
   upgrade: []
+  blur: []
+  'force-save': []
 }
 
 const props = defineProps<Props>()
@@ -2121,6 +2124,11 @@ const handleInput = () => {
   }
 }
 
+const handleBlur = () => {
+  console.log('📝 Editor perdeu o foco')
+  emit('blur')
+}
+
 const handleKeyDown = (event: KeyboardEvent) => {
   // Se for uma tecla de caractere (não é control, alt, etc)
   const isCharacterKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
@@ -2241,6 +2249,8 @@ const handleImageUpload = async (event: Event) => {
     // Wrap image in resizable container after insertion
     setTimeout(() => {
       wrapImagesWithResizeHandles()
+      // Força salvamento após inserir imagem
+      emit('force-save')
     }, 100)
   }
   reader.readAsDataURL(file)
@@ -2371,6 +2381,8 @@ const handlePaste = (event: ClipboardEvent) => {
           // Wrap image in resizable container after insertion
           setTimeout(() => {
             wrapImagesWithResizeHandles()
+            // Força salvamento após inserir imagem
+            emit('force-save')
           }, 100)
         }
         reader.readAsDataURL(blob)

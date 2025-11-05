@@ -529,33 +529,8 @@
               </svg>
             </button>
 
-            <!-- Autosave Toggle -->
-            <button
-              @click="toggleAutosave"
-              :class="[
-                'px-3 py-2 rounded-claude-md transition-all font-medium flex items-center space-x-2 text-sm',
-                autoSaveEnabled
-                  ? 'bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30'
-                  : 'bg-dark-800 border border-dark-600 text-claude-text-secondary dark:text-gray-400 hover:bg-dark-700'
-              ]"
-              :title="autoSaveEnabled ? 'Autosave ativado' : 'Autosave desativado'"
-            >
-              <span>{{ autoSaveEnabled ? '✓' : '○' }}</span>
-              <span>{{ autoSaveEnabled ? 'Autosave ON' : 'Autosave OFF' }}</span>
-            </button>
-
-            <!-- Save Button (só aparece quando autosave está OFF) -->
-            <button
-              v-if="!autoSaveEnabled"
-              @click="saveChapterContent"
-              :disabled="saving"
-              class="px-4 py-2 bg-claude-primary/20 dark:bg-primary-500/20 border border-claude-primary/30 text-primary-300 rounded-claude-md hover:bg-primary-500/30 hover:border-claude-primary dark:hover:border-primary-500 dark:border-primary-500/50 transition-all font-medium disabled:opacity-50 flex items-center space-x-2"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-              </svg>
-              <span>{{ saving ? 'Salvando...' : 'Salvar' }}</span>
-            </button>
+            <!-- Removido: Botões de autosave e salvar manual -->
+            <!-- O salvamento agora é automático após 2 segundos de inatividade -->
 
             <!-- Exportar PDF Button -->
             <button
@@ -569,6 +544,52 @@
               </svg>
               <span>Exportar PDF</span>
             </button>
+
+            <!-- Indicador de Status de Salvamento -->
+            <Transition
+              enter-active-class="transition ease-out duration-200"
+              enter-from-class="opacity-0 scale-95"
+              enter-to-class="opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-150"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-95"
+            >
+              <div
+                v-if="saveStatus !== 'idle' && selectedChapter"
+                class="flex items-center gap-2 px-3 py-2 bg-dark-800 border border-dark-600 rounded-claude-md"
+              >
+                <!-- Typing indicator -->
+                <div v-if="saveStatus === 'typing'" class="flex items-center gap-2 text-gray-400">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-.5a1 1 0 000 2H8a.5.5 0 01.5.5v5a.5.5 0 01-.5.5H6.5a.5.5 0 01-.5-.5v-5A.5.5 0 016.5 7H8a1 1 0 100-2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2a1 1 0 100 2h2a.5.5 0 01.5.5v5a.5.5 0 01-.5.5h-1.5a.5.5 0 01-.5-.5v-5A.5.5 0 0111.5 7H13a1 1 0 100-2h-2a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-.5a1 1 0 000 2H13a.5.5 0 01.5.5v5a.5.5 0 01-.5.5h-1.5a.5.5 0 01-.5-.5v-5A.5.5 0 0111.5 7H13a1 1 0 100-2h-2z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-xs">Digitando...</span>
+                </div>
+
+                <!-- Saving indicator -->
+                <div v-if="saveStatus === 'saving'" class="flex items-center gap-2 text-primary-400">
+                  <div class="animate-spin h-4 w-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+                  <span class="text-xs">Salvando...</span>
+                </div>
+
+                <!-- Saved indicator -->
+                <div v-if="saveStatus === 'saved'" class="flex items-center gap-2 text-green-500">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-xs">Salvo</span>
+                </div>
+
+                <!-- Error indicator -->
+                <div v-if="saveStatus === 'error'" class="flex items-center gap-2 text-red-500">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-xs">Erro ao salvar</span>
+                </div>
+              </div>
+            </Transition>
             </div>
           </div>
 
@@ -583,6 +604,8 @@
                 :subject-name="selectedSubject?.name"
                 @ai-action="handleAIAction"
                 @upgrade="handleUpgrade"
+                @blur="handleEditorBlur"
+                @force-save="handleForceSave"
               />
             </div>
           </div>
@@ -739,6 +762,8 @@
 
 <script setup lang="ts">
 import { useSortable } from '~/composables/useSortable'
+import Sortable from 'sortablejs'
+import { useDebounceFn } from '@vueuse/core'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -752,10 +777,9 @@ const loading = ref(false)
 const saving = ref(false)
 const isPro = ref(false)
 
-// Carregar estado do autosave do localStorage (SSR-safe)
-// IMPORTANTE: localStorage só existe no browser, não no servidor (SSR)
-const autoSaveEnabled = ref(false)
-let autoSaveInterval: NodeJS.Timeout | null = null
+// Status de salvamento para feedback visual
+const saveStatus = ref<'idle' | 'typing' | 'saving' | 'saved' | 'error'>('idle')
+let saveStatusTimeout: NodeJS.Timeout | null = null
 
 // Subjects & Chapters
 const subjects = ref<any[]>([])
@@ -767,11 +791,24 @@ const chapterContent = ref('')
 
 // Sortable refs
 const subjectsListRef = ref<HTMLElement | null>(null)
-const chapterListRefs = ref<Record<string, HTMLElement>>({})
+const chapterListRefs = ref<Record<string, HTMLElement | null>>({})
+const chapterSortableInstances: Record<string, Sortable | null> = {}
+const useLegacyContentTables = ref(false) // FORÇAR USO DAS NOVAS TABELAS SEMPRE
+const notebookIdCache = reactive<Record<string, string>>({})
 
-const setChapterListRef = (subjectId: string, el: any) => {
+const setChapterListRef = (subjectId: string, el: HTMLElement | null) => {
   if (el) {
     chapterListRefs.value[subjectId] = el
+    if (expandedSubjects.value[subjectId]) {
+      initChapterSortable(subjectId)
+    }
+  } else {
+    delete chapterListRefs.value[subjectId]
+    const sortable = chapterSortableInstances[subjectId]
+    if (sortable) {
+      sortable.destroy()
+      delete chapterSortableInstances[subjectId]
+    }
   }
 }
 
@@ -798,10 +835,395 @@ watch(() => selectedChapter.value, async (newChapter, oldChapter) => {
   previousChapter.value = newChapter
 }, { immediate: true })
 
-// Debug chapter content changes
+// Função de salvamento com debounce (2 segundos após parar de digitar)
+const debouncedSave = useDebounceFn(async () => {
+  if (selectedChapter.value && chapterContent.value) {
+    saveStatus.value = 'saving'
+    try {
+      await saveChapterContentSilently(selectedChapter.value.id)
+      saveStatus.value = 'saved'
+
+      // Esconder indicador após 2 segundos
+      if (saveStatusTimeout) clearTimeout(saveStatusTimeout)
+      saveStatusTimeout = setTimeout(() => {
+        if (saveStatus.value === 'saved') {
+          saveStatus.value = 'idle'
+        }
+      }, 2000)
+    } catch (error) {
+      console.error('❌ Erro ao salvar:', error)
+      saveStatus.value = 'error'
+
+      // Tentar novamente após 5 segundos
+      setTimeout(() => {
+        if (saveStatus.value === 'error') {
+          debouncedSave()
+        }
+      }, 5000)
+    }
+  }
+}, 2000) // 2 segundos de debounce
+
+// Monitorar mudanças no conteúdo e acionar salvamento automático
 watch(() => chapterContent.value, (newContent) => {
-  console.log('💾 chapterContent mudou! Tamanho:', newContent?.length || 0, 'Primeiros 50 chars:', newContent?.substring(0, 50))
+  console.log('💾 chapterContent mudou! Tamanho:', newContent?.length || 0)
+
+  if (newContent && selectedChapter.value) {
+    saveStatus.value = 'typing'
+    debouncedSave()
+
+    // Salvar rascunho no localStorage para recuperação offline
+    try {
+      const draftKey = `notebook-draft-${selectedChapter.value.id}`
+      localStorage.setItem(draftKey, newContent)
+      localStorage.setItem(`${draftKey}-timestamp`, new Date().toISOString())
+      console.log('📝 Rascunho salvo localmente')
+    } catch (error) {
+      console.error('Erro ao salvar rascunho local:', error)
+    }
+  }
 })
+
+// Função para recuperar rascunho do localStorage
+const loadDraftFromCache = (chapterId: string): string | null => {
+  try {
+    const draftKey = `notebook-draft-${chapterId}`
+    const draft = localStorage.getItem(draftKey)
+    const timestamp = localStorage.getItem(`${draftKey}-timestamp`)
+
+    if (draft && timestamp) {
+      const draftAge = Date.now() - new Date(timestamp).getTime()
+      const oneDay = 24 * 60 * 60 * 1000
+
+      // Se o rascunho tem menos de 24 horas, retorná-lo
+      if (draftAge < oneDay) {
+        console.log('📝 Rascunho recuperado do cache local')
+        return draft
+      } else {
+        // Limpar rascunhos antigos
+        localStorage.removeItem(draftKey)
+        localStorage.removeItem(`${draftKey}-timestamp`)
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao carregar rascunho local:', error)
+  }
+  return null
+}
+
+// Função para limpar rascunho após salvar com sucesso
+const clearDraftCache = (chapterId: string) => {
+  try {
+    const draftKey = `notebook-draft-${chapterId}`
+    localStorage.removeItem(draftKey)
+    localStorage.removeItem(`${draftKey}-timestamp`)
+    console.log('🧹 Rascunho local limpo')
+  } catch (error) {
+    console.error('Erro ao limpar rascunho local:', error)
+  }
+}
+
+const initChapterSortable = (subjectId: string) => {
+  const container = chapterListRefs.value[subjectId]
+  if (!container) return
+
+  const existing = chapterSortableInstances[subjectId]
+  if (existing) {
+    existing.destroy()
+  }
+
+  chapterSortableInstances[subjectId] = new Sortable(container, {
+    handle: '.chapter-drag-handle',
+    animation: 200,
+    ghostClass: 'opacity-50 bg-primary-500/30',
+    chosenClass: 'shadow-2xl scale-105',
+    onEnd: async ({ oldIndex, newIndex }) => {
+      if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
+        return
+      }
+
+      const ordered = getChaptersBySubject(subjectId)
+      const [moved] = ordered.splice(oldIndex, 1)
+      ordered.splice(newIndex, 0, moved)
+
+      updateChapters(subjectId, ordered)
+
+      try {
+        await onChapterDragEnd()
+      } catch (err) {
+        console.error('Erro ao reordenar capítulos:', err)
+      }
+    }
+  })
+}
+
+const isMissingRelationError = (error: any) => {
+  if (!error) return false
+  const message = String(error.message || '').toLowerCase()
+  return error.code === '42P01' || message.includes('does not exist')
+}
+
+const ensureAuthUserId = async (): Promise<string> => {
+  if (user.value?.id) {
+    return user.value.id
+  }
+
+  const { data, error } = await supabase.auth.getUser()
+  if (error) throw error
+  const authUser = data?.user
+  if (!authUser?.id) {
+    throw new Error('Usuário não autenticado')
+  }
+  return authUser.id
+}
+
+const getSubjectById = (subjectId: string) => {
+  return subjects.value.find(subject => subject.id === subjectId)
+}
+
+const ensureNotebookForSubject = async (subjectId: string) => {
+  if (notebookIdCache[subjectId]) {
+    return notebookIdCache[subjectId]
+  }
+
+  const userId = await ensureAuthUserId()
+
+  const { data, error } = await supabase
+    .from('notebooks')
+    .select('id')
+    .eq('subject_id', subjectId)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .single()
+
+  if (error && error.code !== 'PGRST116' && !isMissingRelationError(error)) {
+    throw error
+  }
+
+  if (!error && data?.id) {
+    notebookIdCache[subjectId] = data.id
+    return data.id
+  }
+
+  const subject = getSubjectById(subjectId)
+  const { data: createdNotebook, error: createError } = await supabase
+    .from('notebooks')
+    .insert({
+      user_id: userId,
+      subject_id: subjectId,
+      name: subject?.name || 'Caderno',
+      description: subject?.description ?? null
+    })
+    .select('id')
+    .single()
+
+  if (createError) {
+    throw createError
+  }
+
+  notebookIdCache[subjectId] = createdNotebook.id
+  return createdNotebook.id
+}
+
+const ensureNotebookSectionForChapter = async (chapter: any) => {
+  if (!chapter?.id) {
+    throw new Error('Capítulo inválido')
+  }
+
+  const { data, error } = await supabase
+    .from('notebook_sections')
+    .select('id, notebook_id, order_index, name')
+    .eq('id', chapter.id)
+    .limit(1)
+    .single()
+
+  if (!error && data?.id) {
+    return data
+  }
+
+  if (error && error.code !== 'PGRST116' && !isMissingRelationError(error)) {
+    throw error
+  }
+
+  const notebookId = await ensureNotebookForSubject(chapter.subject_id)
+  const { data: newSection, error: insertError } = await supabase
+    .from('notebook_sections')
+    .insert({
+      id: chapter.id,
+      notebook_id: notebookId,
+      name: chapter.title || 'Capítulo',
+      order_index: chapter.order_index ?? 0
+    })
+    .select('id, notebook_id, order_index, name')
+    .single()
+
+  if (insertError) {
+    throw insertError
+  }
+
+  return newSection
+}
+
+const getNotebookPageForChapter = async (chapter: any) => {
+  const section = await ensureNotebookSectionForChapter(chapter)
+
+  const { data, error } = await supabase
+    .from('notebook_pages')
+    .select('id, content, title')
+    .eq('section_id', section.id)
+    .order('order_index', { ascending: true })
+    .limit(1)
+    .single()
+
+  if (!error && data?.id) {
+    return { section, page: data }
+  }
+
+  if (error && error.code !== 'PGRST116' && !isMissingRelationError(error)) {
+    throw error
+  }
+
+  const { data: newPage, error: insertError } = await supabase
+    .from('notebook_pages')
+    .insert({
+      section_id: section.id,
+      title: chapter.title || 'Conteúdo',
+      content: '',
+      order_index: 0
+    })
+    .select('id, content, title')
+    .single()
+
+  if (insertError) {
+    throw insertError
+  }
+
+  return { section, page: newPage }
+}
+
+const upsertNotebookPageContent = async (chapter: any, content: string) => {
+  const { page } = await getNotebookPageForChapter(chapter)
+
+  const { error } = await supabase
+    .from('notebook_pages')
+    .update({
+      content,
+      title: chapter.title || page.title || 'Conteúdo'
+    })
+    .eq('id', page.id)
+
+  if (error) {
+    throw error
+  }
+}
+
+const createNotebookSection = async (subjectId: string, title: string, orderIndex: number) => {
+  const notebookId = await ensureNotebookForSubject(subjectId)
+  const { data, error } = await supabase
+    .from('notebook_sections')
+    .insert({
+      notebook_id: notebookId,
+      name: title,
+      order_index: orderIndex
+    })
+    .select('id, notebook_id, name, order_index, created_at, updated_at')
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return {
+    id: data.id,
+    subject_id: subjectId,
+    title: data.name,
+    order_index: data.order_index ?? orderIndex,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    notebook_id: data.notebook_id
+  }
+}
+
+const loadChaptersFromNotebook = async (userId: string) => {
+  useLegacyContentTables.value = false
+  const { data, error } = await supabase
+    .from('notebook_sections')
+    .select('id, notebook_id, name, order_index, created_at, updated_at, notebooks!inner(subject_id, user_id)')
+    .eq('notebooks.user_id', userId)
+    .order('order_index', { ascending: true })
+
+  if (error) {
+    throw error
+  }
+
+  const mapped = (data || []).map((section: any) => ({
+    id: section.id,
+    subject_id: section.notebooks?.subject_id,
+    title: section.name,
+    order_index: section.order_index ?? 0,
+    created_at: section.created_at,
+    updated_at: section.updated_at,
+    notebook_id: section.notebook_id
+  }))
+
+  chapters.value = mapped
+  await nextTick()
+
+  for (const [subjectId, isExpanded] of Object.entries(expandedSubjects.value)) {
+    if (isExpanded) {
+      initChapterSortable(subjectId)
+    }
+  }
+}
+
+const updateChapterTimestamp = async (chapterId: string) => {
+  const isoDate = new Date().toISOString()
+
+  if (useLegacyContentTables.value) {
+    const { error } = await supabase
+      .from('chapters')
+      .update({ updated_at: isoDate })
+      .eq('id', chapterId)
+
+    if (error) {
+      if (isMissingRelationError(error)) {
+        useLegacyContentTables.value = false
+      } else {
+        throw error
+      }
+    } else {
+      const chapterIndex = chapters.value.findIndex(chapter => chapter.id === chapterId)
+      if (chapterIndex !== -1) {
+        chapters.value[chapterIndex].updated_at = isoDate
+      }
+      if (selectedChapter.value?.id === chapterId) {
+        selectedChapter.value.updated_at = isoDate
+      }
+      return
+    }
+  }
+
+  const { error: sectionError } = await supabase
+    .from('notebook_sections')
+    .update({ updated_at: isoDate })
+    .eq('id', chapterId)
+
+  if (sectionError && !isMissingRelationError(sectionError)) {
+    throw sectionError
+  }
+
+  const chapterIndex = chapters.value.findIndex(chapter => chapter.id === chapterId)
+  if (chapterIndex !== -1) {
+    chapters.value[chapterIndex] = {
+      ...chapters.value[chapterIndex],
+      updated_at: isoDate
+    }
+  }
+  if (selectedChapter.value?.id === chapterId) {
+    selectedChapter.value.updated_at = isoDate
+  }
+}
 
 // Forms
 const showSubjectForm = ref(false)
@@ -902,12 +1324,6 @@ onMounted(async () => {
   // SSR-safe: window/localStorage só existem no cliente
   if (process.client && typeof window !== 'undefined') {
     console.log('🚀 URL:', window.location.href)
-
-    // Restaurar estado do autosave do localStorage
-    const savedAutosave = localStorage.getItem('autosave-enabled')
-    if (savedAutosave !== null) {
-      autoSaveEnabled.value = savedAutosave === 'true'
-    }
   }
 
   // Esperar o usuário estar disponível
@@ -941,16 +1357,7 @@ onMounted(async () => {
   // Carregar notícias
   await fetchNews()
 
-  // Inicializar autosave se estiver ativado
-  if (autoSaveEnabled.value) {
-    autoSaveInterval = setInterval(() => {
-      if (selectedChapter.value && chapterContent.value) {
-        console.log('💾 Autosave executado')
-        saveChapterContent()
-      }
-    }, 30000) // 30 segundos
-    console.log('✅ Autosave INICIADO automaticamente (30s)')
-  }
+  // Salvamento automático com debounce já está configurado no watch do chapterContent
 
   // Inicializar sortable para subjects
   await nextTick()
@@ -1032,7 +1439,11 @@ const loadChapters = async () => {
     const subjectIds = userSubjects.map(s => s.id)
     console.log('📚 Cadernos encontrados:', subjectIds.length)
 
-    // Agora buscar os capítulos desses subjects
+    if (!useLegacyContentTables.value) {
+      await loadChaptersFromNotebook(userId)
+      return
+    }
+
     const { data, error } = await supabase
       .from('chapters')
       .select('*')
@@ -1040,11 +1451,23 @@ const loadChapters = async () => {
       .order('order_index', { ascending: true })
 
     if (error) {
+      if (isMissingRelationError(error)) {
+        useLegacyContentTables.value = false
+        await loadChaptersFromNotebook(userId)
+        return
+      }
       console.error('❌ Erro Supabase ao carregar capítulos:', error)
       throw error
     }
 
+    useLegacyContentTables.value = true
     chapters.value = data || []
+    await nextTick()
+    for (const [subjectId, isExpanded] of Object.entries(expandedSubjects.value)) {
+      if (isExpanded) {
+        initChapterSortable(subjectId)
+      }
+    }
     console.log('✅ Capítulos carregados:', chapters.value.length, data)
   } catch (err) {
     console.error('❌ Erro ao carregar capítulos:', err)
@@ -1129,26 +1552,21 @@ const cancelSubjectForm = () => {
 }
 
 const toggleSubject = async (subjectId: string) => {
-  console.log('🔄 toggleSubject chamado:', subjectId)
+  console.log('toggleSubject chamado:', subjectId)
   expandedSubjects.value[subjectId] = !expandedSubjects.value[subjectId]
-  console.log('📂 Expandido?', expandedSubjects.value[subjectId])
+  console.log('Expandido?', expandedSubjects.value[subjectId])
   if (expandedSubjects.value[subjectId]) {
     const subject = subjects.value.find(s => s.id === subjectId)
     selectedSubject.value = subject
-    console.log('✅ Subject selecionado:', subject?.name)
+    console.log('Subject selecionado:', subject?.name)
 
-    // Inicializar sortable para capítulos após expandir
     await nextTick()
-    const chapterList = chapterListRefs.value[subjectId]
-    if (chapterList) {
-      const chaptersBySubject = computed(() => getChaptersBySubject(subjectId))
-      useSortable(ref(chapterList), chaptersBySubject, {
-        handle: '.chapter-drag-handle',
-        animation: 200,
-        ghostClass: 'opacity-50 bg-primary-500/30',
-        chosenClass: 'shadow-2xl scale-105',
-        onEnd: onChapterDragEnd
-      })
+    initChapterSortable(subjectId)
+  } else {
+    const sortable = chapterSortableInstances[subjectId]
+    if (sortable) {
+      sortable.destroy()
+      delete chapterSortableInstances[subjectId]
     }
   }
 }
@@ -1191,23 +1609,36 @@ const openChapterForm = async (subject: any) => {
       .select()
       .single()
 
-    if (error) throw error
+    let createdChapter = data
 
-    if (data) {
-      console.log('✅ Capítulo criado:', data)
-      chapters.value.push(data)
+    if (error) {
+      if (isMissingRelationError(error)) {
+        createdChapter = await createNotebookSection(
+          subject.id,
+          'Novo Capítulo',
+          getChaptersBySubject(subject.id).length
+        )
+        useLegacyContentTables.value = false
+      } else {
+        throw error
+      }
+    }
+
+    if (createdChapter) {
+      console.log('✅ Capítulo criado:', createdChapter)
+      chapters.value.push(createdChapter)
 
       // Expandir o subject se não estiver expandido
       expandedSubjects.value[subject.id] = true
 
       // Entrar em modo de edição imediatamente
-      editingChapterId.value = data.id
-      editingChapterTitle.value = data.title
+      editingChapterId.value = createdChapter.id
+      editingChapterTitle.value = createdChapter.title
 
       // Focar no input após um pequeno delay
       nextTick(() => {
         setTimeout(() => {
-          const input = document.querySelector(`.chapter-edit-input[data-chapter-id="${data.id}"]`) as HTMLInputElement
+          const input = document.querySelector(`.chapter-edit-input[data-chapter-id="${createdChapter?.id}"]`) as HTMLInputElement
           if (input) {
             input.focus()
             input.select()
@@ -1258,15 +1689,26 @@ const createChapter = async () => {
     console.log('Data:', data)
     console.log('Error:', error)
 
-    if (error) throw error
+    let createdChapter = data
 
-    if (data) {
-      console.log('✅ Capítulo criado:', data)
-      chapters.value.push(data)
+    if (error) {
+      if (isMissingRelationError(error)) {
+        createdChapter = await createNotebookSection(
+          chapterForm.value.subject_id,
+          chapterForm.value.title,
+          getChaptersBySubject(chapterForm.value.subject_id).length
+        )
+        useLegacyContentTables.value = false
+      } else {
+        throw error
+      }
+    }
+
+    if (createdChapter) {
+      console.log('✅ Capítulo criado:', createdChapter)
+      chapters.value.push(createdChapter)
       chapterForm.value = { title: '', subject_id: '' }
       showChapterFormModal.value = false
-
-      // Recarregar capítulos
       await loadChapters()
     }
   } catch (err: any) {
@@ -1291,53 +1733,75 @@ const selectChapter = async (chapter: any) => {
 
   // Load chapter pages/content
   try {
-    const { data, error } = await supabase
-      .from('pages')
-      .select('*')
-      .eq('chapter_id', chapter.id)
-      .order('order_index', { ascending: true })
-      .limit(1)
-      .single()
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('❌ Erro ao buscar página:', error)
-      throw error
-    }
-
-    if (data) {
-      console.log('✅ Página encontrada, carregando conteúdo...')
-      chapterContent.value = data.content || ''
-    } else {
-      console.log('⚠️ Nenhuma página encontrada, criando nova...')
-
-      // Obter user_id com fallback robusto
-      const { data: currentUser } = await supabase.auth.getUser()
-      const userId = user.value?.id || currentUser?.user?.id
-
-      if (!userId) {
-        console.error('❌ Usuário não autenticado para criar página')
-        return
-      }
-
-      // Create first page for chapter
-      const { data: newPage, error: createError } = await supabase
+    if (useLegacyContentTables.value) {
+      const { data, error } = await supabase
         .from('pages')
-        .insert({
-          user_id: userId,
-          chapter_id: chapter.id,
-          title: 'Conteúdo',
-          content: '',
-          order_index: 0
-        })
-        .select()
+        .select('*')
+        .eq('chapter_id', chapter.id)
+        .order('order_index', { ascending: true })
+        .limit(1)
         .single()
 
-      if (createError) {
-        console.error('❌ Erro ao criar página:', createError)
-        throw createError
+      if (error) {
+        if (error.code === 'PGRST116' || isMissingRelationError(error)) {
+          useLegacyContentTables.value = false
+        } else {
+          throw error
+        }
+      } else if (data) {
+        console.log('✅ Página encontrada, carregando conteúdo...')
+        chapterContent.value = data.content || ''
+        return
+      } else {
+        console.log('⚠️ Nenhuma página encontrada, criando nova...')
+
+        const { data: currentUser } = await supabase.auth.getUser()
+        const userId = user.value?.id || currentUser?.user?.id
+
+        if (!userId) {
+          console.error('❌ Usuário não autenticado para criar página')
+          return
+        }
+
+        const { error: createError } = await supabase
+          .from('pages')
+          .insert({
+            user_id: userId,
+            chapter_id: chapter.id,
+            title: 'Conteúdo',
+            content: '',
+            order_index: 0
+          })
+
+        if (createError) {
+          if (isMissingRelationError(createError)) {
+            useLegacyContentTables.value = false
+          } else {
+            throw createError
+          }
+        } else {
+          chapterContent.value = ''
+          return
+        }
       }
-      console.log('✅ Página criada com sucesso')
-      chapterContent.value = ''
+    }
+
+    const { page } = await getNotebookPageForChapter(chapter)
+    useLegacyContentTables.value = false
+    console.log('✅ Conteúdo carregado de notebook_pages')
+
+    // Tentar recuperar rascunho do cache local primeiro
+    const cachedDraft = loadDraftFromCache(chapter.id)
+    if (cachedDraft && cachedDraft.length > (page.content || '').length) {
+      // Se o rascunho local é mais recente/maior, perguntar ao usuário
+      if (confirm('Existe um rascunho local mais recente. Deseja recuperá-lo?')) {
+        chapterContent.value = cachedDraft
+      } else {
+        chapterContent.value = page.content || ''
+        clearDraftCache(chapter.id) // Limpar o rascunho rejeitado
+      }
+    } else {
+      chapterContent.value = page.content || ''
     }
   } catch (err) {
     console.error('❌ Erro ao carregar conteúdo:', err)
@@ -1354,66 +1818,76 @@ const saveChapterContent = async () => {
   try {
     saving.value = true
 
-    // Get or create page for chapter
-    const { data: existingPage } = await supabase
-      .from('pages')
-      .select('id')
-      .eq('chapter_id', selectedChapter.value.id)
-      .limit(1)
-      .single()
+    let legacyHandled = false
 
-    if (existingPage) {
-      console.log('💾 Atualizando página existente, ID:', existingPage.id)
-      const { error } = await supabase
+    if (useLegacyContentTables.value) {
+      const { data: existingPage, error: fetchError } = await supabase
         .from('pages')
-        .update({ content: chapterContent.value })
-        .eq('id', existingPage.id)
+        .select('id')
+        .eq('chapter_id', selectedChapter.value.id)
+        .limit(1)
+        .single()
 
-      if (error) throw error
-      console.log('✅ Conteúdo atualizado com sucesso!')
-    } else {
-      console.log('💾 Criando nova página para o capítulo')
+      if (fetchError) {
+        if (isMissingRelationError(fetchError)) {
+          useLegacyContentTables.value = false
+        } else {
+          throw fetchError
+        }
+      } else if (existingPage) {
+        console.log('💾 Atualizando página existente, ID:', existingPage.id)
+        const { error: updateError } = await supabase
+          .from('pages')
+          .update({ content: chapterContent.value })
+          .eq('id', existingPage.id)
 
-      // Obter user_id com fallback robusto
-      const { data: currentUser } = await supabase.auth.getUser()
-      const userId = user.value?.id || currentUser?.user?.id
+        if (updateError) {
+          if (isMissingRelationError(updateError)) {
+            useLegacyContentTables.value = false
+          } else {
+            throw updateError
+          }
+        } else {
+          legacyHandled = true
+        }
+      } else {
+        console.log('💾 Criando nova página para o capítulo')
+        const { data: currentUser } = await supabase.auth.getUser()
+        const userId = user.value?.id || currentUser?.user?.id
 
-      if (!userId) {
-        console.error('❌ Usuário não autenticado para criar página')
-        return
+        if (!userId) {
+          throw new Error('Usuário não autenticado para criar página')
+        }
+
+        const { error: insertError } = await supabase
+          .from('pages')
+          .insert({
+            user_id: userId,
+            chapter_id: selectedChapter.value.id,
+            title: 'Conteúdo',
+            content: chapterContent.value,
+            order_index: 0
+          })
+
+        if (insertError) {
+          if (isMissingRelationError(insertError)) {
+            useLegacyContentTables.value = false
+          } else {
+            throw insertError
+          }
+        } else {
+          legacyHandled = true
+        }
       }
-
-      const { error } = await supabase
-        .from('pages')
-        .insert({
-          user_id: userId,
-          chapter_id: selectedChapter.value.id,
-          title: 'Conteúdo',
-          content: chapterContent.value,
-          order_index: 0
-        })
-
-      if (error) throw error
-      console.log('✅ Nova página criada com sucesso!')
     }
 
-    // Update chapter's updated_at timestamp
-    const { error: chapterError } = await supabase
-      .from('chapters')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', selectedChapter.value.id)
-
-    if (chapterError) {
-      console.error('⚠️ Erro ao atualizar timestamp do capítulo:', chapterError)
-    } else {
-      console.log('✅ Timestamp do capítulo atualizado')
-      // Update local chapter object
-      selectedChapter.value.updated_at = new Date().toISOString()
-      const chapterIndex = chapters.value.findIndex(c => c.id === selectedChapter.value.id)
-      if (chapterIndex !== -1) {
-        chapters.value[chapterIndex].updated_at = selectedChapter.value.updated_at
-      }
+    if (!legacyHandled) {
+      await upsertNotebookPageContent(selectedChapter.value, chapterContent.value)
+      useLegacyContentTables.value = false
     }
+
+    await updateChapterTimestamp(selectedChapter.value.id)
+    console.log('✅ Conteúdo atualizado com sucesso!')
   } catch (err) {
     console.error('❌ Erro ao salvar:', err)
   } finally {
@@ -1425,47 +1899,72 @@ const saveChapterContent = async () => {
 const saveChapterContentSilently = async (chapterId: string) => {
   if (!chapterId || !chapterContent.value) return
 
+  const targetChapter = chapters.value.find(chapter => chapter.id === chapterId) || selectedChapter.value
+  if (!targetChapter) return
+
   try {
     console.log('🔇 Salvamento silencioso do capítulo:', chapterId)
 
-    const { data: existingPage } = await supabase
-      .from('pages')
-      .select('id')
-      .eq('chapter_id', chapterId)
-      .limit(1)
-      .single()
+    let handled = false
 
-    if (existingPage) {
-      await supabase
+    if (useLegacyContentTables.value) {
+      const { data: existingPage, error: fetchError } = await supabase
         .from('pages')
-        .update({ content: chapterContent.value })
-        .eq('id', existingPage.id)
-    } else {
-      await supabase
-        .from('pages')
-        .insert({
-          chapter_id: chapterId,
-          title: 'Conteúdo',
-          content: chapterContent.value,
-          order_index: 0
-        })
+        .select('id')
+        .eq('chapter_id', chapterId)
+        .limit(1)
+        .single()
+
+      if (fetchError) {
+        if (isMissingRelationError(fetchError)) {
+          useLegacyContentTables.value = false
+        } else {
+          throw fetchError
+        }
+      } else if (existingPage) {
+        const { error: updateError } = await supabase
+          .from('pages')
+          .update({ content: chapterContent.value })
+          .eq('id', existingPage.id)
+
+        if (updateError) {
+          if (isMissingRelationError(updateError)) {
+            useLegacyContentTables.value = false
+          } else {
+            throw updateError
+          }
+        } else {
+          handled = true
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from('pages')
+          .insert({
+            chapter_id: chapterId,
+            title: 'Conteúdo',
+            content: chapterContent.value,
+            order_index: 0
+          })
+
+        if (insertError) {
+          if (isMissingRelationError(insertError)) {
+            useLegacyContentTables.value = false
+          } else {
+            throw insertError
+          }
+        } else {
+          handled = true
+        }
+      }
     }
 
-    // Update chapter's updated_at timestamp
-    await supabase
-      .from('chapters')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', chapterId)
-
-    // Update local chapter object if it's the selected one
-    if (selectedChapter.value?.id === chapterId) {
-      selectedChapter.value.updated_at = new Date().toISOString()
-    }
-    const chapterIndex = chapters.value.findIndex(c => c.id === chapterId)
-    if (chapterIndex !== -1) {
-      chapters.value[chapterIndex].updated_at = new Date().toISOString()
+    if (!handled) {
+      await upsertNotebookPageContent(targetChapter, chapterContent.value)
     }
 
+    await updateChapterTimestamp(chapterId)
+    // Limpar cache local após salvar com sucesso
+    clearDraftCache(chapterId)
     console.log('✅ Salvamento silencioso concluído')
   } catch (err) {
     console.error('❌ Erro no salvamento silencioso:', err)
@@ -1665,36 +2164,56 @@ const handleUpgrade = () => {
   alert('Upgrade para o plano PRO para acessar recursos de IA!')
 }
 
-const toggleAutosave = () => {
-  autoSaveEnabled.value = !autoSaveEnabled.value
+// Salvamento imediato quando o editor perde o foco
+const handleEditorBlur = async () => {
+  console.log('📝 Editor perdeu o foco, salvando...')
+  if (selectedChapter.value && chapterContent.value) {
+    saveStatus.value = 'saving'
+    try {
+      await saveChapterContentSilently(selectedChapter.value.id)
+      saveStatus.value = 'saved'
 
-  // Salvar estado no localStorage (SSR-safe)
-  if (process.client && typeof window !== 'undefined') {
-    localStorage.setItem('autosave-enabled', autoSaveEnabled.value.toString())
-  }
-
-  if (autoSaveEnabled.value) {
-    // Salvar imediatamente
-    saveChapterContent()
-
-    // Configurar autosave a cada 30 segundos
-    autoSaveInterval = setInterval(() => {
-      if (selectedChapter.value && chapterContent.value) {
-        console.log('💾 Autosave executado')
-        saveChapterContent()
-      }
-    }, 30000) // 30 segundos
-
-    console.log('✅ Autosave ATIVADO (30s)')
-  } else {
-    // Desativar autosave
-    if (autoSaveInterval) {
-      clearInterval(autoSaveInterval)
-      autoSaveInterval = null
+      // Esconder indicador após 2 segundos
+      if (saveStatusTimeout) clearTimeout(saveStatusTimeout)
+      saveStatusTimeout = setTimeout(() => {
+        if (saveStatus.value === 'saved') {
+          saveStatus.value = 'idle'
+        }
+      }, 2000)
+    } catch (error) {
+      console.error('❌ Erro ao salvar no blur:', error)
+      saveStatus.value = 'error'
     }
-    console.log('❌ Autosave DESATIVADO')
   }
 }
+
+// Salvamento forçado para eventos específicos (imagem, resize, etc)
+const handleForceSave = async () => {
+  console.log('💾 Salvamento forçado acionado')
+  if (selectedChapter.value && chapterContent.value) {
+    // Cancelar debounce pendente
+    debouncedSave.cancel?.()
+
+    saveStatus.value = 'saving'
+    try {
+      await saveChapterContentSilently(selectedChapter.value.id)
+      saveStatus.value = 'saved'
+
+      // Esconder indicador após 2 segundos
+      if (saveStatusTimeout) clearTimeout(saveStatusTimeout)
+      saveStatusTimeout = setTimeout(() => {
+        if (saveStatus.value === 'saved') {
+          saveStatus.value = 'idle'
+        }
+      }, 2000)
+    } catch (error) {
+      console.error('❌ Erro ao salvar (force):', error)
+      saveStatus.value = 'error'
+    }
+  }
+}
+
+// Função toggleAutosave removida - salvamento agora é sempre automático
 
 const formatDate = (iso: string) => {
   return new Date(iso).toLocaleDateString('pt-BR', {
@@ -1870,23 +2389,46 @@ const saveChapterEdit = async (chapterId: string) => {
     const newTitle = editingChapterTitle.value.trim() || 'Novo Capítulo'
     console.log('Atualizando para:', newTitle)
 
+    let updated = false
+
     const { error } = await supabase
       .from('chapters')
       .update({ title: newTitle })
       .eq('id', chapterId)
 
-    console.log('Resposta do update:', error)
+    if (error) {
+      if (isMissingRelationError(error)) {
+        const { error: sectionError } = await supabase
+          .from('notebook_sections')
+          .update({ name: newTitle })
+          .eq('id', chapterId)
 
-    if (error) throw error
+        if (sectionError) {
+          throw sectionError
+        }
 
-    // Atualizar localmente
-    const chapter = chapters.value.find(c => c.id === chapterId)
-    if (chapter) {
-      chapter.title = newTitle
-      console.log('✅ Capítulo atualizado localmente:', chapter)
+        updated = true
+        useLegacyContentTables.value = false
+      } else {
+        throw error
+      }
+    } else {
+      updated = true
     }
 
-    console.log('✅ Capítulo renomeado com sucesso no banco')
+    // Atualizar localmente
+    if (updated) {
+      const chapter = chapters.value.find(c => c.id === chapterId)
+      if (chapter) {
+        chapter.title = newTitle
+        console.log('✅ Capítulo atualizado localmente:', chapter)
+      }
+      if (selectedChapter.value?.id === chapterId) {
+        selectedChapter.value.title = newTitle
+      }
+
+      console.log('✅ Capítulo renomeado com sucesso no banco')
+    }
   } catch (err) {
     console.error('❌ Erro ao renomear capítulo:', err)
     alert('Erro ao renomear capítulo')
@@ -1959,12 +2501,22 @@ const executeDelete = async () => {
 
     if (deleteTarget.value.type === 'subject') {
       // Excluir caderno (cascade vai excluir capítulos e páginas)
+      const chaptersToRemove = chapters.value.filter(c => c.subject_id === deleteTarget.value!.id)
       const { error } = await supabase
         .from('subjects')
         .delete()
         .eq('id', deleteTarget.value.id)
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
+
+      if (!useLegacyContentTables.value && chaptersToRemove.length > 0) {
+        await supabase
+          .from('notebook_sections')
+          .delete()
+          .in('id', chaptersToRemove.map(chapter => chapter.id))
+      }
 
       // Remover da lista local
       subjects.value = subjects.value.filter(s => s.id !== deleteTarget.value!.id)
@@ -1987,7 +2539,17 @@ const executeDelete = async () => {
         .delete()
         .eq('id', deleteTarget.value.id)
 
-      if (error) throw error
+      if (error) {
+        if (isMissingRelationError(error)) {
+          await supabase
+            .from('notebook_sections')
+            .delete()
+            .eq('id', deleteTarget.value.id)
+          useLegacyContentTables.value = false
+        } else {
+          throw error
+        }
+      }
 
       // Remover da lista local
       chapters.value = chapters.value.filter(c => c.id !== deleteTarget.value!.id)
@@ -2035,14 +2597,15 @@ const onSubjectDragEnd = async () => {
 }
 
 const updateChapters = (subjectId: string, newChapters: any[]) => {
-  // Atualizar a lista de capítulos localmente com os novos índices
   const otherChapters = chapters.value.filter(c => c.subject_id !== subjectId)
 
-  // Atualizar order_index para cada capítulo reordenado
-  const updatedChapters = newChapters.map((chapter, index) => ({
-    ...chapter,
-    order_index: index
-  }))
+  const updatedChapters = newChapters.map((chapter, index) => {
+    const updated = { ...chapter, order_index: index }
+    if (selectedChapter.value?.id === updated.id) {
+      selectedChapter.value = updated
+    }
+    return updated
+  })
 
   chapters.value = [...otherChapters, ...updatedChapters]
 }
@@ -2050,7 +2613,6 @@ const updateChapters = (subjectId: string, newChapters: any[]) => {
 const onChapterDragEnd = async () => {
   console.log('📦 Reordenando capítulos...')
 
-  // Agrupar capítulos por caderno e atualizar order_index
   const chaptersBySubject = chapters.value.reduce((acc, chapter) => {
     if (!acc[chapter.subject_id]) {
       acc[chapter.subject_id] = []
@@ -2060,16 +2622,46 @@ const onChapterDragEnd = async () => {
   }, {} as Record<string, any[]>)
 
   try {
-    // Atualizar order_index para cada grupo de capítulos
+    if (!useLegacyContentTables.value) {
+      for (const subjectId in chaptersBySubject) {
+        const subjectChapters = chaptersBySubject[subjectId]
+        await Promise.all(
+          subjectChapters.map((chapter, index) =>
+            supabase
+              .from('notebook_sections')
+              .update({ order_index: index })
+              .eq('id', chapter.id)
+          )
+        )
+      }
+      console.log('✅ Capítulos reordenados com sucesso (notebook_sections)')
+      return
+    }
+
     for (const subjectId in chaptersBySubject) {
       const subjectChapters = chaptersBySubject[subjectId]
-      for (let i = 0; i < subjectChapters.length; i++) {
-        await supabase
-          .from('chapters')
-          .update({ order_index: i })
-          .eq('id', subjectChapters[i].id)
+      const updates = await Promise.all(
+        subjectChapters.map((chapter, index) =>
+          supabase
+            .from('chapters')
+            .update({ order_index: index })
+            .eq('id', chapter.id)
+        )
+      )
+
+      const relationMissing = updates.some(result => result.error && isMissingRelationError(result.error))
+      if (relationMissing) {
+        useLegacyContentTables.value = false
+        await onChapterDragEnd()
+        return
+      }
+
+      const unexpected = updates.find(result => result.error)
+      if (unexpected?.error) {
+        throw unexpected.error
       }
     }
+
     console.log('✅ Capítulos reordenados com sucesso')
   } catch (err) {
     console.error('❌ Erro ao reordenar capítulos:', err)
@@ -2165,13 +2757,37 @@ const moveChapterUp = async (chapter: any, subjectId: string) => {
 
   // Update order_index in database for both chapters
   try {
+    if (useLegacyContentTables.value) {
+      const firstUpdate = await supabase
+        .from('chapters')
+        .update({ order_index: currentIndex - 1 })
+        .eq('id', chapter.id)
+
+      const secondUpdate = await supabase
+        .from('chapters')
+        .update({ order_index: currentIndex })
+        .eq('id', temp.id)
+
+      const missingRelation = [firstUpdate, secondUpdate].some(result => result.error && isMissingRelationError(result.error))
+      if (missingRelation) {
+        useLegacyContentTables.value = false
+      } else {
+        const unexpected = [firstUpdate, secondUpdate].find(result => result.error)
+        if (unexpected?.error) {
+          throw unexpected.error
+        }
+        console.log('✅ Capítulo movido para cima')
+        return
+      }
+    }
+
     await supabase
-      .from('chapters')
+      .from('notebook_sections')
       .update({ order_index: currentIndex - 1 })
       .eq('id', chapter.id)
 
     await supabase
-      .from('chapters')
+      .from('notebook_sections')
       .update({ order_index: currentIndex })
       .eq('id', temp.id)
 
@@ -2218,13 +2834,37 @@ const moveChapterDown = async (chapter: any, subjectId: string) => {
 
   // Update order_index in database for both chapters
   try {
+    if (useLegacyContentTables.value) {
+      const firstUpdate = await supabase
+        .from('chapters')
+        .update({ order_index: currentIndex + 1 })
+        .eq('id', chapter.id)
+
+      const secondUpdate = await supabase
+        .from('chapters')
+        .update({ order_index: currentIndex })
+        .eq('id', temp.id)
+
+      const missingRelation = [firstUpdate, secondUpdate].some(result => result.error && isMissingRelationError(result.error))
+      if (missingRelation) {
+        useLegacyContentTables.value = false
+      } else {
+        const unexpected = [firstUpdate, secondUpdate].find(result => result.error)
+        if (unexpected?.error) {
+          throw unexpected.error
+        }
+        console.log('✅ Capítulo movido para baixo')
+        return
+      }
+    }
+
     await supabase
-      .from('chapters')
+      .from('notebook_sections')
       .update({ order_index: currentIndex + 1 })
       .eq('id', chapter.id)
 
     await supabase
-      .from('chapters')
+      .from('notebook_sections')
       .update({ order_index: currentIndex })
       .eq('id', temp.id)
 
@@ -2247,8 +2887,16 @@ const moveChapterDown = async (chapter: any, subjectId: string) => {
 // Save before leaving page
 onBeforeUnmount(async () => {
   if (selectedChapter.value && chapterContent.value) {
-    console.log('🚪 Salvando antes de sair da página...')
+    console.log('Salvando antes de sair da página...')
     await saveChapterContentSilently(selectedChapter.value.id)
+  }
+
+  for (const subjectId of Object.keys(chapterSortableInstances)) {
+    const sortable = chapterSortableInstances[subjectId]
+    if (sortable) {
+      sortable.destroy()
+    }
+    delete chapterSortableInstances[subjectId]
   }
 })
 
@@ -2437,52 +3085,86 @@ const performInlineSearch = async () => {
       // For multiple terms, search for first term and filter locally
       const searchQuery = hasMultipleTerms ? searchTerms[0] : query
 
-      const { data: pages } = await supabase
-        .from('pages')
-        .select('*, chapters!inner(id, title, subject_id)')
-        .ilike('content', `%${searchQuery}%`)
-        .limit(isContentOnly ? 10 : 1000)
+      let pageResults: any[] = []
 
-      if (pages) {
-        for (const page of pages) {
-          // If multiple terms, check proximity
-          if (hasMultipleTerms) {
-            if (!checkTermsProximity(page.content, searchTerms)) {
-              continue
-            }
-            // Use multi-term snippet extraction
-            const snippet = extractMultiTermSnippet(page.content, searchTerms)
-            const matchCount = searchTerms.length
+      if (useLegacyContentTables.value) {
+        const { data, error } = await supabase
+          .from('pages')
+          .select('*, chapters!inner(id, title, subject_id)')
+          .ilike('content', `%${searchQuery}%`)
+          .limit(isContentOnly ? 10 : 1000)
 
-            results.push({
-              id: `content-${page.id}`,
-              type: 'content',
-              data: page,
-              snippet,
-              date: page.updated_at || page.created_at,
-              matchCount,
-              relevance: 6
-            })
+        if (error) {
+          if (isMissingRelationError(error)) {
+            useLegacyContentTables.value = false
           } else {
-            // Single term search
-            const snippet = extractSnippetInline(page.content, query)
-            const matchCount = (page.content.match(new RegExp(query, 'gi')) || []).length
-
-            results.push({
-              id: `content-${page.id}`,
-              type: 'content',
-              data: page,
-              snippet,
-              date: page.updated_at || page.created_at,
-              matchCount,
-              relevance: 6
-            })
+            throw error
           }
+        } else if (data) {
+          pageResults = data
+        }
+      }
 
-          // If filtering only by content, return only first result
-          if (isContentOnly && results.length > 0) {
-            break
+      if (!useLegacyContentTables.value) {
+        const { data, error } = await supabase
+          .from('notebook_pages')
+          .select('id, content, created_at, updated_at, section_id, notebook_sections!inner(id, name, notebooks!inner(subject_id))')
+          .ilike('content', `%${searchQuery}%`)
+          .limit(isContentOnly ? 10 : 1000)
+
+        if (error) {
+          throw error
+        }
+
+        pageResults = (data || []).map((page: any) => ({
+          id: page.id,
+          content: page.content,
+          created_at: page.created_at,
+          updated_at: page.updated_at,
+          chapters: {
+            id: page.section_id,
+            title: page.notebook_sections?.name,
+            subject_id: page.notebook_sections?.notebooks?.subject_id
           }
+        }))
+      }
+
+      for (const page of pageResults) {
+        const pageContent = page.content || ''
+
+        if (hasMultipleTerms) {
+          if (!checkTermsProximity(pageContent, searchTerms)) {
+            continue
+          }
+          const snippet = extractMultiTermSnippet(pageContent, searchTerms)
+          const matchCount = searchTerms.length
+
+          results.push({
+            id: `content-${page.id}`,
+            type: 'content',
+            data: page,
+            snippet,
+            date: page.updated_at || page.created_at,
+            matchCount,
+            relevance: 6
+          })
+        } else {
+          const snippet = extractSnippetInline(pageContent, query)
+          const matchCount = (pageContent.match(new RegExp(query, 'gi')) || []).length
+
+          results.push({
+            id: `content-${page.id}`,
+            type: 'content',
+            data: page,
+            snippet,
+            date: page.updated_at || page.created_at,
+            matchCount,
+            relevance: 6
+          })
+        }
+
+        if (isContentOnly && results.length > 0) {
+          break
         }
       }
     }
