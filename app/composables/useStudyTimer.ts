@@ -1,5 +1,23 @@
 import type { Database } from '~/types/database.types'
 
+type PersistedTimerState = {
+  version: number
+  userId: string
+  savedAt: number
+  timer: {
+    isRunning: boolean
+    isPaused: boolean
+    startTime: number
+    elapsed: number
+    subjectId: string
+    startedAt: string | null
+    studyType: 'conteudo' | 'questoes' | 'revisao'
+    plannedQuestions: number | null
+  }
+}
+
+const STORAGE_KEY = 'prapassar:study-timer'
+
 export const useStudyTimer = () => {
   const supabase = useSupabaseClient<Database>()
   const user = useSupabaseUser()
@@ -32,6 +50,104 @@ export const useStudyTimer = () => {
 
   // Guarda o ID do interval no estado global também
   const intervalId = useState<any>('study-timer-interval', () => null)
+  const restoredForUser = useState<string | null>('study-timer-restored-user', () => null)
+
+  const hasActiveTimer = () => timer.value.isRunning || timer.value.isPaused
+
+  const persistTimerState = () => {
+    if (!process.client) return
+    const currentUserId = user.value?.id
+    if (!currentUserId) return
+
+    if (!hasActiveTimer()) {
+      localStorage.removeItem(STORAGE_KEY)
+      return
+    }
+
+    const payload: PersistedTimerState = {
+      version: 1,
+      userId: currentUserId,
+      savedAt: Date.now(),
+      timer: {
+        isRunning: timer.value.isRunning,
+        isPaused: timer.value.isPaused,
+        startTime: timer.value.startTime,
+        elapsed: timer.value.elapsed,
+        subjectId: timer.value.subjectId,
+        startedAt: timer.value.startedAt ? new Date(timer.value.startedAt).toISOString() : null,
+        studyType: timer.value.studyType,
+        plannedQuestions: timer.value.plannedQuestions ?? null,
+      }
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+    } catch (error) {
+      console.warn('⚠️ Não foi possível persistir o timer localmente:', error)
+    }
+  }
+
+  const clearPersistedTimer = () => {
+    if (!process.client) return
+    localStorage.removeItem(STORAGE_KEY)
+  }
+
+  const restoreTimerFromStorage = (userId: string | null) => {
+    if (!process.client) return false
+    if (!userId) return false
+
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return false
+
+    try {
+      const payload = JSON.parse(raw) as PersistedTimerState
+      if (!payload?.timer || payload.userId !== userId) return false
+      if (!payload.timer.isRunning) return false
+
+      timer.value.isRunning = payload.timer.isRunning
+      timer.value.isPaused = payload.timer.isPaused
+      timer.value.startTime = payload.timer.startTime || Date.now()
+      timer.value.elapsed = payload.timer.elapsed || 0
+      timer.value.subjectId = payload.timer.subjectId || ''
+      timer.value.studyType = payload.timer.studyType || 'conteudo'
+      timer.value.plannedQuestions = payload.timer.plannedQuestions ?? null
+      timer.value.startedAt = payload.timer.startedAt ? new Date(payload.timer.startedAt) : (payload.timer.startTime ? new Date(payload.timer.startTime) : new Date())
+
+      now.value = Date.now()
+
+      if (timer.value.isRunning && !timer.value.isPaused) {
+        if (intervalId.value) clearInterval(intervalId.value)
+        intervalId.value = setInterval(() => {
+          now.value = Date.now()
+        }, 1000)
+      }
+
+      console.log('⏱️ Timer restaurado do armazenamento local')
+      return true
+    } catch (error) {
+      console.warn('⚠️ Falha ao restaurar timer persistido:', error)
+      return false
+    }
+  }
+
+  const restoreTimer = () => restoreTimerFromStorage(user.value?.id || null)
+
+  if (process.client) {
+    watch(
+      () => user.value?.id || null,
+      (currentUserId) => {
+        if (!currentUserId) {
+          restoredForUser.value = null
+          return
+        }
+
+        if (restoredForUser.value === currentUserId) return
+        restoreTimerFromStorage(currentUserId)
+        restoredForUser.value = currentUserId
+      },
+      { immediate: true }
+    )
+  }
 
   const formattedTime = computed(() => {
     // Se estiver pausado, mostra apenas elapsed
@@ -122,6 +238,7 @@ export const useStudyTimer = () => {
       }
     }, 1000)
     console.log('⏱️ Interval criado:', intervalId.value)
+    persistTimerState()
   }
 
   const pauseTimer = () => {
@@ -148,6 +265,8 @@ export const useStudyTimer = () => {
     } else {
       console.log('⏱️ Timer pausado, mas interval continua (Pomodoro em pausa)')
     }
+
+    persistTimerState()
   }
 
   const resumeTimer = () => {
@@ -206,6 +325,8 @@ export const useStudyTimer = () => {
       }
     }, 1000)
     console.log('⏱️ Interval retomado:', intervalId.value)
+
+    persistTimerState()
   }
 
   const stopTimer = async (notes?: string) => {
@@ -225,6 +346,7 @@ export const useStudyTimer = () => {
 
     const startedAt = timer.value.startedAt || new Date()
     const endedAt = new Date()
+    const subjectId = timer.value.subjectId
 
     // Limpa interval
     if (intervalId.value) {
@@ -242,6 +364,7 @@ export const useStudyTimer = () => {
     timer.value.isPaused = false
     timer.value.startTime = 0
     timer.value.elapsed = 0
+    timer.value.subjectId = subjectId || ''
     timer.value.studyType = 'conteudo'
     timer.value.plannedQuestions = null
 
@@ -261,7 +384,7 @@ export const useStudyTimer = () => {
     // Persist session
     const { error } = await supabase.from('study_sessions').insert({
       user_id: userId,
-      subject_id: timer.value.subjectId || null,
+      subject_id: subjectId || null,
       started_at: startedAt.toISOString(),
       ended_at: endedAt.toISOString(),
       duration,
@@ -272,12 +395,12 @@ export const useStudyTimer = () => {
     if (error) throw error
 
     // Atualizar total_study_time na matéria
-    if (timer.value.subjectId) {
+    if (subjectId) {
       // Buscar tempo total atual
       const { data: subjectData } = await supabase
         .from('subjects')
         .select('total_study_time')
-        .eq('id', timer.value.subjectId)
+        .eq('id', subjectId)
         .single()
 
       const currentTotal = subjectData?.total_study_time || 0
@@ -287,7 +410,7 @@ export const useStudyTimer = () => {
       const { error: updateError } = await supabase
         .from('subjects')
         .update({ total_study_time: newTotal })
-        .eq('id', timer.value.subjectId)
+        .eq('id', subjectId)
 
       if (updateError) {
         console.error('❌ Erro ao atualizar total_study_time:', updateError)
@@ -313,7 +436,7 @@ export const useStudyTimer = () => {
       dueDate.setDate(dueDate.getDate() + r.days)
       return {
         user_id: userId,
-        subject_id: timer.value.subjectId || null,
+        subject_id: subjectId || null,
         revision_number: parseInt(r.name.slice(1)),
         due_date: dueDate.toISOString().split('T')[0],
         completed: false
@@ -322,6 +445,8 @@ export const useStudyTimer = () => {
 
     const { error: revError } = await supabase.from('revisions').insert(revisionRecords)
     if (revError) console.error('Erro ao criar revisões:', revError)
+
+    clearPersistedTimer()
 
     return { duration }
   }
@@ -491,5 +616,7 @@ export const useStudyTimer = () => {
     setBreakMinutes,
     toggleAlarm,
     handleAlarmResponse,
+    restoreTimer,
+    clearPersistedTimer,
   }
 }

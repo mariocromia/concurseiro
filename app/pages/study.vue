@@ -483,6 +483,8 @@ const {
   setBreakMinutes,
   toggleAlarm,
   handleAlarmResponse,
+  restoreTimer,
+  clearPersistedTimer,
 } = useStudyTimer()
 
 const subjects = ref<Array<{ id: string, name: string }>>([])
@@ -530,6 +532,8 @@ const statusDotClass = computed(() => {
 
 // Methods
 onMounted(async () => {
+  restoreTimer()
+
   // Obter userId da sessão
   const { data: sessionData } = await supabase.auth.getSession()
   const userId = user.value?.id || sessionData?.session?.user?.id
@@ -623,6 +627,7 @@ const exitWithoutSaving = () => {
   showStopModal.value = false
   notes.value = ''
 
+  clearPersistedTimer()
   showToast('Sessão descartada', 'success')
 }
 

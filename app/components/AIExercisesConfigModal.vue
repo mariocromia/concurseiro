@@ -361,34 +361,18 @@ const generate = async () => {
 
       console.log('[AIExercisesConfigModal] Notas capturadas encontradas:', capturedNotes?.length || 0)
 
-      // Buscar também páginas de notebooks relacionados (fallback)
-      const { data: notebooks } = await supabase
-        .from('notebooks')
-        .select('id')
-        .eq('subject_id', selectedSubjectId.value)
+      // Buscar páginas do caderno diretamente da tabela pages
+      const { data: chapterPages, error: pagesError } = await supabase
+        .from('pages')
+        .select('title, content, chapter_id')
+        .in('chapter_id', sectionIdsToQuery)
+        .order('order_index')
 
-      let notebookPages: any[] = []
-      if (notebooks && notebooks.length > 0) {
-        const notebookIds = notebooks.map(n => n.id)
-
-        const { data: sections } = await supabase
-          .from('notebook_sections')
-          .select('id')
-          .in('notebook_id', notebookIds)
-
-        if (sections && sections.length > 0) {
-          const sectionIds = sections.map(s => s.id)
-
-          const { data: pages } = await supabase
-            .from('notebook_pages')
-            .select('title, content')
-            .in('section_id', sectionIds)
-            .order('order_index')
-
-          notebookPages = pages || []
-          console.log('[AIExercisesConfigModal] Páginas de notebook encontradas:', notebookPages.length)
-        }
+      if (pagesError) {
+        console.error('[AIExercisesConfigModal] Erro ao buscar páginas do caderno:', pagesError)
       }
+
+      console.log('[AIExercisesConfigModal] Páginas do caderno encontradas:', chapterPages?.length || 0)
 
       // Build content
       let contentParts: string[] = []
@@ -411,9 +395,9 @@ const generate = async () => {
       }
 
       // Add notebook pages content
-      if (notebookPages.length > 0) {
+      if (chapterPages && chapterPages.length > 0) {
         contentParts.push('## Conteúdo do Caderno:\n\n')
-        notebookPages.forEach(p => {
+        chapterPages.forEach(p => {
           const title = p.title ? `### ${p.title}\n\n` : ''
           contentParts.push(title + (p.content || '') + '\n\n---\n\n')
         })

@@ -28,14 +28,11 @@
         <svg class="w-16 h-16 mx-auto text-[#b85635] dark:text-primary-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h2 class="text-xl font-semibold text-[#2C2C2C] dark:text-white mb-4">Você ainda não é um afiliado</h2>
-        <p class="text-[#6B6B6B] dark:text-gray-400 mb-6">Cadastre-se como afiliado e comece a ganhar comissões!</p>
-        <button
-          @click="$router.push('/afiliado-cadastro')"
-          class="bg-[#b85635] dark:bg-primary-500 text-white px-6 py-3 rounded-claude-md hover:bg-[#A65738] dark:hover:bg-primary-600 font-medium transition-colors"
-        >
-          Tornar-se Afiliado
-        </button>
+        <h2 class="text-xl font-semibold text-[#2C2C2C] dark:text-white mb-4">Programa de afiliados indisponível</h2>
+        <p class="text-[#6B6B6B] dark:text-gray-400">
+          No momento não estamos aceitando novos afiliados. Se você já faz parte do programa e precisa de ajuda,
+          entre em contato com nosso suporte pelo chat dentro da plataforma.
+        </p>
       </div>
     </div>
 

@@ -37,7 +37,7 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Plataforma de estudos para concursos e vestibulares com IA' },
-        { name: 'color-scheme', content: 'dark light' }
+        { name: 'color-scheme', content: 'dark' }
       ],
       script: [
         {
@@ -45,10 +45,8 @@ export default defineNuxtConfig({
             // Critical: Apply theme IMMEDIATELY before any render
             (function() {
               try {
-                const theme = localStorage.getItem('theme') ||
-                             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.classList.add(theme);
-                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.classList.add('dark');
+                document.documentElement.setAttribute('data-theme', 'dark');
               } catch(e) {
                 document.documentElement.classList.add('dark');
               }
@@ -62,7 +60,7 @@ export default defineNuxtConfig({
         {
           children: `
             html { visibility: hidden; }
-            html.dark, html.light { visibility: visible; }
+            html.dark { visibility: visible; }
           `,
           type: 'text/css'
         }

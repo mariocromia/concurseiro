@@ -58,38 +58,41 @@ export const useGlobalSearch = () => {
         results.push(...subjects.map((s: any) => ({ ...s, type: 'subject' })))
       }
 
-      // Buscar em notebooks
-      const { data: notebooks } = await supabase
-        .from('notebooks')
-        .select('id, title, subject_id')
-        .eq('user_id', user.value.id)
-        .ilike('title', searchPattern)
-        .limit(5)
+      const subjectIds = subjects?.map((s: any) => s.id) || []
 
-      if (notebooks) {
-        results.push(...notebooks.map((n: any) => ({ ...n, type: 'notebook' })))
-      }
+      // Buscar em capítulos
+      if (subjectIds.length > 0) {
+        const { data: chaptersData } = await supabase
+          .from('chapters')
+          .select('id, title, subject_id')
+          .in('subject_id', subjectIds)
+          .ilike('title', searchPattern)
+          .limit(8)
 
-      // Buscar em notebook_sections
-      const { data: sections } = await supabase
-        .from('notebook_sections')
-        .select('id, title, notebook_id')
-        .ilike('title', searchPattern)
-        .limit(5)
+        if (chaptersData) {
+          results.push(...chaptersData.map((c: any) => ({ ...c, type: 'chapter' })))
+        }
 
-      if (sections) {
-        results.push(...sections.map((s: any) => ({ ...s, type: 'section' })))
-      }
+        // Buscar páginas de capítulos (conteúdo do caderno)
+        const { data: pagesData, error: pagesError } = await supabase
+          .from('pages')
+          .select('id, title, content, chapter_id, chapters(subject_id, title)')
+          .or(`title.ilike.${searchPattern},content.ilike.${searchPattern}`)
+          .in('chapters.subject_id', subjectIds)
+          .limit(12)
 
-      // Buscar em notebook_pages (conteúdo)
-      const { data: pages } = await supabase
-        .from('notebook_pages')
-        .select('id, title, content, section_id')
-        .or(`title.ilike.${searchPattern},content.ilike.${searchPattern}`)
-        .limit(10)
+        if (pagesError) {
+          console.error('❌ Erro ao buscar páginas do caderno:', pagesError)
+        }
 
-      if (pages) {
-        results.push(...pages.map((p: any) => ({ ...p, type: 'page' })))
+        if (pagesData) {
+          results.push(...pagesData.map((p: any) => ({
+            ...p,
+            type: 'page',
+            chapter_title: p.chapters?.title || null,
+            subject_id: p.chapters?.subject_id || null
+          })))
+        }
       }
 
       // Buscar em tasks
