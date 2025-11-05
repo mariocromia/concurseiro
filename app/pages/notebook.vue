@@ -518,34 +518,8 @@
 
             <!-- Action Buttons (Buscar, Autosave, Salvar, Exportar PDF) -->
             <div class="mb-1 flex items-center justify-end space-x-2 max-w-7xl ml-0 mr-auto">
-            <!-- Search Button -->
-            <button
-              @click="showInlineSearch = true"
-              class="px-3 py-2 bg-dark-800 border border-dark-600 text-claude-text dark:text-white rounded-claude-md hover:bg-dark-700 transition-colors flex items-center space-x-2"
-              title="Buscar nos cadernos"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
 
-            <!-- Removido: Botões de autosave e salvar manual -->
-            <!-- O salvamento agora é automático após 2 segundos de inatividade -->
-
-            <!-- Exportar PDF Button -->
-            <button
-              v-if="selectedChapter"
-              @click="exportToPDF"
-              class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-claude-md hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
-              title="Exportar capítulo para PDF"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-              </svg>
-              <span>Exportar PDF</span>
-            </button>
-
-            <!-- Indicador de Status de Salvamento -->
+            <!-- Indicador de Status de Salvamento (ANTES do botão de pesquisa) -->
             <Transition
               enter-active-class="transition ease-out duration-200"
               enter-from-class="opacity-0 scale-95"
@@ -590,6 +564,30 @@
                 </div>
               </div>
             </Transition>
+
+            <!-- Search Button -->
+            <button
+              @click="showInlineSearch = true"
+              class="px-3 py-2 bg-dark-800 border border-dark-600 text-claude-text dark:text-white rounded-claude-md hover:bg-dark-700 transition-colors flex items-center space-x-2"
+              title="Buscar nos cadernos"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+
+            <!-- Exportar PDF Button -->
+            <button
+              v-if="selectedChapter"
+              @click="exportToPDF"
+              class="px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-claude-md hover:bg-red-600/30 hover:border-red-500/50 transition-all font-medium flex items-center space-x-2"
+              title="Exportar capítulo para PDF"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+              <span>Exportar PDF</span>
+            </button>
             </div>
           </div>
 
@@ -787,7 +785,22 @@ const chapters = ref<any[]>([])
 const expandedSubjects = ref<Record<string, boolean>>({})
 const selectedSubject = ref<any>(null)
 const selectedChapter = ref<any>(null)
-const chapterContent = ref('')
+
+// SOLUÇÃO ROBUSTA: Conteúdo separado por capítulo
+const chapterContents = ref<Record<string, string>>({})
+const chapterContent = computed({
+  get: () => {
+    if (selectedChapter.value?.id) {
+      return chapterContents.value[selectedChapter.value.id] || ''
+    }
+    return ''
+  },
+  set: (value: string) => {
+    if (selectedChapter.value?.id) {
+      chapterContents.value[selectedChapter.value.id] = value
+    }
+  }
+})
 
 // Sortable refs
 const subjectsListRef = ref<HTMLElement | null>(null)
@@ -826,21 +839,32 @@ watch(() => selectedChapter.value, async (newChapter, oldChapter) => {
   console.log('📚 selectedChapter mudou:', newChapter?.title || 'null')
   console.log('📚 selectedChapter value:', newChapter)
 
-  // Save previous chapter content before switching
-  if (oldChapter && chapterContent.value && previousChapter.value) {
+  // IMPORTANTE: Cancelar qualquer salvamento pendente do capítulo anterior
+  if (debouncedSave.cancel) {
+    console.log('🛑 Cancelando salvamento pendente do capítulo anterior')
+    debouncedSave.cancel()
+  }
+
+  // Salvar conteúdo do capítulo anterior SE HOUVER CONTEÚDO
+  if (oldChapter?.id && chapterContents.value[oldChapter.id]) {
     console.log('💾 Salvando capítulo anterior antes de trocar:', oldChapter.title)
-    await saveChapterContentSilently(oldChapter.id)
+    await saveChapterContentSilently(oldChapter.id, chapterContents.value[oldChapter.id])
   }
 
   previousChapter.value = newChapter
 }, { immediate: true })
 
 // Função de salvamento com debounce (2 segundos após parar de digitar)
-const debouncedSave = useDebounceFn(async () => {
-  if (selectedChapter.value && chapterContent.value) {
+// IMPORTANTE: Agora recebe o ID e conteúdo específico para evitar problemas de concorrência
+const debouncedSave = useDebounceFn(async (chapterId?: string, content?: string) => {
+  // Usar parâmetros passados ou valores atuais
+  const targetChapterId = chapterId || selectedChapter.value?.id
+  const targetContent = content !== undefined ? content : chapterContent.value
+
+  if (targetChapterId && targetContent) {
     saveStatus.value = 'saving'
     try {
-      await saveChapterContentSilently(selectedChapter.value.id)
+      await saveChapterContentSilently(targetChapterId, targetContent)
       saveStatus.value = 'saved'
 
       // Esconder indicador após 2 segundos
@@ -857,7 +881,7 @@ const debouncedSave = useDebounceFn(async () => {
       // Tentar novamente após 5 segundos
       setTimeout(() => {
         if (saveStatus.value === 'error') {
-          debouncedSave()
+          debouncedSave(targetChapterId, targetContent)
         }
       }, 5000)
     }
@@ -869,15 +893,19 @@ watch(() => chapterContent.value, (newContent) => {
   console.log('💾 chapterContent mudou! Tamanho:', newContent?.length || 0)
 
   if (newContent && selectedChapter.value) {
+    // IMPORTANTE: Capturar o ID do capítulo atual para evitar problemas
+    const currentChapterId = selectedChapter.value.id
+
     saveStatus.value = 'typing'
-    debouncedSave()
+    // Passar o ID e conteúdo específicos
+    debouncedSave(currentChapterId, newContent)
 
     // Salvar rascunho no localStorage para recuperação offline
     try {
-      const draftKey = `notebook-draft-${selectedChapter.value.id}`
+      const draftKey = `notebook-draft-${currentChapterId}`
       localStorage.setItem(draftKey, newContent)
       localStorage.setItem(`${draftKey}-timestamp`, new Date().toISOString())
-      console.log('📝 Rascunho salvo localmente')
+      console.log('📝 Rascunho salvo localmente para capítulo:', currentChapterId)
     } catch (error) {
       console.error('Erro ao salvar rascunho local:', error)
     }
@@ -1597,31 +1625,30 @@ const openChapterForm = async (subject: any) => {
 
     console.log('✅ User ID encontrado:', userId)
 
-    // Criar capítulo com título padrão
-    const { data, error } = await supabase
-      .from('chapters')
-      .insert({
-        user_id: userId,
-        subject_id: subject.id,
-        title: 'Novo Capítulo',
-        order_index: getChaptersBySubject(subject.id).length
-      })
-      .select()
-      .single()
+    // Como forçamos useLegacyContentTables = false, criar direto na nova estrutura
+    // Sempre criar usando a função createNotebookSection que cria na estrutura correta
+    const createdChapter = await createNotebookSection(
+      subject.id,
+      'Novo Capítulo',
+      getChaptersBySubject(subject.id).length
+    )
 
-    let createdChapter = data
-
-    if (error) {
-      if (isMissingRelationError(error)) {
-        createdChapter = await createNotebookSection(
-          subject.id,
-          'Novo Capítulo',
-          getChaptersBySubject(subject.id).length
-        )
-        useLegacyContentTables.value = false
-      } else {
-        throw error
-      }
+    // Opcionalmente, criar também em chapters para manter sincronização durante transição
+    try {
+      await supabase
+        .from('chapters')
+        .insert({
+          id: createdChapter.id, // Usar o mesmo ID para manter sincronização
+          user_id: userId,
+          subject_id: subject.id,
+          title: 'Novo Capítulo',
+          order_index: createdChapter.order_index,
+          created_at: createdChapter.created_at,
+          updated_at: createdChapter.updated_at
+        })
+    } catch (syncError) {
+      console.warn('⚠️ Aviso ao sincronizar com chapters:', syncError)
+      // Não lançar erro, pois o importante é criar em notebook_sections
     }
 
     if (createdChapter) {
@@ -1750,7 +1777,8 @@ const selectChapter = async (chapter: any) => {
         }
       } else if (data) {
         console.log('✅ Página encontrada, carregando conteúdo...')
-        chapterContent.value = data.content || ''
+        // ATUALIZADO: Armazenar no Map de conteúdos
+        chapterContents.value[chapter.id] = data.content || ''
         return
       } else {
         console.log('⚠️ Nenhuma página encontrada, criando nova...')
@@ -1780,7 +1808,8 @@ const selectChapter = async (chapter: any) => {
             throw createError
           }
         } else {
-          chapterContent.value = ''
+          // ATUALIZADO: Armazenar string vazia no Map
+          chapterContents.value[chapter.id] = ''
           return
         }
       }
@@ -1795,13 +1824,15 @@ const selectChapter = async (chapter: any) => {
     if (cachedDraft && cachedDraft.length > (page.content || '').length) {
       // Se o rascunho local é mais recente/maior, perguntar ao usuário
       if (confirm('Existe um rascunho local mais recente. Deseja recuperá-lo?')) {
-        chapterContent.value = cachedDraft
+        // ATUALIZADO: Armazenar no Map de conteúdos
+        chapterContents.value[chapter.id] = cachedDraft
       } else {
-        chapterContent.value = page.content || ''
+        chapterContents.value[chapter.id] = page.content || ''
         clearDraftCache(chapter.id) // Limpar o rascunho rejeitado
       }
     } else {
-      chapterContent.value = page.content || ''
+      // ATUALIZADO: Armazenar no Map de conteúdos
+      chapterContents.value[chapter.id] = page.content || ''
     }
   } catch (err) {
     console.error('❌ Erro ao carregar conteúdo:', err)
@@ -1896,14 +1927,21 @@ const saveChapterContent = async () => {
 }
 
 // Silent save function (without loading state)
-const saveChapterContentSilently = async (chapterId: string) => {
-  if (!chapterId || !chapterContent.value) return
+// ATUALIZADO: Agora recebe o conteúdo específico como parâmetro
+const saveChapterContentSilently = async (chapterId: string, content?: string) => {
+  // Usar conteúdo passado ou buscar do Map de conteúdos
+  const contentToSave = content !== undefined ? content : chapterContents.value[chapterId]
+
+  if (!chapterId || !contentToSave) {
+    console.log('⚠️ Nenhum conteúdo para salvar no capítulo:', chapterId)
+    return
+  }
 
   const targetChapter = chapters.value.find(chapter => chapter.id === chapterId) || selectedChapter.value
   if (!targetChapter) return
 
   try {
-    console.log('🔇 Salvamento silencioso do capítulo:', chapterId)
+    console.log('🔇 Salvamento silencioso do capítulo:', chapterId, 'Tamanho:', contentToSave.length)
 
     let handled = false
 
@@ -1924,7 +1962,7 @@ const saveChapterContentSilently = async (chapterId: string) => {
       } else if (existingPage) {
         const { error: updateError } = await supabase
           .from('pages')
-          .update({ content: chapterContent.value })
+          .update({ content: contentToSave })
           .eq('id', existingPage.id)
 
         if (updateError) {
@@ -1942,7 +1980,7 @@ const saveChapterContentSilently = async (chapterId: string) => {
           .insert({
             chapter_id: chapterId,
             title: 'Conteúdo',
-            content: chapterContent.value,
+            content: contentToSave,
             order_index: 0
           })
 
@@ -1959,7 +1997,7 @@ const saveChapterContentSilently = async (chapterId: string) => {
     }
 
     if (!handled) {
-      await upsertNotebookPageContent(targetChapter, chapterContent.value)
+      await upsertNotebookPageContent(targetChapter, contentToSave)
     }
 
     await updateChapterTimestamp(chapterId)
@@ -2168,9 +2206,13 @@ const handleUpgrade = () => {
 const handleEditorBlur = async () => {
   console.log('📝 Editor perdeu o foco, salvando...')
   if (selectedChapter.value && chapterContent.value) {
+    // Capturar ID e conteúdo atuais para evitar problemas
+    const currentChapterId = selectedChapter.value.id
+    const currentContent = chapterContent.value
+
     saveStatus.value = 'saving'
     try {
-      await saveChapterContentSilently(selectedChapter.value.id)
+      await saveChapterContentSilently(currentChapterId, currentContent)
       saveStatus.value = 'saved'
 
       // Esconder indicador após 2 segundos
@@ -2191,12 +2233,16 @@ const handleEditorBlur = async () => {
 const handleForceSave = async () => {
   console.log('💾 Salvamento forçado acionado')
   if (selectedChapter.value && chapterContent.value) {
+    // Capturar ID e conteúdo atuais
+    const currentChapterId = selectedChapter.value.id
+    const currentContent = chapterContent.value
+
     // Cancelar debounce pendente
     debouncedSave.cancel?.()
 
     saveStatus.value = 'saving'
     try {
-      await saveChapterContentSilently(selectedChapter.value.id)
+      await saveChapterContentSilently(currentChapterId, currentContent)
       saveStatus.value = 'saved'
 
       // Esconder indicador após 2 segundos
@@ -2235,7 +2281,7 @@ const handleSearchResult = async (result: any) => {
       expandedSubjects.value[subject.id] = true
       selectedSubject.value = subject
       selectedChapter.value = null
-      chapterContent.value = ''
+      // Não precisamos limpar nada, o computed já vai retornar vazio
     }
   } else if (result.type === 'chapter') {
     // Navigate to chapter
@@ -2389,32 +2435,38 @@ const saveChapterEdit = async (chapterId: string) => {
     const newTitle = editingChapterTitle.value.trim() || 'Novo Capítulo'
     console.log('Atualizando para:', newTitle)
 
-    let updated = false
-
-    const { error } = await supabase
-      .from('chapters')
-      .update({ title: newTitle })
+    // Como forçamos useLegacyContentTables = false, sempre salvar na nova tabela
+    // Salvar diretamente em notebook_sections (tabela correta)
+    const { error: sectionError } = await supabase
+      .from('notebook_sections')
+      .update({
+        name: newTitle,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', chapterId)
 
-    if (error) {
-      if (isMissingRelationError(error)) {
-        const { error: sectionError } = await supabase
-          .from('notebook_sections')
-          .update({ name: newTitle })
-          .eq('id', chapterId)
-
-        if (sectionError) {
-          throw sectionError
-        }
-
-        updated = true
-        useLegacyContentTables.value = false
-      } else {
-        throw error
-      }
-    } else {
-      updated = true
+    if (sectionError) {
+      console.error('❌ Erro ao salvar em notebook_sections:', sectionError)
+      throw sectionError
     }
+
+    // Também atualizar em chapters para manter sincronização (se existir)
+    // Isso é opcional mas mantém as tabelas sincronizadas durante a transição
+    const { error: chapterError } = await supabase
+      .from('chapters')
+      .update({
+        title: newTitle,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', chapterId)
+
+    // Ignorar erro se a tabela chapters não tiver o registro
+    if (chapterError && !isMissingRelationError(chapterError)) {
+      console.warn('⚠️ Aviso ao sincronizar com chapters:', chapterError)
+      // Não lançar erro, pois o importante é salvar em notebook_sections
+    }
+
+    const updated = true
 
     // Atualizar localmente
     if (updated) {
@@ -2528,7 +2580,7 @@ const executeDelete = async () => {
       if (selectedSubject.value?.id === deleteTarget.value.id) {
         selectedSubject.value = null
         selectedChapter.value = null
-        chapterContent.value = ''
+        // Conteúdo já será limpo pelo computed
       }
 
       console.log('✅ Caderno excluído com sucesso')
@@ -2557,7 +2609,12 @@ const executeDelete = async () => {
       // Se estava selecionado, limpar seleção
       if (selectedChapter.value?.id === deleteTarget.value.id) {
         selectedChapter.value = null
-        chapterContent.value = ''
+        // Conteúdo já será limpo pelo computed
+      }
+
+      // Limpar conteúdo do capítulo excluído do Map
+      if (deleteTarget.value?.id && chapterContents.value[deleteTarget.value.id]) {
+        delete chapterContents.value[deleteTarget.value.id]
       }
 
       console.log('✅ Capítulo excluído com sucesso')
@@ -2886,9 +2943,12 @@ const moveChapterDown = async (chapter: any, subjectId: string) => {
 
 // Save before leaving page
 onBeforeUnmount(async () => {
-  if (selectedChapter.value && chapterContent.value) {
-    console.log('Salvando antes de sair da página...')
-    await saveChapterContentSilently(selectedChapter.value.id)
+  // Salvar todos os conteúdos não salvos
+  for (const [chapterId, content] of Object.entries(chapterContents.value)) {
+    if (content) {
+      console.log('Salvando capítulo antes de sair:', chapterId)
+      await saveChapterContentSilently(chapterId, content)
+    }
   }
 
   for (const subjectId of Object.keys(chapterSortableInstances)) {
@@ -2903,9 +2963,14 @@ onBeforeUnmount(async () => {
 // Save before navigating away
 if (process.client) {
   window.addEventListener('beforeunload', async (e) => {
-    if (selectedChapter.value && chapterContent.value) {
+    // Verificar se há conteúdo não salvo
+    const hasUnsavedContent = Object.values(chapterContents.value).some(content => content)
+    if (hasUnsavedContent) {
       e.preventDefault()
-      await saveChapterContentSilently(selectedChapter.value.id)
+      // Salvar conteúdo do capítulo atual
+      if (selectedChapter.value?.id && chapterContents.value[selectedChapter.value.id]) {
+        await saveChapterContentSilently(selectedChapter.value.id, chapterContents.value[selectedChapter.value.id])
+      }
     }
   })
 }
