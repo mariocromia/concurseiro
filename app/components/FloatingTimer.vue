@@ -146,6 +146,17 @@
             {{ loading ? 'Salvando...' : 'Salvar' }}
           </button>
         </div>
+
+        <div class="w-full mt-3">
+          <button
+            @click="exitWithoutSaving"
+            :disabled="loading"
+            type="button"
+            class="w-full px-4 py-2 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500 rounded-lg transition-colors text-sm font-semibold disabled:opacity-50"
+          >
+            Sair sem Salvar
+          </button>
+        </div>
       </div>
     </div>
 
@@ -192,7 +203,14 @@ import type { Database } from '~/types/database.types'
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 
-const { timer, formattedTime, pauseTimer, resumeTimer, stopTimer } = useStudyTimer()
+const {
+  timer,
+  formattedTime,
+  pauseTimer,
+  resumeTimer,
+  stopTimer,
+  discardTimer
+} = useStudyTimer()
 
 // Widget state
 const isMinimized = ref(false)
@@ -357,6 +375,13 @@ const handleStop = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const exitWithoutSaving = () => {
+  discardTimer()
+  showStopModal.value = false
+  notes.value = ''
+  showToast('Sessão descartada', 'success')
 }
 
 const showToast = (message: string, type: 'success' | 'error') => {

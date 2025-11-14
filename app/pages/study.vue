@@ -492,7 +492,7 @@ const {
   toggleAlarm,
   handleAlarmResponse,
   restoreTimer,
-  clearPersistedTimer,
+  discardTimer,
 } = useStudyTimer()
 
 const subjects = ref<Array<{ id: string, name: string }>>([])
@@ -625,26 +625,9 @@ const stop = async () => {
 }
 
 const exitWithoutSaving = () => {
-  // Limpa o interval
-  if (timer.isRunning || timer.isPaused) {
-    // Reset state do timer
-    timer.isRunning = false
-    timer.isPaused = false
-    timer.startTime = 0
-    timer.elapsed = 0
-
-    // Reset Pomodoro
-    pomodoro.totalBreakTime = 0
-    pomodoro.isFocusPhase = true
-    pomodoro.remainingSeconds = pomodoro.focusMinutes * 60
-    pomodoro.showAlarmModal = false
-  }
-
-  // Fecha o modal
+  discardTimer()
   showStopModal.value = false
   notes.value = ''
-
-  clearPersistedTimer()
   showToast('Sessão descartada', 'success')
 }
 

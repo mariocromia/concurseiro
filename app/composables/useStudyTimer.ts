@@ -451,6 +451,32 @@ export const useStudyTimer = () => {
     return { duration }
   }
 
+  const discardTimer = () => {
+    if (!timer.value.isRunning && !timer.value.isPaused) {
+      clearPersistedTimer()
+      return
+    }
+
+    if (intervalId.value) {
+      clearInterval(intervalId.value)
+      intervalId.value = null
+    }
+
+    timer.value.isRunning = false
+    timer.value.isPaused = false
+    timer.value.startTime = 0
+    timer.value.elapsed = 0
+    timer.value.startedAt = null
+
+    pomodoro.value.totalBreakTime = 0
+    pomodoro.value.isFocusPhase = true
+    pomodoro.value.remainingSeconds = pomodoro.value.focusMinutes * 60
+    pomodoro.value.showAlarmModal = false
+    pomodoro.value.pomodoroStartTime = 0
+
+    clearPersistedTimer()
+  }
+
   // ============================================
   // FUNÇÕES POMODORO (INTEGRADAS AO TIMER)
   // ============================================
@@ -618,5 +644,6 @@ export const useStudyTimer = () => {
     handleAlarmResponse,
     restoreTimer,
     clearPersistedTimer,
+    discardTimer,
   }
 }
