@@ -255,10 +255,10 @@
                     />
                     <span
                       v-else
-                      @click.stop="toggleSubject(subject.id)"
+                      @click.stop="openNotebookModal(subject)"
                       @dblclick.stop="startEditSubject(subject)"
-                      class="text-sm font-medium text-claude-text-secondary dark:text-gray-300 cursor-pointer hover:text-claude-text dark:text-white transition-colors flex-1 truncate"
-                      title="Duplo clique para editar"
+                      class="text-sm font-medium text-claude-text-secondary dark:text-gray-300 cursor-pointer hover:text-primary-400 dark:hover:text-primary-300 transition-colors flex-1 truncate"
+                      title="Clique para abrir caderno | Duplo clique para editar"
                     >
                       {{ subject.name }}
                     </span>
@@ -755,6 +755,15 @@
       @close="showSmartSearch = false"
       @select="handleSearchResult"
     />
+
+    <!-- Notebook Modal -->
+    <NotebookModal
+      :show="showNotebookModal"
+      :notebook="selectedNotebookForModal"
+      @close="closeNotebookModal"
+      @save="saveNotebookFromModal"
+      @update="saveNotebookFromModal"
+    />
   </div>
 </template>
 
@@ -762,6 +771,7 @@
 import { useSortable } from '~/composables/useSortable'
 import Sortable from 'sortablejs'
 import { useDebounceFn } from '@vueuse/core'
+import NotebookModal from '~/components/NotebookModal.vue'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -785,6 +795,10 @@ const chapters = ref<any[]>([])
 const expandedSubjects = ref<Record<string, boolean>>({})
 const selectedSubject = ref<any>(null)
 const selectedChapter = ref<any>(null)
+
+// Estados do modal de caderno
+const showNotebookModal = ref(false)
+const selectedNotebookForModal = ref<any>(null)
 
 // SOLUÇÃO ROBUSTA: Conteúdo separado por capítulo
 const chapterContents = ref<Record<string, string>>({})
@@ -1838,6 +1852,101 @@ const selectChapter = async (chapter: any) => {
     console.error('❌ Erro ao carregar conteúdo:', err)
   }
 }
+
+// ============================================
+// FUNÇÕES DO MODAL DE CADERNO
+// ============================================
+
+// Abrir caderno em modal
+const openNotebookModal = async (subject: any) => {
+  // Carregar o primeiro capítulo do subject para pegar o conteúdo
+  const subjectChapters = chapters.value.filter(c => c.subject_id === subject.id)
+  let content = ''
+
+  if (subjectChapters.length > 0) {
+    const firstChapter = subjectChapters[0]
+    // Tentar carregar conteúdo do primeiro capítulo
+    try {
+      const { page } = await getNotebookPageForChapter(firstChapter)
+      content = page.content || ''
+    } catch (error) {
+      console.error('Erro ao carregar conteúdo do capítulo:', error)
+    }
+  }
+
+  selectedNotebookForModal.value = {
+    id: subject.id,
+    name: subject.name,
+    subject_id: subject.id,
+    subject: {
+      name: subject.name,
+      color: subject.color || '#8B5CF6'
+    },
+    content: content,
+    created_at: subject.created_at,
+    updated_at: subject.updated_at
+  }
+  showNotebookModal.value = true
+}
+
+// Fechar modal
+const closeNotebookModal = () => {
+  showNotebookModal.value = false
+  selectedNotebookForModal.value = null
+}
+
+// Salvar caderno do modal
+const saveNotebookFromModal = async (notebook: any) => {
+  try {
+    // Atualizar nome do subject se mudou
+    if (notebook.name !== selectedNotebookForModal.value?.name) {
+      const { error } = await supabase
+        .from('subjects')
+        .update({ name: notebook.name, updated_at: new Date().toISOString() })
+        .eq('id', notebook.id)
+
+      if (error) throw error
+
+      // Atualizar na lista local
+      const subjectIndex = subjects.value.findIndex(s => s.id === notebook.id)
+      if (subjectIndex !== -1) {
+        subjects.value[subjectIndex].name = notebook.name
+        subjects.value[subjectIndex].updated_at = notebook.updated_at
+      }
+    }
+
+    // Salvar conteúdo no primeiro capítulo (ou criar se não existir)
+    const subjectChapters = chapters.value.filter(c => c.subject_id === notebook.id)
+
+    if (subjectChapters.length > 0) {
+      // Atualizar conteúdo do primeiro capítulo
+      const firstChapter = subjectChapters[0]
+      const { page } = await getNotebookPageForChapter(firstChapter)
+
+      const { error } = await supabase
+        .from('notebook_pages')
+        .update({
+          content: notebook.content,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', page.id)
+
+      if (error) throw error
+
+      // Atualizar cache local
+      chapterContents.value[firstChapter.id] = notebook.content
+    }
+
+    console.log('✅ Caderno salvo com sucesso')
+  } catch (error) {
+    console.error('❌ Erro ao salvar caderno:', error)
+    throw error
+  }
+}
+
+// ============================================
+// FIM DAS FUNÇÕES DO MODAL
+// ============================================
 
 const saveChapterContent = async () => {
   if (!selectedChapter.value) return
