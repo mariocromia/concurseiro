@@ -763,6 +763,7 @@
       @close="closeNotebookModal"
       @save="saveNotebookFromModal"
       @update="saveNotebookFromModal"
+      @open-search="showInlineSearch = true"
     />
   </div>
 </template>
