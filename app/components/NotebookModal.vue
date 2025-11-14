@@ -34,123 +34,101 @@
           class="bg-white dark:bg-dark-800 rounded-2xl shadow-2xl w-[90vw] h-[90vh] flex flex-col overflow-hidden"
           @click.stop
         >
-          <!-- Header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-900/50">
-            <!-- Título do Caderno -->
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <svg class="w-6 h-6 text-primary-600 dark:text-primary-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <!-- Header Compacto -->
+          <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-900/50">
+            <!-- Título do Capítulo -->
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <svg class="w-4 h-4 text-primary-600 dark:text-primary-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
               </svg>
-              <div class="flex-1 min-w-0">
-                <input
-                  v-if="editingTitle"
-                  v-model="localNotebook.name"
-                  @blur="saveTitle"
-                  @keyup.enter="saveTitle"
-                  @keyup.esc="cancelEditTitle"
-                  class="text-lg font-semibold text-gray-900 dark:text-white bg-transparent border-b-2 border-primary-500 focus:outline-none w-full"
-                  autofocus
-                />
-                <h2
-                  v-else
-                  @dblclick="startEditTitle"
-                  class="text-lg font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                  :title="localNotebook.name"
-                >
-                  {{ localNotebook.name }}
-                </h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ localNotebook.subject?.name || 'Sem matéria' }}
-                </p>
-              </div>
+              <input
+                v-if="editingTitle"
+                v-model="localNotebook.name"
+                @blur="saveTitle"
+                @keyup.enter="saveTitle"
+                @keyup.esc="cancelEditTitle"
+                class="text-sm font-medium text-gray-900 dark:text-white bg-transparent border-b border-primary-500 focus:outline-none flex-1"
+                autofocus
+              />
+              <h2
+                v-else
+                @dblclick="startEditTitle"
+                class="text-sm font-medium text-gray-900 dark:text-white truncate cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex-1"
+                :title="localNotebook.name + ' (duplo clique para editar)'"
+              >
+                {{ localNotebook.name }}
+              </h2>
             </div>
 
             <!-- Botão Fechar -->
             <button
               @click="handleClose"
-              class="flex-shrink-0 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors"
+              class="flex-shrink-0 p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors"
               title="Fechar (Esc)"
             >
-              <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
           </div>
 
-          <!-- Toolbar (Barra de Ferramentas) -->
-          <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-800">
+          <!-- Toolbar Compacta -->
+          <div class="flex items-center justify-between px-4 py-1.5 border-b border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-800">
             <!-- Esquerda: Status de Salvamento -->
-            <div class="flex items-center gap-3">
-              <!-- Auto-save status -->
-              <div v-if="saveStatus !== 'idle'" class="flex items-center gap-2 text-sm">
-                <div v-if="saveStatus === 'typing'" class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                  <svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
-                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-xs">Editando...</span>
-                </div>
-
-                <div v-if="saveStatus === 'saving'" class="flex items-center gap-2 text-primary-500">
-                  <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                  </svg>
-                  <span class="text-xs">Salvando...</span>
-                </div>
-
-                <div v-if="saveStatus === 'saved'" class="flex items-center gap-2 text-green-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-xs">Salvo</span>
-                </div>
-
-                <div v-if="saveStatus === 'error'" class="flex items-center gap-2 text-red-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-xs">Erro ao salvar</span>
-                </div>
+            <div class="flex items-center gap-2">
+              <!-- Auto-save status compacto (apenas ícone) -->
+              <div v-if="saveStatus !== 'idle'" class="flex items-center">
+                <svg v-if="saveStatus === 'typing'" class="w-3.5 h-3.5 animate-pulse text-gray-400" fill="currentColor" viewBox="0 0 20 20" title="Editando...">
+                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/>
+                  <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/>
+                </svg>
+                <svg v-if="saveStatus === 'saving'" class="w-3.5 h-3.5 animate-spin text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="Salvando...">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <svg v-if="saveStatus === 'saved'" class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20" title="Salvo">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <svg v-if="saveStatus === 'error'" class="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 20 20" title="Erro ao salvar">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
               </div>
             </div>
 
-            <!-- Direita: Ações -->
-            <div class="flex items-center gap-2">
+            <!-- Direita: Ações Compactas (apenas ícones) -->
+            <div class="flex items-center gap-1">
               <!-- Buscar -->
               <button
                 @click="toggleSearch"
-                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
+                class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors"
                 :class="{ 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400': showSearch }"
-                title="Buscar no caderno (Ctrl+F)"
+                title="Buscar (Ctrl+F)"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
               </button>
 
-              <!-- Salvar Manualmente -->
+              <!-- Salvar -->
               <button
                 @click="forceSave"
                 :disabled="saveStatus === 'saving'"
-                class="px-3 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                title="Salvar agora"
+                class="p-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white transition-colors disabled:opacity-50"
+                title="Salvar (Ctrl+S)"
               >
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"/>
                 </svg>
-                <span class="hidden sm:inline">Salvar</span>
               </button>
 
-              <!-- Exportar PDF -->
+              <!-- PDF -->
               <button
                 @click="exportPDF"
-                class="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors flex items-center gap-2"
-                title="Exportar como PDF"
+                class="p-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors"
+                title="Exportar PDF"
               >
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/>
                 </svg>
-                <span class="hidden sm:inline">PDF</span>
               </button>
             </div>
           </div>
@@ -164,10 +142,10 @@
             leave-from-class="opacity-100 translate-y-0"
             leave-to-class="opacity-0 -translate-y-2"
           >
-            <div v-if="showSearch" class="px-6 py-3 bg-gray-50 dark:bg-dark-900/50 border-b border-gray-200 dark:border-dark-700">
-              <div class="flex items-center gap-3">
+            <div v-if="showSearch" class="px-4 py-2 bg-gray-50 dark:bg-dark-900/50 border-b border-gray-200 dark:border-dark-700">
+              <div class="flex items-center gap-2">
                 <div class="relative flex-1">
-                  <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                   </svg>
                   <input
@@ -175,50 +153,34 @@
                     v-model="searchQuery"
                     @input="performSearch"
                     type="text"
-                    placeholder="Buscar no conteúdo..."
-                    class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                    placeholder="Buscar..."
+                    class="w-full pl-8 pr-3 py-1.5 border border-gray-300 dark:border-dark-600 rounded-md bg-white dark:bg-dark-800 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-1 focus:ring-primary-500 focus:border-transparent text-xs"
                   />
+                  <span v-if="searchResults.length > 0" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                    {{ searchResults.length }}
+                  </span>
                 </div>
                 <button
                   @click="toggleSearch"
-                  class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors"
-                  title="Fechar busca"
+                  class="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors"
+                  title="Fechar"
                 >
-                  <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </button>
               </div>
-              <div v-if="searchResults.length > 0" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                {{ searchResults.length }} resultado(s) encontrado(s)
-              </div>
             </div>
           </Transition>
 
-          <!-- Content Area -->
-          <div class="flex-1 overflow-y-auto px-6 py-4">
+          <!-- Content Area MAXIMIZADA -->
+          <div class="flex-1 overflow-y-auto px-4 py-3">
             <RichContentEditor
               v-if="localNotebook.id"
               :content="editorContent"
               @update="handleContentUpdate"
               @force-save="forceSave"
             />
-          </div>
-
-          <!-- Footer -->
-          <div class="px-6 py-3 border-t border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-900/50">
-            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-              <div>
-                <span v-if="localNotebook.created_at">
-                  Criado em {{ formatDate(localNotebook.created_at) }}
-                </span>
-              </div>
-              <div>
-                <span v-if="localNotebook.updated_at">
-                  Última atualização: {{ formatDate(localNotebook.updated_at) }}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
