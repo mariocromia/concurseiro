@@ -24,6 +24,7 @@
     "canvas-confetti": "^1.9.3",
     "chart.js": "^4.5.0",
     "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
     "nuxt": "^4.1.2",
     "quill": "^2.0.3",
     "sortablejs": "^1.15.0",
