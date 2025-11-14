@@ -17,11 +17,21 @@ export const useGemini = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // Inicializar Google AI apenas se API key estiver configurada
-  let genAI: GoogleGenerativeAI | null = null
+  /**
+   * Obter instância do GoogleGenerativeAI (lazy initialization)
+   * Garante que a API key esteja disponível no momento de uso
+   */
+  const getGenAI = (): GoogleGenerativeAI => {
+    const apiKey = config.public.googleAiApiKey as string
 
-  if (config.public.googleAiApiKey) {
-    genAI = new GoogleGenerativeAI(config.public.googleAiApiKey as string)
+    if (!apiKey) {
+      console.error('[useGemini] GOOGLE_AI_API_KEY não encontrada em config.public.googleAiApiKey')
+      console.error('[useGemini] nuxt.config.ts deve ter: runtimeConfig.public.googleAiApiKey')
+      throw new Error('Google AI não está configurado. Verifique a API key no arquivo .env')
+    }
+
+    console.log('[useGemini] Inicializando GoogleGenerativeAI com API key:', apiKey.substring(0, 20) + '...')
+    return new GoogleGenerativeAI(apiKey)
   }
 
   /**
@@ -138,43 +148,56 @@ export const useGemini = () => {
     error.value = null
 
     try {
-      // Verificar se API key está configurada
-      if (!genAI) {
-        throw new Error('Google AI não está configurado. Verifique a API key.')
-      }
+      console.log('[useGemini] ==================== INÍCIO ====================')
+      console.log('[useGemini] Gerando conteúdo com prompt de', prompt.length, 'caracteres')
+
+      // Inicializar Google AI (lazy)
+      const genAI = getGenAI()
+      console.log('[useGemini] ✓ Google AI inicializado')
 
       // Verificar acesso Pro
+      console.log('[useGemini] Verificando acesso Pro...')
       if (!(await hasProAccess())) {
         throw new Error('Recursos de IA disponíveis apenas no plano Pro. Faça upgrade para desbloquear.')
       }
+      console.log('[useGemini] ✓ Acesso Pro confirmado')
 
       // Verificar rate limit
+      console.log('[useGemini] Verificando rate limit...')
       if (!checkRateLimit()) {
         throw new Error(error.value || 'Limite de requisições atingido')
       }
+      console.log('[useGemini] ✓ Rate limit OK')
 
       // Configurar modelo
+      const modelName = options.model || 'gemini-2.0-flash-exp'
+      console.log('[useGemini] Configurando modelo:', modelName)
       const model = genAI.getGenerativeModel({
-        model: options.model || 'gemini-2.0-flash-exp',
+        model: modelName,
         generationConfig: {
           temperature: options.temperature || 0.7,
           maxOutputTokens: options.maxTokens || 2048,
         },
         systemInstruction: options.systemInstruction
       })
-
-      console.log('[useGemini] Generating content with prompt length:', prompt.length)
+      console.log('[useGemini] ✓ Modelo configurado')
 
       // Gerar conteúdo
+      console.log('[useGemini] Enviando requisição para API...')
       const result = await model.generateContent(prompt)
       const response = result.response
       const text = response.text()
 
-      console.log('[useGemini] Response received, length:', text.length)
+      console.log('[useGemini] ✅ Resposta recebida! Tamanho:', text.length, 'caracteres')
+      console.log('[useGemini] Prévia:', text.substring(0, 100))
+      console.log('[useGemini] ==================== FIM ====================')
 
       return text
     } catch (err: any) {
-      console.error('[useGemini] Error generating content:', err)
+      console.error('[useGemini] ❌ ERRO ao gerar conteúdo:')
+      console.error('[useGemini]    Tipo:', err.constructor.name)
+      console.error('[useGemini]    Mensagem:', err.message)
+      console.error('[useGemini]    Stack:', err.stack)
       error.value = err.message || 'Erro ao gerar conteúdo'
       throw err
     } finally {

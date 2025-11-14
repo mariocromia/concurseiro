@@ -346,26 +346,34 @@
           <div class="flex gap-3">
             <button
               @click="cancelStop"
-              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-claude-text dark:text-white rounded-claude-md transition-colors font-medium"
+              class="flex-1 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-white rounded-claude-md transition-colors font-medium"
             >
               Cancelar
             </button>
             <button
               @click="stop"
               :disabled="loading"
-              class="flex-1 px-4 py-2 bg-claude-primary dark:bg-gradient-to-r dark:from-primary-500 dark:to-primary-600 text-white hover:bg-claude-hover dark:hover:from-primary-600 dark:hover:to-primary-700 transition-all duration-200 shadow-claude-sm hover:shadow-claude-md hover:from-claude-hover hover:to-primary-700 dark:hover:from-primary-600 dark:hover:to-primary-700 rounded-claude-md disabled:opacity-50 font-medium"
+              class="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-claude-md disabled:opacity-50 font-medium transition-colors"
             >
               {{ loading ? 'Salvando...' : 'Salvar Sessão' }}
             </button>
           </div>
 
+          <!-- Separador visual -->
+          <div class="w-full border-t border-gray-300 dark:border-dark-600 my-2"></div>
+
           <!-- Botão sair sem salvar -->
-          <button
-            @click="exitWithoutSaving"
-            class="w-full px-4 py-2 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500 rounded-claude-md transition-colors font-medium text-sm"
-          >
-            Sair sem Salvar
-          </button>
+          <div class="w-full mt-2">
+            <button
+              @click="exitWithoutSaving"
+              :disabled="loading"
+              type="button"
+              class="w-full px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-lg transition-all font-semibold disabled:opacity-50 shadow-lg"
+              style="display: block !important; background-color: #dc2626 !important;"
+            >
+              ❌ Sair sem Salvar
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -546,7 +554,15 @@ onMounted(async () => {
     .eq('user_id', userId)
     .order('name')
   subjects.value = data || []
-  selectedSubjectId.value = subjects.value[0]?.id || ''
+
+  // Se há timer ativo, restaura a matéria do timer
+  if (timer.value.subjectId) {
+    selectedSubjectId.value = timer.value.subjectId
+  }
+  // Caso contrário, seleciona a primeira matéria apenas se nenhuma estiver selecionada
+  else if (!selectedSubjectId.value && subjects.value.length > 0) {
+    selectedSubjectId.value = subjects.value[0].id
+  }
 })
 
 const start = () => {
@@ -582,6 +598,7 @@ const resume = () => {
 }
 
 const confirmStop = () => {
+  console.log('🔴 Abrindo modal de encerramento')
   showStopModal.value = true
 }
 
